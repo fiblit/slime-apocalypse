@@ -1,45 +1,39 @@
 #ifndef TIMER_H_GUARD
 #define TIMER_H_GUARD
 
-/* MACROS */
-#include "debug.hpp"
+/*** LOCALS ***/
+/*** GLOBALS ***/
+/* STL */
+#include <vector>
 
-/* GL */
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+//TODO dalton: template to use either single or double point precision
+namespace time {
+    std::vector<Timer> stack;
+    //initialize stack to have (layers) amount of timers.
+    void init_stack(int layers);
+    //create new timer on the top of the stack
+    void add_now();
+    //remove top of time stack; return top.frame
+    //(useful with add_now for timing a section of code in real-time)
+    GLfloat del_top();
 
-class Timer {
-private:
-	// Time of this frame
-	GLfloat time;
-	// Difference in time between this frame and the last frame
-	GLfloat delta;
-    GLfloat timerStop;
-public:
-	Timer() {
-		time = (GLfloat)glfwGetTime();
-		delta = 0.0f;
-	};
-
-	void tick() {
-		GLfloat last = time;
-		time = (GLfloat)glfwGetTime();
-		delta = time - last;
-	};
-
-    void stopTimer() {
-        timerStop = (GLfloat)glfwGetTime();
-    }
-    void restartTimer() {
-        time += ((GLfloat)glfwGetTime() - timerStop);
-    }
-
-	GLfloat getDelta() {
-		return delta;
-	};
-	GLfloat getTime() {
-		return time;
-	};
-};
-
+    class Timer {
+    public:
+        Timer();
+        //renews the time to 0, returning the time since last frame
+        GLfloat frame();
+        //returns the absolute time at the last frame
+        GLfloat abs();
+        //returns the last difference between two frames
+        GLfloat delta();
+        //stall timer, returns time since the last frame
+        GLfloat pause();
+        //unpauses, returns time elapsed over pause
+        GLfloat play();
+    private:
+        GLfloat frame_abs;
+        GLfloat last_delta;
+        GLfloat paused_time;
+    };
+}
 #endif // TIMER_H_GUARD
