@@ -32,8 +32,10 @@ include_directories(Headers/
                     Libraries/stb/)
 
 file(GLOB LIBRARY_SOURCES Libraries/glad/src/glad.c)
-file(GLOB PROJECT_HEADERS Headers/*.hpp)
-file(GLOB PROJECT_SOURCES Sources/*.cpp)
+file(GLOB PROJECT_HEADERS Headers/*.hpp
+                          Headers/*.h)
+file(GLOB PROJECT_SOURCES Sources/*.cpp
+                          Sources/*.c)
 file(GLOB PROJECT_SHADERS Shaders/*.comp
                           Shaders/*.frag
                           Shaders/*.geom
