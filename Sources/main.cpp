@@ -5,6 +5,7 @@
    Oh, and I think there's a bit from github.com/Polytonic/glitter or maybe from the
    stb github repo... It's mostly just stuff to interface with libraries (e.g. GLFW, 
    stb, glad, etc. ) */
+//need to pull stuff out of main into either a Scene or Renderer
 int main() {
     /* Load GLFW  */
 	D(std::cout << "Initializing GLFW for OpenGL 3.3...");
@@ -68,8 +69,6 @@ int main() {
 	timer = new Timer();
 
 	/* Shaders */
-	auto shv = [](auto s) {return ; };
-	auto shf = [](auto s) {return ((std::string)PROJECT_SOURCE_DIR + "/Shaders/" + s + ".frag").c_str(); };
 	Shader* cubeShader = new Shader(
 		((std::string)PROJECT_SOURCE_DIR + "/Shaders/cube.vert").c_str(), 
 		((std::string)PROJECT_SOURCE_DIR + "/Shaders/cube.frag").c_str());
@@ -407,6 +406,7 @@ int main() {
     return DIE(EXIT_SUCCESS);
 }
 
+//move to UI
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
     UNUSED(window, scancode, mode);
 
@@ -422,6 +422,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 }
 
+//move to UI
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     UNUSED(window);
 	if (!mouse::focus) {
@@ -440,12 +441,14 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 	cam->mouseRotateCamera(xoffset, yoffset);
 }
 
+//move to UI
 void scroll_callback(GLFWwindow * window, double xoffset, double yoffset) {
     UNUSED(window, xoffset);
 
 	cam->scrollZoomCamera((GLfloat) yoffset);
 }
 
+//move to Scene
 void do_movement() {
 	if (keys[GLFW_KEY_W])
 		cam->translateCamera(G::CAMERA::FORWARD, timer->getDelta());
@@ -508,6 +511,7 @@ void do_movement() {
 	}
 }
 
+//move to UI
 int DIE(int retVal) {
 	glfwTerminate();
 
@@ -518,6 +522,7 @@ int DIE(int retVal) {
 	return retVal;
 }
 
+//move to GMP
 void lookahead(glm::vec2 * agentNow, glm::vec2 * nextNode, Agent * a, float * speed, float dt) {
     if (a->completed_nodes < a->plan->size()) {
         *nextNode = (*a->plan)[a->completed_nodes]->data;
@@ -542,6 +547,7 @@ void lookahead(glm::vec2 * agentNow, glm::vec2 * nextNode, Agent * a, float * sp
         *nextNode = (*a->plan)[a->plan->size() - 1]->data;
 }
 
+//move to LMP
 void ttc_forces_(double ttc, glm::vec2 *FAVOID, glm::vec2 dir) {
     dir /= glm::length(dir);
 
@@ -564,6 +570,7 @@ void ttc_forces(Agent * a, Agent * b, double ttc, glm::vec2 * FAVOID) {
     ttc_forces_(ttc, FAVOID, dir);
 }
 
+//move to LMP
 void boid_forces(Agent * a, glm::vec2 * FBOID) {
     const float boid_speed = 1.2f;
 
@@ -624,6 +631,7 @@ void boid_forces(Agent * a, glm::vec2 * FBOID) {
     }
 }
 
+//move to LMP
 void force_agents(GLfloat dt, Agent * a, int * i, int * j, std::vector<Agent *> newGrid[100][100]) {
     
     float speed = 1.0f; // x m/s
@@ -712,6 +720,7 @@ void force_agents(GLfloat dt, Agent * a, int * i, int * j, std::vector<Agent *> 
     }
 }
 
+//move to AI/planner
 void animate_agents(GLfloat dt) {
     std::vector<Agent *> newGrid[100][100];
     for (int i = 0; i < 100; i++) {
@@ -767,6 +776,7 @@ void animate_agents(GLfloat dt) {
     }
 }
 
+//move AI/planner
 void init_planning() {
 	cur_ob = nullptr;
     switch (G::SCENARIO) {
@@ -958,6 +968,8 @@ void init_planning() {
     }
 }
 
+//move to AI/planner? Scene? Renderer?
+//refactor into other functions or subfunctions
 void init_planning_vis() {
     Agent * a;
     if (!G::WITH_TTC_GRID)
@@ -1129,7 +1141,7 @@ void init_planning_vis() {
     }    
 }
 
-
+//move to AI/planner
 void replan() {
     timer->stopTimer();
 	switch (cur_mode) {
@@ -1276,10 +1288,12 @@ void replan() {
     timer->restartTimer();
 }
 
+//move to Scene
 void toggleFlashlight() {
 	isFlashlightOn = !isFlashlightOn;
 }
 
+//move to Scene
 void placeObst(glm::vec3 pos) {
 	switch (cur_mode) {
 	case 0:
@@ -1306,17 +1320,20 @@ void placeObst(glm::vec3 pos) {
 }
 
 //deprecated
+//move to Scene
 void placeGoalNode(glm::vec3 pos) {
 	agents_old[0]->goal.x = pos.x; agents_old[0]->goal.y = pos.z;
 	init_planning_vis();
 }
 
 //deprecated
+//move to Scene
 void placeStartNode(glm::vec3 pos) {
     agents_old[0]->start.x = pos.x; agents_old[0]->start.y = pos.z;
 	init_planning_vis();
 }
 
+//move to Scene
 void modeToggleCurrentObstacle() {
 	switch (cur_mode) {
 	case 0:
@@ -1342,6 +1359,7 @@ void modeToggleCurrentObstacle() {
 	} 
 }
 
+//move to Scene
 void scaleCurrentObstacle(GLfloat xs, GLfloat ys, GLfloat dt) {
 	switch (cur_mode) {
 	case 0:
@@ -1361,12 +1379,14 @@ void scaleCurrentObstacle(GLfloat xs, GLfloat ys, GLfloat dt) {
 	}
 }
 
+//move to Scene
 void movePlayer(GLfloat dx, GLfloat dy, GLfloat dt) {
     player->o.x += dx*dt;
     player->o.y += dy*dt;
     init_planning_vis();//really I just need to reinit the circ obstacles :P
 }
 
+//move to Scene
 void moveCurrentObstacle(GLfloat dx, GLfloat dy, GLfloat dt) {
 	switch (cur_mode) {
 	case 0:

@@ -16,6 +16,7 @@
 #include "Agent.hpp"
 #include "Scenario.hpp"
 
+/* GLOBALS */
 /* GL */
 // glad: an OpenGL function loader: https://github.com/Dav1dde/glad
 #include <glad/glad.h>
