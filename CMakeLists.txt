@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(hw5_5611)
+project(slime-apocalypse)
 
 option(GLFW_BUILD_DOCS OFF)
 option(GLFW_BUILD_EXAMPLES OFF)
