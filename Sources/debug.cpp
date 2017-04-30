@@ -2,7 +2,7 @@
 
 D(
 void slowPrint(int middle, int after, std::string txt) {
-	for (int i = 0; i < txt.size() - 1; i++) {
+	for (int i = 0; i < static_cast<int>(txt.size() - 1); i++) {
 		std::cout << txt[i];
 		std::this_thread::sleep_for(std::chrono::milliseconds(middle));
 	}

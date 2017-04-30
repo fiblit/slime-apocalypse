@@ -6,6 +6,7 @@
    stb github repo... It's mostly just stuff to interface with libraries (e.g. GLFW, 
    stb, glad, etc. ) */
 //need to pull stuff out of main into either a Scene or Renderer
+//refactor. refactor, refactor
 int main() {
     /* Load GLFW  */
 	D(std::cout << "Initializing GLFW for OpenGL 3.3...");
@@ -66,7 +67,8 @@ int main() {
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	/* Management */
-	timer = new Timer();
+    G::time::init_stack(1);
+    game_loop_clock = &(G::time::stack[0]);
 
 	/* Shaders */
 	Shader* cubeShader = new Shader(
@@ -190,12 +192,12 @@ int main() {
 	isFlashlightOn = true;
 
     /* Game Loop */
-	timer->tick();
+    game_loop_clock->frame();
 	D(std::cout << std::endl << "Entering Game Loop..." << std::endl << std::endl);	
 	while (!glfwWindowShouldClose(window)) {
-		timer->tick();
+        game_loop_clock->frame();
 
-		animate_agents(timer->getDelta());
+		animate_agents(game_loop_clock->delta());
 
 		// Callbacks 
 		glfwPollEvents();
@@ -449,15 +451,16 @@ void scroll_callback(GLFWwindow * window, double xoffset, double yoffset) {
 }
 
 //move to Scene
+//refactor
 void do_movement() {
 	if (keys[GLFW_KEY_W])
-		cam->translateCamera(G::CAMERA::FORWARD, timer->getDelta());
+		cam->translateCamera(G::CAMERA::FORWARD, game_loop_clock->delta());
 	if (keys[GLFW_KEY_S])
-		cam->translateCamera(G::CAMERA::BACKWARD, timer->getDelta());
+		cam->translateCamera(G::CAMERA::BACKWARD, game_loop_clock->delta());
 	if (keys[GLFW_KEY_A])
-		cam->translateCamera(G::CAMERA::LEFT, timer->getDelta());
+		cam->translateCamera(G::CAMERA::LEFT, game_loop_clock->delta());
 	if (keys[GLFW_KEY_D])
-		cam->translateCamera(G::CAMERA::RIGHT, timer->getDelta());
+		cam->translateCamera(G::CAMERA::RIGHT, game_loop_clock->delta());
 
 	if (keys[GLFW_KEY_P]) {
 		keys[GLFW_KEY_P] = false;
@@ -497,13 +500,13 @@ void do_movement() {
 		scaleCurrentObstacle(1.1f, 1.f, timer->getDelta());
     */
 	if (keys[GLFW_KEY_UP])
-		movePlayer( 0.f,  1.3f, timer->getDelta());
+		movePlayer( 0.f,  1.3f, game_loop_clock->delta());
 	if (keys[GLFW_KEY_DOWN])
-		movePlayer( 0.f, -1.3f, timer->getDelta());
+		movePlayer( 0.f, -1.3f, game_loop_clock->delta());
 	if (keys[GLFW_KEY_LEFT])
-		movePlayer(-1.3f,  0.f, timer->getDelta());
+		movePlayer(-1.3f,  0.f, game_loop_clock->delta());
 	if (keys[GLFW_KEY_RIGHT])
-		movePlayer( 1.3f,  0.f, timer->getDelta());
+		movePlayer( 1.3f,  0.f, game_loop_clock->delta());
 
 	if (keys[GLFW_KEY_F]) {
 		keys[GLFW_KEY_F] = false;
@@ -524,10 +527,10 @@ int DIE(int retVal) {
 
 //move to GMP
 void lookahead(glm::vec2 * agentNow, glm::vec2 * nextNode, Agent * a, float * speed, float dt) {
-    if (a->completed_nodes < a->plan->size()) {
+    if (a->completed_nodes < static_cast<int>(a->plan->size())) {
         *nextNode = (*a->plan)[a->completed_nodes]->data;
 
-        while (a->completed_nodes + 1 < a->plan->size()
+        while (a->completed_nodes + 1 < static_cast<int>(a->plan->size())
             && a->cspace->lineOfSight(*agentNow, (*a->plan)[a->completed_nodes + 1]->data)) {
             a->completed_nodes++;
             *nextNode = (*a->plan)[a->completed_nodes]->data;
@@ -580,7 +583,7 @@ void boid_forces(Agent * a, glm::vec2 * FBOID) {
     GLfloat ff1_r = 10.0f;//radius of following force of 1 towards leader
     glm::vec2 FALIGN, FCOHES, FFOLOW, FSEPAR;
 
-    for (int i = 0; i < boidlings.size(); i++) {
+    for (int i = 0; i < static_cast<int>(boidlings.size()); i++) {
         Agent * boid = boidlings[i];
         if (boid == a)
             continue;
@@ -605,23 +608,23 @@ void boid_forces(Agent * a, glm::vec2 * FBOID) {
     /* follow force */
     //distance to leader, weak close, strong far
     glm::vec2 toLeader = player->o - a->bv->o;
-    float dist2 = glm::dot(toLeader, toLeader);
-    if (dist2 < ff0_r * ff0_r)
+    float dist2leader = glm::dot(toLeader, toLeader);
+    if (dist2leader < ff0_r * ff0_r)
         FFOLOW = glm::vec2(0);
     else
-        FFOLOW = toLeader * (dist2 - ff0_r) / (ff1_r - ff0_r);
+        FFOLOW = toLeader * (dist2leader - ff0_r) / (ff1_r - ff0_r);
 
     /* separation force */
     //force from inverted direction of nearest neighbours
-    for (int i = 0; i < boidlings.size(); i++) {
+    for (int i = 0; i < static_cast<int>(boidlings.size()); i++) {
         Agent * boid = boidlings[i];
         if (boid == a)
             continue;
         glm::vec2 toBoid = boid->bv->o - a->bv->o;
-        float dist2 = glm::dot(toBoid, toBoid);
+        float dist2boid = glm::dot(toBoid, toBoid);
 
-        if (dist2 < separ_r_look * separ_r_look)
-            FSEPAR += -toBoid / (10*sqrt(dist2));
+        if (dist2boid < separ_r_look * separ_r_look)
+            FSEPAR += -toBoid / (10*sqrt(dist2boid));
     }
 
     (*FBOID) += FALIGN + FCOHES + FFOLOW+ FSEPAR;
@@ -745,10 +748,10 @@ void animate_agents(GLfloat dt) {
 
     int agent_mesh_drawn = 0;
     if (G::WITH_TTC_GRID) { //EVERY SINGLE ONE OF THESE COULD HAVE THEIR INTERNALS AS FUNCTIONS
-        for (int i = 0; i < 100; i++) {
-            for (int j = 0; j < 100; j++) {
-                for (Agent * a : agents[i][j]) {
-                    int step;
+        for (int c = 0; c < 100; c++) {
+            for (int r = 0; r < 100; r++) {
+                for (Agent * a : agents[c][r]) {
+                    GLuint step;
                     if (a->vt == agent::volume_type::RECT)
                         step = 1;
                     else
@@ -763,7 +766,7 @@ void animate_agents(GLfloat dt) {
     }
     else {
         for (Agent * a : agents_old) {
-            int step;
+            GLuint step;
             if (a->vt == agent::volume_type::RECT)
                 step = 1;
             else
@@ -777,17 +780,19 @@ void animate_agents(GLfloat dt) {
 }
 
 //move AI/planner
+//refactor
 void init_planning() {
 	cur_ob = nullptr;
     switch (G::SCENARIO) {
+    case G::SCENE::WALL:
+        player = new Circ(glm::vec2(5.f, 0.f), .5f);
+        break;
     case G::SCENE::DEFAULT:
     case G::SCENE::DEADEND:
     case G::SCENE::NO_BOID:
     case G::SCENE::MAZE:
+    default:
         player = new Circ(glm::vec2(0.f), .5f);
-        break;
-    case G::SCENE::WALL:
-        player = new Circ(glm::vec2(5.f, 0.f), .5f);
         break;
     }
 
@@ -797,26 +802,6 @@ void init_planning() {
     glm::vec2 spacing, groupSize, offset, start1, start2, goal1, goal2;
 
     switch (G::SCENARIO) {
-    case G::SCENE::DEFAULT:
-    case G::SCENE::DEADEND:
-    case G::SCENE::MAZE:
-        /* PLAY WITH THESE */
-        agentSize = .05;
-        spacing = glm::vec2(.25, .25);
-        groupSize = glm::vec2(21, 21);
-        offset = glm::vec2(21. / 2. - .5, 21. / 2. - .5);
-        start1 = glm::vec2(-7., -7.);
-        start2 = glm::vec2(7., 7.);
-        goal1 = glm::vec2(7., 7.);
-        goal2 = glm::vec2(-7., -7.);
-
-        boidlingSize = .05;
-        boidspawn = glm::vec2(-2.0f, 0.0f);
-        boidlingRanks = glm::vec2(9, 9);
-        boidlingOffset = glm::vec2(5. / 2. - .5, 5. / 2. - .5);
-        boidlingSpacing = glm::vec2(.3f, .3f);
-        /* */
-        break;
     case G::SCENE::WALL:
         agentSize = .05;
         spacing = glm::vec2(.25, .25);
@@ -843,7 +828,29 @@ void init_planning() {
         goal1 = glm::vec2(7., 7.);
         goal2 = glm::vec2(7., -7.);
 
+        boidlingSize = 0;
         boidlingRanks = glm::vec2(0, 0);
+        break;
+    case G::SCENE::DEFAULT:
+    case G::SCENE::DEADEND:
+    case G::SCENE::MAZE:
+    default:
+        /* PLAY WITH THESE */
+        agentSize = .05;
+        spacing = glm::vec2(.25, .25);
+        groupSize = glm::vec2(21, 21);
+        offset = glm::vec2(21. / 2. - .5, 21. / 2. - .5);
+        start1 = glm::vec2(-7., -7.);
+        start2 = glm::vec2(7., 7.);
+        goal1 = glm::vec2(7., 7.);
+        goal2 = glm::vec2(-7., -7.);
+
+        boidlingSize = .05;
+        boidspawn = glm::vec2(-2.0f, 0.0f);
+        boidlingRanks = glm::vec2(9, 9);
+        boidlingOffset = glm::vec2(5. / 2. - .5, 5. / 2. - .5);
+        boidlingSpacing = glm::vec2(.3f, .3f);
+        /* */
         break;
     }
 
@@ -852,14 +859,14 @@ void init_planning() {
             for (int j = 0; j < 100; j++)
                 agents[i][j] = std::vector<Agent *>();
     else
-        agents_old = std::vector<Agent *>(groupSize.x * groupSize.y * 2 + boidlingRanks.x * boidlingRanks.y);
+        agents_old = std::vector<Agent *>(static_cast<int>(groupSize.x * groupSize.y * 2 + boidlingRanks.x * boidlingRanks.y));
     //only use circs since I did not expand ttc for my rects yet
 
     for (int i = 0; i < groupSize.x; i++) {
         for (int j = 0; j < groupSize.y; j++) {
             glm::vec2 o(start1.x + spacing.x * (i - offset.x), start1.y + spacing.y * (j - offset.y));
             Agent * a = new Agent(agent::volume_type::CIRC,
-                new Circ(o, agentSize),
+                new Circ(o, static_cast<float>(agentSize)),
                 glm::vec2(
                     goal1.x + spacing.y*(i - offset.x),
                     goal1.y + spacing.y*(j - offset.y)));
@@ -871,7 +878,7 @@ void init_planning() {
                 NUM_AGENTS++;
             }
             else {
-                agents_old[i + groupSize.x * j] = a;
+                agents_old[static_cast<int>(i + groupSize.x * j)] = a;
             }
         }
     }
@@ -880,7 +887,7 @@ void init_planning() {
         for (int j = 0; j < groupSize.y; j++) {
             glm::vec2 o(start2.x + spacing.x * (i - offset.x), start2.y + spacing.y * (j - offset.y));
             Agent * a = new Agent(agent::volume_type::CIRC,
-                new Circ(o, agentSize),
+                new Circ(o, static_cast<float>(agentSize)),
                 glm::vec2(
                     goal2.x + spacing.x*(i - offset.x),
                     goal2.y + spacing.y*(j - offset.y)));
@@ -892,7 +899,7 @@ void init_planning() {
                 NUM_AGENTS++;
             }
             else {
-                agents_old[i + groupSize.x * j + groupSize.x * groupSize.y] = a;
+                agents_old[static_cast<int>(i + groupSize.x * j + groupSize.x * groupSize.y)] = a;
             }
         }
     }
@@ -900,7 +907,7 @@ void init_planning() {
     for (int i = 0; i < boidlingRanks.x; i++) {
         for (int j = 0; j < boidlingRanks.y; j++) {
             glm::vec2 o(boidspawn.x + boidlingSpacing.x * (i - boidlingOffset.x), boidspawn.y + boidlingSpacing.y * (j - boidlingOffset.y));
-            Agent * a = new Agent(agent::volume_type::CIRC, new Circ(o, boidlingSize), glm::vec2(0));
+            Agent * a = new Agent(agent::volume_type::CIRC, new Circ(o, static_cast<float>(boidlingSize)), glm::vec2(0));
             a->boid = true;
 
             if (G::WITH_TTC_GRID) {
@@ -911,7 +918,7 @@ void init_planning() {
                 NUM_AGENTS++;
             }
             else {
-                agents_old[i + groupSize.x * j + 2 * groupSize.x * groupSize.y] = a;
+                agents_old[static_cast<int>(i + groupSize.x * j + 2 * groupSize.x * groupSize.y)] = a;
             }
 
             boidlings.push_back(a);
@@ -941,7 +948,7 @@ void init_planning() {
         obstBounds = std::vector<Circ *>(36);
         for (int sign = -1; sign < 2; sign += 2)
             for (float i = 0; i < 18; i++)
-                obstBounds[i + ((1+sign)/2)*18 ] = new Circ(glm::vec2(-sign * (i / 2.f + 1.f), sign * (i / 2.f + 1.f)), .5f);
+                obstBounds[static_cast<int>(i + ((1+sign)/2)*18)] = new Circ(glm::vec2(-sign * (i / 2.f + 1.f), sign * (i / 2.f + 1.f)), .5f);
         rectBounds = std::vector<Rect *>();
         obstBounds.push_back(player);
         break;
@@ -971,13 +978,13 @@ void init_planning() {
 //move to AI/planner? Scene? Renderer?
 //refactor into other functions or subfunctions
 void init_planning_vis() {
-    Agent * a;
+    Agent * debug_agent;
     if (!G::WITH_TTC_GRID)
-        a = agents_old[selected_agent_debug];
+        debug_agent = agents_old[selected_agent_debug];
 
     //DEPRECATED for the sake of the uniform grid working :P
-    if (!G::WITH_TTC_GRID && a->prm != nullptr) {
-        std::vector<Node<glm::vec2> *> * verts = a->prm->roadmap->vertices;
+    if (!G::WITH_TTC_GRID && debug_agent->prm != nullptr) {
+        std::vector<Node<glm::vec2> *> * verts = debug_agent->prm->roadmap->vertices;
         obj::NR_CUBES = static_cast<GLuint>(verts->size() + 1);
         obj::cubePositions = new glm::vec3[obj::NR_CUBES];
         obj::cubeScale = new float[obj::NR_CUBES];
@@ -991,15 +998,15 @@ void init_planning_vis() {
                 obj::cubeScale[i] = 1.0f;
                 obj::cubeDiffuseColor[i] = glm::vec3(0.0f, 0.0f, 1.0f);
                 obj::cubeSpecularColor[i] = glm::vec3(1.0f, 1.0f, 1.0f);
-                obj::cubePositions[i] = glm::vec3(a->start.x, -2.0f, a->start.y);
+                obj::cubePositions[i] = glm::vec3(debug_agent->start.x, -2.0f, debug_agent->start.y);
             }
             else if (i == 1) {//goal = red
                 obj::cubeScale[i] = 1.0f;
                 obj::cubeDiffuseColor[i] = glm::vec3(1.0f, 0.0f, 0.0f);
                 obj::cubeSpecularColor[i] = glm::vec3(1.0f, 1.0f, 1.0f);
-                obj::cubePositions[i] = glm::vec3(a->goal.x, -2.0f, a->goal.y);
+                obj::cubePositions[i] = glm::vec3(debug_agent->goal.x, -2.0f, debug_agent->goal.y);
             }
-            else if (find(a->plan->begin(), a->plan->end(), v) != a->plan->end()) {
+            else if (find(debug_agent->plan->begin(), debug_agent->plan->end(), v) != debug_agent->plan->end()) {
                 obj::cubeScale[i] = 0.75f;
                 obj::cubeDiffuseColor[i] = glm::vec3(0.0f, 1.0f, 0.0f);
                 obj::cubeSpecularColor[i] = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -1076,10 +1083,10 @@ void init_planning_vis() {
 
     int agent_mesh_drawn = 0;
     if (G::WITH_TTC_GRID) {//todo internals -> function / macro / preprocess
-        for (int i = 0; i < 100; i++)
-            for (int j = 0; j < 100; j++)
-                for (Agent * a : agents[i][j]) {
-                    int step;
+        for (int c = 0; c < 100; c++)
+            for (int r = 0; r < 100; r++)
+                for (Agent * a : agents[c][r]) {
+                    GLuint step;
                     if (a->vt == agent::volume_type::RECT)
                         step = 1;
                     else
@@ -1110,7 +1117,7 @@ void init_planning_vis() {
     }
     else {
         for (Agent * a : agents_old) {
-            int step;
+            GLuint step;
             if (a->vt == agent::volume_type::RECT)
                 step = 1;
             else
@@ -1142,8 +1149,9 @@ void init_planning_vis() {
 }
 
 //move to AI/planner
+//refactor
 void replan() {
-    timer->stopTimer();
+    game_loop_clock->pause();
 	switch (cur_mode) {
 	case 0:
 		if (cur_ob != nullptr) {
@@ -1285,7 +1293,7 @@ void replan() {
     }
 
     init_planning_vis();
-    timer->restartTimer();
+    game_loop_clock->play();
 }
 
 //move to Scene

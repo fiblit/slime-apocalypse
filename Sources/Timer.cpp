@@ -1,24 +1,24 @@
+/*** LOCALS ***/
 #include "Timer.hpp"
 
-/* GLOBALS */
-/* GL */
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+using namespace G::time;
+using namespace std;
 
-std::vector<Timer> stack;
-void init_stack(int layers) {
-    stack = std::vector<Timer>(layers);
+vector<Timer> G::time::stack;
+
+void G::time::init_stack(GLuint layers) {
+    stack = vector<Timer>(layers);
 }
-void add_now() {
+void G::time::add_now() {
     stack.push_back(Timer());
 }
-void del_top() {
+GLfloat G::time::del_top() {
     GLfloat elapsed = stack.back().frame();
     stack.pop_back();
     return elapsed;
 }
 
-GLfloat Timer::Timer() {
+Timer::Timer() {
     this->frame_abs = (GLfloat)glfwGetTime();
     this->last_delta = 0.f;
     this->paused_time = 0.f;

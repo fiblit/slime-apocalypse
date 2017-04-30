@@ -1,4 +1,6 @@
 #include "LocalMotionPlanner.hpp"
+#include "debug.hpp"
+
 float LMP::ttc(BoundingVolume * i, glm::vec2 iv, BoundingVolume * j, glm::vec2 jv) {
     //I wish there was a way I didn't have to check the types..
     /*Circ* c = dynamic_cast<Circ*>(i);
@@ -48,31 +50,31 @@ float LMP::ttc_(Circ * i, glm::vec2 iv, Circ * j, glm::vec2 jv) {
     return tau;
 }
 
-//tbd
-float LMP::ttc_(Rect * i, glm::vec2 iv, Rect * j, glm::vec2 jv) {
-    glm::vec2 o = j->o - i->o;
-    glm::vec2 v = iv - jv;
-    float w = i->w / 2 + j->w / 2;
-    float h = i->h / 2 + j->h / 2;
+//TODO dalton
+float LMP::ttc_(Rect * /*i*/, glm::vec2 /*iv*/, Rect * /*j*/, glm::vec2 /*jv*/) {
+    //glm::vec2 o = j->o - i->o;
+    //glm::vec2 v = iv - jv;
+    //float w = i->w / 2 + j->w / 2;
+    //float h = i->h / 2 + j->h / 2;
 
     //[top; bot] ~ tau
-    float top = (w - o.x) / v.x;
-    float bot = (h - o.y) / v.y;
+    //float top = (w - o.x) / v.x;
+    //float bot = (h - o.y) / v.y;
 
     //if ()
     return 0;
 }
 
-//tbd
-float LMP::ttc_(Circ * i, glm::vec2 iv, Rect * j, glm::vec2 jv) {
-    glm::vec2 o = j->o - i->o;
-    glm::vec2 v = iv - jv;
-    float w = i->r + j->w / 2;
-    float h = i->r + j->h / 2;
+//TODO dalton
+float LMP::ttc_(Circ * /*i*/, glm::vec2 /*iv*/, Rect * /*j*/, glm::vec2 /*jv*/) {
+    //glm::vec2 o = j->o - i->o;
+    //glm::vec2 v = iv - jv;
+    //float w = i->r + j->w / 2;
+    //float h = i->r + j->h / 2;
 
     //[top; bot] ~ tau
-    float top = (w - o.x) / v.x;
-    float bot = (h - o.y) / v.y;
+    //float top = (w - o.x) / v.x;
+    //float bot = (h - o.y) / v.y;
 
     //if ()
     return 0;

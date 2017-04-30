@@ -14,11 +14,6 @@ VecPoint * PRM::sampleNodes(Cspace_2D * cSpace_) {
     int samplecount;
     float b;
     switch (G::SCENARIO) {
-    case G::SCENE::DEFAULT:
-    case G::SCENE::NO_BOID:
-        samplecount = 1;//this does not work on all maps
-        b = 2.8f;
-        break;
     case G::SCENE::WALL:
     case G::SCENE::DEADEND:
         samplecount = 4;
@@ -26,6 +21,12 @@ VecPoint * PRM::sampleNodes(Cspace_2D * cSpace_) {
         break;
     case G::SCENE::MAZE:
         samplecount = 5;
+        b = 2.8f;
+        break;
+    case G::SCENE::DEFAULT:
+    case G::SCENE::NO_BOID:
+    default:
+        samplecount = 1;//this does not work on all maps
         b = 2.8f;
         break;
     }
@@ -60,21 +61,22 @@ VecPoint * PRM::sampleNodes(Cspace_2D * cSpace_) {
 VecPoint * PRM::findNearestNeighbours(VecPoint * nodes, int targetIdx) {
     float threshold; // meters
     switch (G::SCENARIO) {
-    case G::SCENE::DEFAULT:
-    case G::SCENE::NO_BOID:
-    case G::SCENE::MAZE:
-        threshold = 5.f;
-        break;
     case G::SCENE::DEADEND:
     case G::SCENE::WALL:
         threshold = 3.3f;
+        break;
+    case G::SCENE::DEFAULT:
+    case G::SCENE::NO_BOID:
+    case G::SCENE::MAZE:
+    default:
+        threshold = 5.f;
         break;
     }
 
 	VecPoint * neighbours = new VecPoint();
 
 	glm::vec2 t = (*nodes)[targetIdx]->data;
-	for (int i = 0; i < nodes->size(); i++) {
+	for (int i = 0; i < static_cast<int>(nodes->size()); i++) {
 		glm::vec2 n = (*nodes)[i]->data;
 		// don't consider this node we're looking from
 
@@ -90,14 +92,14 @@ VecPoint * PRM::findNearestNeighbours(VecPoint * nodes, int targetIdx) {
 /* connects NNs of each node by Graph edges */
 Graph<glm::vec2> * PRM::connectRoadmap(VecPoint * nodes) {
 	Graph<glm::vec2> * G = new Graph<glm::vec2>();
-	for (int i = 0; i < nodes->size(); i++)
+	for (int i = 0; i < static_cast<int>(nodes->size()); i++)
 		G->addVertex((*nodes)[i]);
 
-	for (int i = 0; i < nodes->size(); i++) {
+	for (int i = 0; i < static_cast<int>(nodes->size()); i++) {
 
 		VecPoint * NNs = findNearestNeighbours(nodes, i);
 
-		for (int n = 0; n < NNs->size(); n++) {
+		for (int n = 0; n < static_cast<int>(NNs->size()); n++) {
 			if (this->cSpace->lineOfSight((*NNs)[n]->data, (*nodes)[i]->data)) {
 				// we want directed because we'll be passing over the other side during
 				// the course of the outer loop

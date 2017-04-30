@@ -1,8 +1,10 @@
 #ifndef BOUNDING_VOLUME_H_GUARD
 #define BOUNDING_VOLUME_H_GUARD
 
+#pragma warning(push, 0)
 #include <glm/glm.hpp>
 #include <vector>
+#pragma warning(pop)
 
 class Circ;
 class Rect;

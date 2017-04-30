@@ -5,7 +5,7 @@
 #ifdef DEBUG
 #define D(x) x
 //http://stackoverflow.com/questions/1486904/how-do-i-best-silence-a-warning-about-unused-variables
-template <class... Args> inline void UNUSED(Args&&...) {}
+template <class... Args> inline void UNUSED(Args&&...) {}//TODO: make sure this compiles in NDEBUG
 
 #include <iostream>
 #include <string>

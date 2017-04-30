@@ -18,6 +18,7 @@
 
 /* GLOBALS */
 /* GL */
+#pragma warning(push, 0)
 // glad: an OpenGL function loader: https://github.com/Dav1dde/glad
 #include <glad/glad.h>
 // glfw: a library for I/O and OpenGL context creation: http://www.glfw.org/
@@ -43,6 +44,7 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#pragma warning(pop)
 
 /* Globals */
 namespace G {
@@ -123,7 +125,8 @@ namespace mouse {
 }
 
 Camera* cam;
-Timer* timer;
+G::time::Timer * game_loop_clock;
+
 const GLuint cylinder_res = 11;
 
 //Cspace_2D * cspace;

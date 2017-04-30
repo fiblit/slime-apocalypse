@@ -4,6 +4,7 @@
 #include "Graph.hpp"
 #include "BoundingVolume.hpp"
 
+#pragma warning(push, 0)
 #include <random>
 #include <chrono>
 #include <utility>
@@ -15,6 +16,7 @@
 
 // glm: OpenGL mathematics: http://glm.g-truc.net/0.9.8/index.html
 #include <glm/glm.hpp>
+#pragma warning(pop)
 
 typedef std::vector<Node<glm::vec2> *> VecPoint;
 
