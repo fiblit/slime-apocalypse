@@ -12,7 +12,7 @@ template <class... Args> inline void UNUSED(Args&&...) {}//TODO: make sure this 
 #include <chrono>
 #include <thread>
 void OK();
-void slowPrint(int middle, int after, std::string txt); // just for fun
+void slow_print(int middle, int after, std::string txt); // just for fun
 #else
 #define D(x)
 #endif // DEBUG

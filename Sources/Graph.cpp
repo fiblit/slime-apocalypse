@@ -1,25 +1,26 @@
-//#include "Graph.hpp"
 /*
+#include "Graph.hpp"
+
 using namespace std;
 
 template <class T>
-inline Graph<T>::Graph() {
+Graph<T>::Graph() {
     this->vertices = new vector<Node<T> *>();
 }
 
 template <class T>
-inline void Graph<T>::add_vertex(Node<T> * v) {
+void Graph<T>::add_vertex(Node<T> * v) {
     this->vertices->push_back(v);
 }
 
 template <class T>
-inline void Graph<T>::add_directed_edge(Node<T> * v, Node<T> * u) {
+void Graph<T>::add_directed_edge(Node<T> * v, Node<T> * u) {
     //todo: check that u and v are in vertices
     v->edges->push_back(u);
 }
 
 template <class T>
-inline void Graph<T>::add_edge(Node<T> * v, Node<T> * u) {
+void Graph<T>::add_edge(Node<T> * v, Node<T> * u) {
     //todo: check that u and v are in vertices
     this->add_directed_edge(v, u);
     this->add_directed_edge(u, v);
@@ -27,13 +28,13 @@ inline void Graph<T>::add_edge(Node<T> * v, Node<T> * u) {
 
 
 template <class T>
-inline Node<T>::Node(T item, vector<Node<T> *> * edges) {
+Node<T>::Node(T item, vector<Node<T> *> * edges) {
     this->data = item;
     this->edges = edges;
 }
 
 template <class T>
-inline Node<T>::Node(T item, int n, Node<T> * edges) {
+Node<T>::Node(T item, int n, Node<T> * edges) {
     this->data = item;
     this->edges = new vector<Node<T> *>(n);
     for (int i = 0; i < n; i++)

@@ -13,8 +13,8 @@ class Rect;
 class BoundingVolume {
 public:
     glm::vec2 o;//origin
-    virtual bool isCollision(glm::vec2 p) =0;
-    virtual bool lineOfSight(glm::vec2 a, glm::vec2 b, glm::vec2 Lab, float len2) =0;
+    virtual bool is_collision(glm::vec2 p) =0;
+    virtual bool line_of_sight(glm::vec2 a, glm::vec2 b, glm::vec2 Lab, float len2) =0;
     virtual std::vector<BoundingVolume *> minkowskiSum(BoundingVolume *)=0;
 };
 
@@ -25,8 +25,8 @@ public:
     Rect(glm::vec2 o, float w, float h);
     float w;//width
     float h;//height
-    bool isCollision(glm::vec2 p);
-    bool lineOfSight(glm::vec2 a, glm::vec2 b, glm::vec2 Lab, float len2);
+    bool is_collision(glm::vec2 p);
+    bool line_of_sight(glm::vec2 a, glm::vec2 b, glm::vec2 Lab, float len2);
     std::vector<BoundingVolume *> minkowskiSum(BoundingVolume *);
     std::vector<BoundingVolume *> minkowskiSum_(Rect * b);
     std::vector<BoundingVolume *> minkowskiSum_(Circ * b);
@@ -46,8 +46,8 @@ public:
     Circ();
     Circ(glm::vec2 o, float r);
     float r;//radius
-    bool isCollision(glm::vec2 p);
-    bool lineOfSight(glm::vec2 a, glm::vec2 b, glm::vec2 Lab, float len2);
+    bool is_collision(glm::vec2 p);
+    bool line_of_sight(glm::vec2 a, glm::vec2 b, glm::vec2 Lab, float len2);
     std::vector<BoundingVolume *> minkowskiSum(BoundingVolume *);
     std::vector<BoundingVolume *> minkowskiSum_(Rect * b);
     std::vector<BoundingVolume *> minkowskiSum_(Circ * b);

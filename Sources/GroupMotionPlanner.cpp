@@ -25,11 +25,11 @@ VecPoint * GMP::find_path_Astar(float e, Graph<glm::vec2> * roadmap) {
     priority_queue<PQ_item, vector<PQ_item>, decltype(cmp)> pq(cmp);
     pq.push(PQ_item(start, 0.f));
 
-    // init parent and gcost (also used as a visited set)
+    // init parent and g_cost (also used as a visited set)
     unordered_map<Vert, Vert> parent;
-    unordered_map<Vert, float> gcost;
+    unordered_map<Vert, float> g_cost;
     parent[start] = nullptr;
-    gcost[start] = 0.f;
+    g_cost[start] = 0.f;
 
     //while there are nodes to process
     while (!pq.empty()) {
@@ -43,15 +43,15 @@ VecPoint * GMP::find_path_Astar(float e, Graph<glm::vec2> * roadmap) {
 
         for (Node<glm::vec2> * adj : *(cur_v->edges)) {
             //new potential path = path to here + edge to adjacent
-            float g_alt = gcost[cur_v] + glm::distance(adj->data, cur_v->data);
+            float g_alt = g_cost[cur_v] + glm::distance(adj->data, cur_v->data);
 
             //if new path is better than current path to adjacent
-            if (!gcost.count(adj) || g_alt < gcost[adj]) {
-                gcost[adj] = g_alt;
+            if (!g_cost.count(adj) || g_alt < g_cost[adj]) {
+                g_cost[adj] = g_alt;
                 float fcost = g_alt + e * glm::distance(goal->data, adj->data);
                 //it's okay if we get multiple nodes on the PQ with diff fcosts
                 //whichever has the lowest will show up first and the later ones will
-                //have no effect as they have the same gcost
+                //have no effect as they have the same g_cost
                 pq.push(PQ_item(adj, fcost));
                 parent[adj] = cur_v;
             }

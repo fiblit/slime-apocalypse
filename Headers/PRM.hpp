@@ -25,21 +25,21 @@ private:
 public:
     std::vector<BoundingVolume *> bv_obs;
 	Cspace_2D(std::vector<BoundingVolume *> obs, BoundingVolume * agent);
-	bool isCollision(glm::vec2 a);
-	bool lineOfSight(glm::vec2 a, glm::vec2 b);
+	bool is_collision(glm::vec2 a);
+	bool line_of_sight(glm::vec2 a, glm::vec2 b);
 };
 
 class PRM {
 private:
-	Cspace_2D * cSpace;
-	VecPoint * sampleNodes(Cspace_2D * cSpace);
-	VecPoint * findNearestNeighbours(VecPoint * nodes, int targetIdx);
-	Graph<glm::vec2> * connectRoadmap(VecPoint * nodes);
+	Cspace_2D * c_space;
+	VecPoint * sample_nodes(Cspace_2D * c_space);
+	VecPoint * find_nearest_neighbours(VecPoint * nodes, int targetIdx);
+	Graph<glm::vec2> * connect_roadmap(VecPoint * nodes);
 public:
 	Graph<glm::vec2> * roadmap;
-	PRM(glm::vec2 start, glm::vec2 goal, Cspace_2D * cSpace);
-	//VecPoint * findPathUCS();
-	//VecPoint * findPathAstar(float e);
+	PRM(glm::vec2 start, glm::vec2 goal, Cspace_2D * c_space);
+	//VecPoint * find_path_UCS();
+	//VecPoint * find_path_Astar(float e);
 };
 
 //wtf, why didn't I just use glm::Vec2???

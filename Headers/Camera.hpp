@@ -85,7 +85,7 @@ public:
 	}
 
 	// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-	void translateCamera(G::CAMERA::Movement direction, GLfloat deltaTime) {
+	void translate_camera(G::CAMERA::Movement direction, GLfloat deltaTime) {
 		// frame speed
 		GLfloat fspeed = this->speed * deltaTime;
 		if (direction == G::CAMERA::FORWARD)
@@ -99,7 +99,7 @@ public:
 	}
 
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-	void mouseRotateCamera(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true) {
+	void mouse_rotate_camera(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true) {
 		xoffset *= this->sensitivity;
 		yoffset *= this->sensitivity;
 
@@ -115,7 +115,7 @@ public:
 	}
 
 	// Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-	void scrollZoomCamera(GLfloat yoffset) {
+	void scroll_zoom_camera(GLfloat yoffset) {
 		this->fov = glm::max(1.0f, glm::min(90.0f, this->fov - yoffset));
 	}
 

@@ -71,19 +71,19 @@ std::vector<BoundingVolume *> Rect::minkowskiSum_(Circ * b) {
 }
 
 
-bool Circ::isCollision(glm::vec2 p) {
+bool Circ::is_collision(glm::vec2 p) {
     glm::vec2 diff = p - this->o;
     return glm::dot(diff, diff) <= this->r * this->r;
 }
 
-bool Circ::lineOfSight(glm::vec2 a, glm::vec2 b, glm::vec2 Lab, float len2) {
+bool Circ::line_of_sight(glm::vec2 a, glm::vec2 b, glm::vec2 Lab, float len2) {
     glm::vec2 Lbo = this->o - b;
     float r2 = this->r * this->r;
     if (glm::dot(Lbo, Lbo) <= r2) //point b inside circle
         return false; // HIT
 
     glm::vec2 Lao = this->o - a;
-    //we don't use isCollision because we use a lot of these values again
+    //we don't use is_collision because we use a lot of these values again
     if (glm::dot(Lao, Lao) <= r2) //point a inside circle
         return false; // HIT
 
@@ -100,12 +100,12 @@ bool Circ::lineOfSight(glm::vec2 a, glm::vec2 b, glm::vec2 Lab, float len2) {
     return true; // else MISS
 }
 
-bool Rect::isCollision(glm::vec2 p) {
+bool Rect::is_collision(glm::vec2 p) {
     return abs(p.x - this->o.x) <= this->w / 2
         && abs(p.y - this->o.y) <= this->h / 2;
 }
 
-bool Rect::lineOfSight(glm::vec2 a, glm::vec2 b, glm::vec2, float) {
+bool Rect::line_of_sight(glm::vec2 a, glm::vec2 b, glm::vec2, float) {
     float left = this->o.x - this->w / 2;
     float right = this->o.x + this->w / 2;
     float top = this->o.y + this->h / 2;

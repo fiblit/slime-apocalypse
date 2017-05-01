@@ -57,7 +57,7 @@ VecPoint * PRM::sample_nodes(Cspace_2D * cSpace_) {
 	return sample;
 }
 
-/* threshold search to find NNs */
+/* threshold search to find nearby */
 VecPoint * PRM::find_nearest_neighbours(VecPoint * nodes, int targetIdx) {
     float threshold; // meters
     switch (G::SCENARIO) {
@@ -89,26 +89,24 @@ VecPoint * PRM::find_nearest_neighbours(VecPoint * nodes, int targetIdx) {
 	return neighbours;
 }
 
-/* connects NNs of each node by Graph edges */
+/* connects nearby of each node by Graph edges */
 Graph<glm::vec2> * PRM::connect_roadmap(VecPoint * nodes) {
-	Graph<glm::vec2> * G = new Graph<glm::vec2>();
+	Graph<glm::vec2> * roadmap = new Graph<glm::vec2>();
 	for (int i = 0; i < static_cast<int>(nodes->size()); i++)
-		G->add_vertex((*nodes)[i]);
+		roadmap->add_vertex((*nodes)[i]);
 
 	for (int i = 0; i < static_cast<int>(nodes->size()); i++) {
-
-		VecPoint * NNs = find_nearest_neighbours(nodes, i);
-
-		for (int n = 0; n < static_cast<int>(NNs->size()); n++) {
-			if (this->c_space->line_of_sight((*NNs)[n]->data, (*nodes)[i]->data)) {
+		VecPoint * nearby = find_nearest_neighbours(nodes, i);
+		for (int n = 0; n < static_cast<int>(nearby->size()); n++) {
+			if (this->c_space->line_of_sight((*nearby)[n]->data, (*nodes)[i]->data)) {
 				// we want directed because we'll be passing over the other side during
 				// the course of the outer loop
-				G->add_directed_edge((*NNs)[n], (*nodes)[i]);
+				roadmap->add_directed_edge((*nearby)[n], (*nodes)[i]);
 			}
 		}
 	}
 
-	return G;
+	return roadmap;
 }
 
 /* samples and connects a Pobabilistic Road Map */
