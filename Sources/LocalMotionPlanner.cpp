@@ -37,8 +37,9 @@ float LMP::ttc_(Circ * i, glm::vec2 iv, Circ * j, glm::vec2 jv) {
     float w2 = glm::dot(w, w);
     float c = w2 - r * r;
     if (c < 0) {// agents are colliding
-        r /= 2;//as per Stephen Guy's suggestion; halve the radii when colliding
-        c = w2 - r * r;
+        return 0;
+        //r /= 2;//as per Stephen Guy's suggestion; halve the radii when colliding
+        //c = w2 - r * r;
     }
 
     glm::vec2 v = iv - jv;
