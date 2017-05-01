@@ -3,15 +3,13 @@
 /* custom uniform cost search (aka Djikstra's search) for a PRM Graph
 simplifciation of A*. (h = 0)
 */
-VecPoint * GMP::findPathUCS(Graph<glm::vec2> * roadmap) {
-    return GMP::findPathAstar(0, roadmap);
+VecPoint * GMP::find_path_UCS(Graph<glm::vec2> * roadmap) {
+    return GMP::find_path_Astar(0, roadmap);
 }
-
-
 
 /* custom A* search for a PRM Graph */
 //can't handle non-positive edges
-VecPoint * GMP::findPathAstar(float e, Graph<glm::vec2> * roadmap) {
+VecPoint * GMP::find_path_Astar(float e, Graph<glm::vec2> * roadmap) {
     //for readability
     using namespace std;
     typedef Node<glm::vec2> * Vert;

@@ -19,24 +19,18 @@
 /* GLOBALS */
 /* GL */
 #pragma warning(push, 0)
-// glad: an OpenGL function loader: https://github.com/Dav1dde/glad
-#include <glad/glad.h>
-// glfw: a library for I/O and OpenGL context creation: http://www.glfw.org/
-#include <GLFW/glfw3.h>
-// glm: OpenGL mathematics: http://glm.g-truc.net/0.9.8/index.html
-#include <glm/glm.hpp>
+#include <glad/glad.h>// glad: an OpenGL function loader: https://github.com/Dav1dde/glad
+#include <GLFW/glfw3.h>// glfw: a library for I/O and OpenGL context creation: http://www.glfw.org/
+#include <glm/glm.hpp>// glm: OpenGL mathematics: http://glm.g-truc.net/0.9.8/index.html
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-// assimp: model loading: https://github.com/assimp/assimp
-//#include <assimp/Importer.hpp>
-//#include <assimp/postprocess.h>
-//#include <assimp/scene.h>
-// stb: image loading: https://github.com/nothings/stb/blob/master/stb_image.h
-#ifndef STB_IMAGE_IMPLEMENTATION
+#ifndef STB_IMAGE_IMPLEMENTATION// stb: image loading: https://github.com/nothings/stb/blob/master/stb_image.h
 #define STB_IMAGE_IMPLEMENTATION
 #endif // STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-
+//#include <assimp/Importer.hpp>// assimp: model loading: https://github.com/assimp/assimp
+//#include <assimp/postprocess.h>
+//#include <assimp/scene.h>
 /* STL */
 #include <cstdio>
 #include <iostream>
@@ -98,28 +92,29 @@ namespace obj {//should be in G
 		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
 	};
 	GLuint NR_CUBES = 0;
-	glm::vec3 * cubeSpecularColor;
-	glm::vec3 * cubeDiffuseColor;
-	GLfloat * cubeScale;
-	glm::vec3 * cubePositions;
+	glm::vec3 * cube_specular_color;
+	glm::vec3 * cube_diffuse_color;
+	GLfloat * cube_scale;
+	glm::vec3 * cube_positions;
 
+    /* These are the multiple box meshes that make up my cylinders */
 	GLuint NR_RECT_IN_CIRC = 0;
-	GLfloat * rectInCircScale;
-	glm::vec4 * rectInCircRotation;
-	glm::vec3 * rectInCircPositions;
+	GLfloat * rect_in_circ_scale;
+	glm::vec4 * rect_in_circ_rotation;
+	glm::vec3 * rect_in_circ_positions;
 
 	GLuint NR_RECT = 0;
-	glm::vec2 * rectScale;
-	glm::vec3 * rectPositions;
+	glm::vec2 * rect_scale;
+	glm::vec3 * rect_positions;
 
 	GLuint NR_AGENT_TO_DRAW = 0;
-	GLfloat * agentScale;
-	glm::vec4 * agentRotation;
-	glm::vec3 * agentPositions;
+	GLfloat * agent_scale;
+	glm::vec4 * agent_rotation;
+	glm::vec3 * agent_positions;
 }
 namespace mouse {
-	GLfloat lastX = G::WIN_WIDTH / 0.5f;
-	GLfloat lastY = G::WIN_HEIGHT / 0.5f;
+	GLfloat last_x = G::WIN_WIDTH / 0.5f;
+	GLfloat last_y = G::WIN_HEIGHT / 0.5f;
 	GLboolean focus = false;
 	//GLfloat sensitivity = 0.25f;
 }
@@ -128,9 +123,6 @@ Camera* cam;
 G::time::Timer * game_loop_clock;
 
 const GLuint cylinder_res = 11;
-
-//Cspace_2D * cspace;
-//PRM * prm;
 
 GLuint cur_mode;
 BoundingVolume * cur_ob;
@@ -143,16 +135,10 @@ std::vector<Agent *> agents_old;
 int NUM_AGENTS = 0;
 std::vector<Agent *> agents[100][100];
 
-//glm::vec2 startPoint, goalPoint;
-std::vector<Rect *> rectBounds;
-//Rect * ragentBound;
-std::vector<Circ *> obstBounds;
-//Circ * cagentBound;
-//std::vector<Node<glm::vec2> *> * pathVec;
-//std::unordered_set<Node<glm::vec2> *> * path_;
-//GLuint completed_nodes_;
+std::vector<Rect *> rect_bounds;
+std::vector<Circ *> obst_bounds;
 
-GLboolean isFlashlightOn;
+GLboolean is_flashlight_on;
 int selected_agent_debug = 0;
 
 /* UI prototypes */
@@ -162,35 +148,21 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void do_movement();
 
-void toggleFlashlight();
+void toggle_flashlight();
 
 void init_planning();
 void init_planning_vis();
 void replan();
-void placeObst(glm::vec3 pos);
-void placeGoalNode(glm::vec3 pos);
-void placeStartNode(glm::vec3 pos);
-void modeToggleCurrentObstacle();
-void scaleCurrentObstacle(GLfloat xs, GLfloat ys, GLfloat dt);
-void moveCurrentObstacle(GLfloat xs, GLfloat ys, GLfloat dt);
+void place_obst(glm::vec3 pos);
+void place_goal_node(glm::vec3 pos);
+void place_start_node(glm::vec3 pos);
+void mode_toggle_current_obstacle();
+void scale_current_obstacle(GLfloat xs, GLfloat ys, GLfloat dt);
+void move_current_obstacle(GLfloat xs, GLfloat ys, GLfloat dt);
 
-void movePlayer(GLfloat dx, GLfloat dy, GLfloat dt);
+void move_player(GLfloat dx, GLfloat dy, GLfloat dt);
 
-
-/* Other Prototypes */
-int DIE(int retVal);
+int kill_app(int retVal);
 void animate_agents(GLfloat dt);
-/*
-TODO:
-115 points
-----
-Videos (+5)
-	==> 2hr
-Write-up (including A* comparison) (+5)
-	==> .5hr
-
-----
-125 Points
-*/
 
 #endif //MAIN
