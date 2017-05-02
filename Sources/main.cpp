@@ -414,6 +414,14 @@ GLFWwindow * init_window_context() {
 }
 
 //move to GMP
+/*
+global references: none
+side effects:
+    next_node is updated
+    speed may be updated
+    agent_now may be updated
+
+*/
 void lookahead(glm::vec2 * agent_now, glm::vec2 * next_node, Agent * a, float * speed, float dt) {
     if (a->completed_nodes < static_cast<int>(a->plan->size())) {
         *next_node = (*a->plan)[a->completed_nodes]->data;
@@ -522,8 +530,20 @@ void boid_forces(Agent * a, glm::vec2 * boid_force) {
     }
 }
 
-//move to LMP
-void force_agents(GLfloat dt, Agent * a, int * i, int * j, std::vector<Agent *> grid_new[100][100]) {
+//move to LMP(?)
+/*
+global references:
+    lookahead()
+    G::WITH_TTC_GRID
+    agents
+    LMP::ttc()
+    ttc_forces()
+    boid_forces()
+side effects:
+    
+*/
+//needs to be refactored
+void force_agents(GLfloat dt, Agent * a, int i, int j, std::vector<Agent *> grid_new[100][100]) {
     
     float speed = 1.0f; // x m/s
     glm::vec2 agent_now = a->bv->o;
@@ -550,8 +570,8 @@ void force_agents(GLfloat dt, Agent * a, int * i, int * j, std::vector<Agent *> 
     glm::vec2 avoid_force(0), boid_force(0);
 
     if (G::WITH_TTC_GRID) {
-        for (int k = (0 < *i - 4) ? *i - 4 : 0; k < ((100 > *i + 4) ? *i + 4 : 100); k++) { // spatial search
-            for (int l = (0 < *j - 4) ? *j - 4 : 0; l < ((100 > *j + 4) ? *j + 4 : 100); l++) {
+        for (int k = (0 < i - 4) ? i - 4 : 0; k < ((100 > i + 4) ? i + 4 : 100); k++) { // spatial search
+            for (int l = (0 < j - 4) ? j - 4 : 0; l < ((100 > j + 4) ? j + 4 : 100); l++) {
                 for (Agent * b : agents[k][l]) {
                     if (a == b)
                         continue;
@@ -624,10 +644,10 @@ void animate_agents(GLfloat dt) {
         for (int i = 0; i < 100; i++)
             for (int j = 0; j < 100; j++)
                 for (Agent * a : agents[i][j])
-                    force_agents(dt, a, &i, &j, grid_new);
+                    force_agents(dt, a, i, j, grid_new);
     else
         for (Agent * a : agents_old)
-            force_agents(dt, a, nullptr, nullptr, nullptr);
+            force_agents(dt, a, -1, -1, nullptr);
 
     if (G::WITH_TTC_GRID)
         for (int i = 0; i < 100; i++)
