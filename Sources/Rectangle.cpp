@@ -1,5 +1,10 @@
 #include "Rectangle.hpp"
 
+using glm::vec3;
+using std::vector;
+using std::min;
+using std::max;
+
 Rectangle::Rectangle() : Object() {
 	params[0] = 1.0;
 	params[1] = 1.0;
@@ -110,13 +115,6 @@ void Rectangle::construct() {
 		faces.push_back(i*4 + 3);
 		faces.push_back(i*4 + 1);
 	}
-}
-
-Object *Rectangle::cObstacle(vec3 inputParams) {
-	Rectangle *r = new Rectangle(pos, params[0] + inputParams[0], params[1] + inputParams[1]);
-	r->setColor(.5, .5, .5);
-
-	return r;
 }
 
 bool Rectangle::collides(vec3 p) {

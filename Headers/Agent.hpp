@@ -5,10 +5,6 @@
 
 #include "PRM.hpp"
 
-namespace agent {
-    enum class volume_type { CIRC, RECT };
-};
-
 class Agent {
 public:
     glm::vec2 start, goal;
@@ -27,10 +23,8 @@ public:
     std::vector<Node<glm::vec2> *> * plan;
     int completed_nodes;
     //"Model" -- nope -- too much work RN 
-    agent::volume_type vt;
     BoundingVolume * bv;
-    Agent(agent::volume_type vt, BoundingVolume * bv, glm::vec2 goal) {
-        this->vt = vt;
+    Agent(BoundingVolume * bv, glm::vec2 goal) {
         //todo: add error check for vt =~= bv
         this->bv = bv;
         this->start = bv->o;

@@ -125,17 +125,17 @@ PRM::PRM(glm::vec2 start, glm::vec2 goal, Cspace_2D * c_space) {
 
 /* generates a configuartion space given a list of obstacles and agent */
 Cspace_2D::Cspace_2D(std::vector<BoundingVolume *> obs, BoundingVolume * agent) {
-    this->bv_obs = std::vector<BoundingVolume *>();
+    this->c_obs = std::vector<BoundingVolume *>();
 
     for (BoundingVolume * o : obs) {
         std::vector<BoundingVolume *> ms = agent->minkowskiSum(o);
-        this->bv_obs.insert(bv_obs.end(), ms.begin(), ms.end());
+        this->c_obs.insert(c_obs.end(), ms.begin(), ms.end());
     }
 }
 
 /* detects if a point collides with anything in the configuration space */
 bool Cspace_2D::is_collision(glm::vec2 p) {
-    for (BoundingVolume * bv : this->bv_obs)
+    for (BoundingVolume * bv : this->c_obs)
         if (bv->is_collision(p))
             return true;//HIT
     return false;//MISS
@@ -149,7 +149,7 @@ bool Cspace_2D::line_of_sight(glm::vec2 a, glm::vec2 b) {
 	Lab.y = b.y - a.y;
 	float len2 = glm::dot(Lab, Lab);
 
-	for (BoundingVolume * bv : this->bv_obs)
+	for (BoundingVolume * bv : this->c_obs)
         if (!bv->line_of_sight(a, b, Lab, len2))
             return false;//HIT
     return true;//MISS

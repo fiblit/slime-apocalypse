@@ -1,5 +1,10 @@
 #include "Object.hpp"
 
+using glm::vec3;
+using std::vector;
+using std::min;
+using std::max;
+
 Object::Object() {
 	pos = vec3();
 }

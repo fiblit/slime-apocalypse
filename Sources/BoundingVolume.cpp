@@ -1,11 +1,13 @@
 #include "BoundingVolume.hpp"
-Rect::Rect() {}
+Rect::Rect() { this->vt = volume_type::RECT; }
 Rect::Rect(glm::vec2 o, float w, float h) {
+    this->vt = volume_type::RECT;
     this->o = o; this->w = w; this->h = h;
 }
 
-Circ::Circ() {}
+Circ::Circ() { this->vt = volume_type::CIRC; }
 Circ::Circ(glm::vec2 o, float r) {
+    this->vt = volume_type::CIRC;
     this->o = o; this->r = r;
 }
 

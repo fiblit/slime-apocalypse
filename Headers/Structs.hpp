@@ -1,16 +1,24 @@
 #ifndef STRUCTS_H_GUARD
 #define STRUCTS_H_GUARD
 
-// Don't know how we bring these in from the top level
-#include <glad/glad.h>// glad: an OpenGL function loader: https://github.com/Dav1dde/glad
+#include <glad/glad.h>
+#include <glm/glm.hpp>
 
-typedef struct {
+struct bufferContainer {
 	GLuint scene_vao;
 	GLuint position_vbo;
 	GLuint colors_vbo;
 	GLuint faces_ibo;
 	GLuint edges_ibo;
 	GLuint normals_vbo;
-} bufferContainer;
+};
+
+struct dynamics_comp {
+    glm::vec3 pos;
+    glm::vec3 vel;
+    glm::vec3 acc;
+    glm::vec3 mass;
+    glm::vec3 force;
+};
 
 #endif // STRUCTS_H_GUARD

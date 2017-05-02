@@ -6,10 +6,11 @@
 #include "Object.hpp"
 #include "Structs.hpp"
 
-// Don't know how we bring these in from the top level
-#include <glad/glad.h>// glad: an OpenGL function loader: https://github.com/Dav1dde/glad
-#include <GLFW/glfw3.h>// glfw: a library for I/O and OpenGL context creation: http://www.glfw.org/
-#include <glm/glm.hpp>// glm: OpenGL mathematics: http://glm.g-truc.net/0.9.8/index.html
+#pragma warning(push, 0)
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#pragma warning(pop)
 
 class Scene {
 public:

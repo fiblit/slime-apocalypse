@@ -13,8 +13,6 @@
 #include <unordered_set>
 #include <iostream>
 #include <string>
-
-// glm: OpenGL mathematics: http://glm.g-truc.net/0.9.8/index.html
 #include <glm/glm.hpp>
 #pragma warning(pop)
 
@@ -23,7 +21,7 @@ typedef std::vector<Node<glm::vec2> *> VecPoint;
 class Cspace_2D {
 private:
 public:
-    std::vector<BoundingVolume *> bv_obs;
+    std::vector<BoundingVolume *> c_obs;
 	Cspace_2D(std::vector<BoundingVolume *> obs, BoundingVolume * agent);
 	bool is_collision(glm::vec2 a);
 	bool line_of_sight(glm::vec2 a, glm::vec2 b);
@@ -38,15 +36,6 @@ private:
 public:
 	Graph<glm::vec2> * roadmap;
 	PRM(glm::vec2 start, glm::vec2 goal, Cspace_2D * c_space);
-	//VecPoint * find_path_UCS();
-	//VecPoint * find_path_Astar(float e);
 };
-
-//wtf, why didn't I just use glm::Vec2???
-//float dotP(Point a, Point b);
-//float distP(Point a, Point b);
-//Point subP(Point a, Point b);
-//Point addP(Point a, Point b);
-//Point scaleP(Point a, float s);
 
 #endif // PRM_H_GUARD

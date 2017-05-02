@@ -1,5 +1,10 @@
 #include "Sphere.hpp"
 
+using namespace glm;
+using std::vector;
+using std::min;
+using std::max;
+
 Sphere::Sphere() : Object() {
 	params[0] = 1.0;
 	sphere = true;
@@ -65,19 +70,12 @@ void Sphere::construct() {
 	}
 }
 
-Object *Sphere::cObstacle(vec3 inputParams) {
-	Sphere *s = new Sphere(pos, params[0] + inputParams[0]);
-	s->setColor(.5, .5, .5);
-
-	return s;
-}
-
 bool Sphere::collides(vec3 p) {
-	return dot((p - pos), (p - pos)) < params[0]*params[0];
+	return dot((p - dyn.pos), (p - dyn.pos)) < params[0]*params[0];
 }
 
 bool Sphere::intersects(vec3 origin, vec3 ray) {
-	vec3 objectRay = origin - pos;
+	vec3 objectRay = origin - dyn.pos;
 	vec3 pointRay = ray;
 	pointRay = normalize(pointRay);
 	float magnitude = ray.length();

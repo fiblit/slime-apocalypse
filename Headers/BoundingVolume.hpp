@@ -12,12 +12,13 @@ class Rect;
 //either a cylindrical BV or an axis-aligned rectangular BV.
 class BoundingVolume {
 public:
+    enum class volume_type { CIRC, RECT };
     glm::vec2 o;//origin
-    virtual bool is_collision(glm::vec2 p) =0;
-    virtual bool line_of_sight(glm::vec2 a, glm::vec2 b, glm::vec2 Lab, float len2) =0;
-    virtual std::vector<BoundingVolume *> minkowskiSum(BoundingVolume *)=0;
+    volume_type vt;//what type this is instantiated as; manual polymorphism
+    virtual bool is_collision(glm::vec2 p) = 0;
+    virtual bool line_of_sight(glm::vec2 a, glm::vec2 b, glm::vec2 Lab, float len2) = 0;
+    virtual std::vector<BoundingVolume *> minkowskiSum(BoundingVolume *) = 0;
 };
-
 
 class Rect : public BoundingVolume {
 public:

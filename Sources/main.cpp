@@ -1077,43 +1077,12 @@ void replan() {
         for (int i = 0; i < 100; i++)
             for (int j = 0; j < 100; j++)
                 for (Agent * a : agents[i][j]) {
-                    /*
-                    std::vector<BoundingVolume *> a_cspace_bvs = bv;
-
-                    for (Agent * b : agents) {
-                        if (a == b)
-                            continue;
-
-                        /*
-                        //pointers were causing some aliasing issues must fix
-                        BoundingVolume * s = b->bv;
-                        s->o = b->start;
-                        BoundingVolume * g = b->bv;
-                        g->o = b->goal;
-                        /
-                        BoundingVolume * s, * g;
-                        if (b->vt == agent::volume_type::RECT) {
-                            Rect * r = static_cast<Rect *>(b->bv);
-                            s = new Rect(b->start, r->w, r->h);
-                            g = new Rect(b->goal, r->w, r->h);
-                        }
-                        else {
-                            Circ * c = static_cast<Circ *>(b->bv);
-                            s = new Circ(b->start, c->r);
-                            g = new Circ(b->goal, c->r);
-                        }
-
-                        //a_cspace_bvs.push_back(s);
-                        //a_cspace_bvs.push_back(g);
-                    }
-                    */
                     //even when the agents are all the same the Cspaces must vary a bit, there's definitely a more
                     //efficient way of handling this though
                     if (!a->boid) {
                         if (std_cspace == nullptr) {
                             std_cspace = new Cspace_2D(bv/*a_cspace_bvs*/, a->bv);
                         }
-
                         a->cspace = std_cspace;
                         a->prm = new PRM(a->start, a->goal, a->cspace);
                     }
@@ -1128,7 +1097,6 @@ void replan() {
             }
         }
     }
-
 
 	/* PATH PLANNING METHOD */
 
