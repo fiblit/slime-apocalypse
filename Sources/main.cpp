@@ -8,58 +8,9 @@
 //need to pull stuff out of main into either a Scene or Renderer
 //refactor. refactor, refactor
 int main() {
-    /* Load GLFW  */
-	D(std::cout << "Initializing GLFW for OpenGL 3.3...");
-    glfwInit();
-	// Set required hints
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); //For macs
-	D(OK());
-
-	/* Create Window Context */
-	D(std::cout << "Creating GLFW Window Context...");
-	//handle fullscreen
-	GLFWmonitor* monitor = nullptr;
-	if (G::WIN_FULLSCREEN)
-		monitor = glfwGetPrimaryMonitor();
-	//Make a window
-	std::string title = "Slime Apocalypse";
-    GLFWwindow* window = glfwCreateWindow(G::WIN_WIDTH, G::WIN_HEIGHT, title.c_str(), monitor, nullptr);
-    if (window == nullptr) {
-		std::cerr << "Failed to create OpenGL Context" << std::endl;
-		return kill_app(EXIT_FAILURE);
-    }
-	glfwMakeContextCurrent(window);
-	D(OK());
-
-	/* Define callbacks */
-	D(std::cout << "Setting Callbacks...");
-	glfwSetKeyCallback(window, key_callback);
-	glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, scroll_callback);
-	D(OK());
-
-	/* load all OpenGL functions */
-	D(std::cout << "Loading OpenGL with glad...");
-	// via glad using the glfw loader function
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		std::cerr << "Failed to initialize OpenGL context" << std::endl;
-		return kill_app(EXIT_FAILURE);
-	}
-	D(std::cout << "OK ::: OpenGL " << glGetString(GL_VERSION) << std::endl);
-
-	/* Handle Viewport */
-	D(std::cout << "Creating viewport...");
-	GLint width, height;
-	glfwGetFramebufferSize(window, &width, &height);
-	glViewport(0, 0, width, height);
-	D(OK());
-
-	glEnable(GL_DEPTH_TEST);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    GLFWwindow * window = init_window_context();
+    if (window == nullptr)
+        return kill_app(EXIT_FAILURE);
 
 	/* Management */
     G::time::init_stack(1);
@@ -75,6 +26,8 @@ int main() {
 	Shader * lamp_shader = new Shader(
 		((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.vert").c_str(),
 		((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.frag").c_str());
+
+    //there's a reason I said it should be in the scene. :p
 	cam = new Camera();
 
 	/* Objects */
@@ -401,6 +354,63 @@ int main() {
 
 	/* Exit */
     return kill_app(EXIT_SUCCESS);
+}
+
+GLFWwindow * init_window_context() {
+    /* Load GLFW  */
+    D(std::cout << "Initializing GLFW for OpenGL 3.3...");
+    glfwInit();
+    // Set required hints
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); //For macs
+    D(OK());
+
+    /* Create Window Context */
+    D(std::cout << "Creating GLFW Window Context...");
+    //handle fullscreen
+    GLFWmonitor* monitor = nullptr;
+    if (G::WIN_FULLSCREEN)
+        monitor = glfwGetPrimaryMonitor();
+    //Make a window
+    std::string title = "Slime Apocalypse";
+    GLFWwindow* window = glfwCreateWindow(G::WIN_WIDTH, G::WIN_HEIGHT, title.c_str(), monitor, nullptr);
+    if (window == nullptr) {
+        std::cerr << "Failed to create OpenGL Context" << std::endl;
+        return nullptr;
+    }
+    glfwMakeContextCurrent(window);
+    D(OK());
+
+    /* Define callbacks */
+    D(std::cout << "Setting Callbacks...");
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+    D(OK());
+
+    /* load all OpenGL functions */
+    D(std::cout << "Loading OpenGL with glad...");
+    // via glad using the glfw loader function
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cerr << "Failed to initialize OpenGL context" << std::endl;
+        return nullptr;
+    }
+    D(std::cout << "OK ::: OpenGL " << glGetString(GL_VERSION) << std::endl);
+
+    /* Handle Viewport */
+    D(std::cout << "Creating viewport...");
+    GLint width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    glViewport(0, 0, width, height);
+    D(OK());
+
+    glEnable(GL_DEPTH_TEST);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    return window;
 }
 
 //move to GMP

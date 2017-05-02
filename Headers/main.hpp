@@ -38,6 +38,8 @@
 #include <thread>
 #pragma warning(pop)
 
+GLFWwindow * init_window_context();
+
 /* Globals */
 namespace G {
 	const GLint WIN_WIDTH = 1200;
@@ -111,7 +113,6 @@ namespace obj {//should be in G
 	glm::vec3 * agent_positions;
 }
 
-Camera* cam;
 G::time::Timer * game_loop_clock;
 
 const GLuint cylinder_res = 11;
