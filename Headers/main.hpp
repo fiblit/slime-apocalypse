@@ -3,10 +3,8 @@
 #pragma once
 
 /* LOCALS */
-/* MACROS */
 #include "debug.hpp"
-
-/* CLASSES */
+#include "UI.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
 #include "Timer.hpp"
@@ -112,12 +110,6 @@ namespace obj {//should be in G
 	glm::vec4 * agent_rotation;
 	glm::vec3 * agent_positions;
 }
-namespace mouse {
-	GLfloat last_x = G::WIN_WIDTH / 0.5f;
-	GLfloat last_y = G::WIN_HEIGHT / 0.5f;
-	GLboolean focus = false;
-	//GLfloat sensitivity = 0.25f;
-}
 
 Camera* cam;
 G::time::Timer * game_loop_clock;
@@ -138,21 +130,22 @@ std::vector<Agent *> agents[100][100];
 std::vector<Rect *> rect_bounds;
 std::vector<Circ *> obst_bounds;
 
+void inc_NR_AGENT_TO_DRAW(std::vector<Agent *> agents);
+void count_NR_AGENT_TO_DRAW();//ttc_grid_branch(^^)
+
+void update_agents_bin(std::vector<Agent *> agents, GLuint * offset);
+void init_agent_data();//ttc_grid_branch(^^)
+
+void handle_input(GLfloat dt);
+
 GLboolean is_flashlight_on;
-int selected_agent_debug = 0;
-
-/* UI prototypes */
-bool keys[1024];
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void do_movement();
-
 void toggle_flashlight();
 
 void init_planning();
+GLint selected_agent_debug = 0;
 void init_planning_vis();
 void replan();
+
 void place_obst(glm::vec3 pos);
 void place_goal_node(glm::vec3 pos);
 void place_start_node(glm::vec3 pos);
@@ -162,7 +155,6 @@ void move_current_obstacle(GLfloat xs, GLfloat ys, GLfloat dt);
 
 void move_player(GLfloat dx, GLfloat dy, GLfloat dt);
 
-int kill_app(int retVal);
 void animate_agents(GLfloat dt);
 
 #endif //MAIN

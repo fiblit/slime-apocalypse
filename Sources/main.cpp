@@ -26,7 +26,7 @@ int main() {
 	if (G::WIN_FULLSCREEN)
 		monitor = glfwGetPrimaryMonitor();
 	//Make a window
-	std::string title = "Dalton Hildreth ::: Homework 5";
+	std::string title = "Slime Apocalypse";
     GLFWwindow* window = glfwCreateWindow(G::WIN_WIDTH, G::WIN_HEIGHT, title.c_str(), monitor, nullptr);
     if (window == nullptr) {
 		std::cerr << "Failed to create OpenGL Context" << std::endl;
@@ -196,7 +196,7 @@ int main() {
 
 		// Callbacks 
 		glfwPollEvents();
-		do_movement();
+		handle_input(game_loop_clock->delta());
 
 		// Render 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -401,116 +401,6 @@ int main() {
 
 	/* Exit */
     return kill_app(EXIT_SUCCESS);
-}
-
-//move to UI
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
-    UNUSED(window, scancode, mode);
-	//Press ESC to close Application
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GL_TRUE);
-	if (action == GLFW_PRESS) {
-		D(std::cout << "Key Pressed: " << /*glfwGetKeyName(key, key)*/ key << std::endl);
-		keys[key] = true;
-	}
-	else if (action == GLFW_RELEASE) {
-		keys[key] = false;
-	}
-}
-
-//move to UI
-void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-    UNUSED(window);
-	if (!mouse::focus) {
-		mouse::last_x = (GLfloat) xpos;
-		mouse::last_y = (GLfloat) ypos;
-		mouse::focus = true;
-	}
-	GLfloat x_offset = (GLfloat) xpos - mouse::last_x;
-	GLfloat y_offset = (GLfloat) ypos - mouse::last_y;
-	mouse::last_x = (GLfloat) xpos;
-	mouse::last_y = (GLfloat) ypos;
-	//x_offset *= mouse::sensitivity;
-	//y_offset *= mouse::sensitivity;
-	cam->mouse_rotate_camera(x_offset, y_offset);
-}
-
-//move to UI
-void scroll_callback(GLFWwindow * window, double xoffset, double yoffset) {
-    UNUSED(window, xoffset);
-	cam->scroll_zoom_camera((GLfloat) yoffset);
-}
-
-//move to Scene
-//refactor
-void do_movement() {
-	if (keys[GLFW_KEY_W])
-		cam->translate_camera(G::CAMERA::FORWARD, game_loop_clock->delta());
-	if (keys[GLFW_KEY_S])
-		cam->translate_camera(G::CAMERA::BACKWARD, game_loop_clock->delta());
-	if (keys[GLFW_KEY_A])
-		cam->translate_camera(G::CAMERA::LEFT, game_loop_clock->delta());
-	if (keys[GLFW_KEY_D])
-		cam->translate_camera(G::CAMERA::RIGHT, game_loop_clock->delta());
-
-	if (keys[GLFW_KEY_P]) {
-		keys[GLFW_KEY_P] = false;
-		replan();
-		init_planning_vis();
-	}
-
-    //deprecated for the uniform grid to work
-	if (!G::WITH_TTC_GRID && keys[GLFW_KEY_G]) {
-		keys[GLFW_KEY_G] = false;
-        selected_agent_debug = (selected_agent_debug + 1) % NUM_AGENTS;
-        init_planning_vis();
-	}
-	if (!G::WITH_TTC_GRID && keys[GLFW_KEY_T]) {
-		keys[GLFW_KEY_T] = false;
-        selected_agent_debug = (selected_agent_debug - 1) % NUM_AGENTS;
-        init_planning_vis();
-	}
-    
-    /* //the dynamic obstacle is buggy with multi-agents for some reason
-    if (keys[GLFW_KEY_O]) {
-    keys[GLFW_KEY_O] = false;
-    place_obst(cam->pos);
-    }
-	if (keys[GLFW_KEY_M]) {
-		keys[GLFW_KEY_M] = false;
-		mode_toggle_current_obstacle();
-	}
-	if (keys[GLFW_KEY_I])
-		scale_current_obstacle(1.f, 1.1f, timer->getDelta());
-	if (keys[GLFW_KEY_K])
-		scale_current_obstacle(1.f, 1/1.1f, timer->getDelta());
-	if (keys[GLFW_KEY_J])
-		scale_current_obstacle(1 / 1.1f, 1.f, timer->getDelta());
-	if (keys[GLFW_KEY_L])
-		scale_current_obstacle(1.1f, 1.f, timer->getDelta());
-    */
-	if (keys[GLFW_KEY_UP])
-		move_player( 0.f,  1.3f, game_loop_clock->delta());
-	if (keys[GLFW_KEY_DOWN])
-		move_player( 0.f, -1.3f, game_loop_clock->delta());
-	if (keys[GLFW_KEY_LEFT])
-		move_player(-1.3f,  0.f, game_loop_clock->delta());
-	if (keys[GLFW_KEY_RIGHT])
-		move_player( 1.3f,  0.f, game_loop_clock->delta());
-
-	if (keys[GLFW_KEY_F]) {
-		keys[GLFW_KEY_F] = false;
-		toggle_flashlight();
-	}
-}
-
-//move to UI
-int kill_app(int retVal) {
-	glfwTerminate();
-	std::cout << std::endl << "Application Terminated. With exit value: " << retVal << std::endl;
-	D(slow_print(50, 300, "\n\nGoodbye..."));
-	D(slow_print(150, 500, "OK"));
-    return retVal;
 }
 
 //move to GMP
@@ -746,7 +636,7 @@ void animate_agents(GLfloat dt) {
                         step = cylinder_res;
 
                     for (GLuint i = 0; i < step; i++)
-                        obj::agent_positions[i + agent_mesh_drawn] = glm::vec3(a->bv->o.x, 0.0f + 0.001f*(i /*+ agent_mesh_drawn*/), a->bv->o.y);
+                        obj::agent_positions[i + agent_mesh_drawn] = glm::vec3(a->bv->o.x, 0.0f + 0.001f*(i /*+ offset*/), a->bv->o.y);
                     agent_mesh_drawn += step;
                 }
             }
@@ -761,7 +651,7 @@ void animate_agents(GLfloat dt) {
                 step = cylinder_res;
 
             for (GLuint i = 0; i < step; i++)
-                obj::agent_positions[i + agent_mesh_drawn] = glm::vec3(a->bv->o.x, 0.0f + 0.001f*(i /*+ agent_mesh_drawn*/), a->bv->o.y);
+                obj::agent_positions[i + agent_mesh_drawn] = glm::vec3(a->bv->o.x, 0.0f + 0.001f*(i /*+ offset*/), a->bv->o.y);
             agent_mesh_drawn += step;
         }
     }
@@ -971,7 +861,7 @@ void init_planning_vis() {
     if (!G::WITH_TTC_GRID)
         debug_agent = agents_old[selected_agent_debug];
 
-    //DEPRECATED for the sake of the uniform grid working :P
+    //for the sake of the uniform grid working :P
     if (!G::WITH_TTC_GRID && debug_agent->prm != nullptr) {
         std::vector<Node<glm::vec2> *> * verts = debug_agent->prm->roadmap->vertices;
         obj::NR_CUBES = static_cast<GLuint>(verts->size() + 1);
@@ -1029,8 +919,8 @@ void init_planning_vis() {
     //add circs
     obj::NR_RECT_IN_CIRC = static_cast<GLuint>(cylinder_res * obst_bounds.size());
     obj::rect_in_circ_positions = new glm::vec3[obj::NR_RECT_IN_CIRC];
-    obj::rect_in_circ_rotation = new glm::vec4[obj::NR_RECT_IN_CIRC];
     obj::rect_in_circ_scale = new float[obj::NR_RECT_IN_CIRC];
+    obj::rect_in_circ_rotation = new glm::vec4[obj::NR_RECT_IN_CIRC];
     for (GLuint i = 0; i < obj::NR_RECT_IN_CIRC; i++) {
         obj::rect_in_circ_positions[i] = glm::vec3(obst_bounds[(int)i / cylinder_res]->o.x, 0.0f - 0.001f*i, obst_bounds[(int)i / cylinder_res]->o.y);
         obj::rect_in_circ_scale[i] = obst_bounds[(int)i / cylinder_res]->r * static_cast<float>(sqrt(2));
@@ -1047,94 +937,68 @@ void init_planning_vis() {
     }
 
     //add agent -- could be polymorphised -- :P
+    count_NR_AGENT_TO_DRAW();
+
+    init_agent_data();
+}
+
+//with planning vis
+void inc_NR_AGENT_TO_DRAW(std::vector<Agent *> agents) {
+    for (Agent * a : agents)
+        if (a->vt == agent::volume_type::RECT)
+            obj::NR_AGENT_TO_DRAW++;
+        else
+            obj::NR_AGENT_TO_DRAW += cylinder_res;
+}
+void count_NR_AGENT_TO_DRAW() {
     obj::NR_AGENT_TO_DRAW = 0;
-    if (G::WITH_TTC_GRID) {//todo  internals -> function
+    if (G::WITH_TTC_GRID)
         for (int i = 0; i < 100; i++)
             for (int j = 0; j < 100; j++)
-                for (Agent * a : agents[i][j])
-                    if (a->vt == agent::volume_type::RECT)
-                        obj::NR_AGENT_TO_DRAW++;
-                    else
-                        obj::NR_AGENT_TO_DRAW += cylinder_res;
-    }
-    else {
-        for (Agent * a : agents_old)
-            if (a->vt == agent::volume_type::RECT)
-                obj::NR_AGENT_TO_DRAW++;
-            else
-                obj::NR_AGENT_TO_DRAW += cylinder_res;
-    }
-    
+                inc_NR_AGENT_TO_DRAW(agents[i][j]);
+    else
+        inc_NR_AGENT_TO_DRAW(agents_old);
+}
 
-    obj::agent_positions = new glm::vec3[obj::NR_AGENT_TO_DRAW]; 
-    obj::agent_scale = new GLfloat[obj::NR_AGENT_TO_DRAW]; 
+//with planning vis
+void update_agents_bin(std::vector<Agent *> agents, GLuint * offset) {
+    for (Agent * a : agents) {
+        GLuint step;
+        if (a->vt == agent::volume_type::RECT)
+            step = 1;
+        else
+            step = cylinder_res;
+
+        for (GLuint i = 0; i < step; i++) {
+            obj::agent_positions[i + *offset] =
+                glm::vec3(a->bv->o.x, 0.0f + 0.001f*i, a->bv->o.y);
+            obj::agent_rotation[i + *offset] =
+                glm::vec4(
+                    0.f, 1.f, 0.f,
+                    glm::radians(360.f / cylinder_res * (i % cylinder_res)));
+            if (a->vt == agent::volume_type::CIRC)
+                obj::agent_scale[i + *offset] =
+                    static_cast<Circ *>(a->bv)->r * static_cast<GLfloat>(sqrt(2));
+            else
+                obj::agent_scale[i + *offset] = static_cast<Rect *>(a->bv)->w;
+        }
+        *offset += step;
+    }
+}
+void init_agent_data() {
+    obj::agent_positions = new glm::vec3[obj::NR_AGENT_TO_DRAW];
+    obj::agent_scale = new GLfloat[obj::NR_AGENT_TO_DRAW];
     obj::agent_rotation = new glm::vec4[obj::NR_AGENT_TO_DRAW];
 
-    int agent_mesh_drawn = 0;
+    GLuint offset = 0;
     if (G::WITH_TTC_GRID) {//todo internals -> function / macro / preprocess
         for (int c = 0; c < 100; c++)
             for (int r = 0; r < 100; r++)
-                for (Agent * a : agents[c][r]) {
-                    GLuint step;
-                    if (a->vt == agent::volume_type::RECT)
-                        step = 1;
-                    else
-                        step = cylinder_res;
-
-                    for (GLuint i = 0; i < step; i++) {
-                        if (a->vt == agent::volume_type::CIRC) {
-                            obj::agent_positions[i + agent_mesh_drawn] =
-                                glm::vec3(a->bv->o.x, 0.0f + 0.001f*i, a->bv->o.y);
-                            obj::agent_scale[i + agent_mesh_drawn] =
-                                static_cast<Circ *>(a->bv)->r * static_cast<float>(sqrt(2));
-                            obj::agent_rotation[i + agent_mesh_drawn] =
-                                glm::vec4(0.0f, 1.0f, 0.0f, glm::radians(360.0f / cylinder_res * (i%cylinder_res)));
-                        }
-                        else {
-                            obj::agent_positions[i + agent_mesh_drawn] =
-                                glm::vec3(a->bv->o.x, 0.0f, a->bv->o.y);
-                            obj::agent_scale[i + agent_mesh_drawn] =
-                                static_cast<Rect *>(a->bv)->w;
-                            obj::agent_rotation[i + agent_mesh_drawn] =
-                                glm::vec4(0.0f, 1.0f, 0.0f, 0);
-                        }
-
-                    }
-
-                    agent_mesh_drawn += step;
-                }
+                //the grid is why I have to pass offset in like this
+                update_agents_bin(agents[c][r], &offset);
     }
-    else {
-        for (Agent * a : agents_old) {
-            GLuint step;
-            if (a->vt == agent::volume_type::RECT)
-                step = 1;
-            else
-                step = cylinder_res;
-
-            for (GLuint i = 0; i < step; i++) {
-                if (a->vt == agent::volume_type::CIRC) {
-                    obj::agent_positions[i + agent_mesh_drawn] =
-                        glm::vec3(a->bv->o.x, 0.0f + 0.001f*i, a->bv->o.y);
-                    obj::agent_scale[i + agent_mesh_drawn] =
-                        static_cast<Circ *>(a->bv)->r * static_cast<float>(sqrt(2));
-                    obj::agent_rotation[i + agent_mesh_drawn] =
-                        glm::vec4(0.0f, 1.0f, 0.0f, glm::radians(360.0f / cylinder_res * (i%cylinder_res)));
-                }
-                else {
-                    obj::agent_positions[i + agent_mesh_drawn] =
-                        glm::vec3(a->bv->o.x, 0.0f, a->bv->o.y);
-                    obj::agent_scale[i + agent_mesh_drawn] =
-                        static_cast<Rect *>(a->bv)->w;
-                    obj::agent_rotation[i + agent_mesh_drawn] =
-                        glm::vec4(0.0f, 1.0f, 0.0f, 0);
-                }
-
-            }
-
-            agent_mesh_drawn += step;
-        }
-    }    
+    else
+        update_agents_bin(agents_old, &offset);
 }
 
 //move to AI/planner
@@ -1283,6 +1147,68 @@ void replan() {
 
     init_planning_vis();
     game_loop_clock->play();
+}
+
+//move to Scene 
+void handle_input(GLfloat dt) {
+    if (UI::keys[GLFW_KEY_W])
+        cam->translate_camera(G::CAMERA::FORWARD, dt);
+    if (UI::keys[GLFW_KEY_S])
+        cam->translate_camera(G::CAMERA::BACKWARD, dt);
+    if (UI::keys[GLFW_KEY_A])
+        cam->translate_camera(G::CAMERA::LEFT, dt);
+    if (UI::keys[GLFW_KEY_D])
+        cam->translate_camera(G::CAMERA::RIGHT, dt);
+
+    if (UI::keys[GLFW_KEY_P]) {
+        UI::keys[GLFW_KEY_P] = false;
+        replan();
+        init_planning_vis();
+    }
+
+    //deprecated for the uniform grid to work
+    if (!G::WITH_TTC_GRID && UI::keys[GLFW_KEY_G]) {
+        UI::keys[GLFW_KEY_G] = false;
+        selected_agent_debug = (selected_agent_debug + 1) % NUM_AGENTS;
+        init_planning_vis();
+    }
+    if (!G::WITH_TTC_GRID && UI::keys[GLFW_KEY_T]) {
+        UI::keys[GLFW_KEY_T] = false;
+        selected_agent_debug = (selected_agent_debug - 1) % NUM_AGENTS;
+        init_planning_vis();
+    }
+
+    /* //the dynamic obstacle is buggy with multi-agents for some reason
+    if (UI::keys[GLFW_KEY_O]) {
+    UI::keys[GLFW_KEY_O] = false;
+    place_obst(cam->pos);
+    }
+    if (UI::keys[GLFW_KEY_M]) {
+    UI::keys[GLFW_KEY_M] = false;
+    mode_toggle_current_obstacle();
+    }
+    if (UI::keys[GLFW_KEY_I])
+    scale_current_obstacle(1.f, 1.1f, timer->getDelta());
+    if (UI::keys[GLFW_KEY_K])
+    scale_current_obstacle(1.f, 1/1.1f, timer->getDelta());
+    if (UI::keys[GLFW_KEY_J])
+    scale_current_obstacle(1 / 1.1f, 1.f, timer->getDelta());
+    if (UI::keys[GLFW_KEY_L])
+    scale_current_obstacle(1.1f, 1.f, timer->getDelta());
+    */
+    if (UI::keys[GLFW_KEY_UP])
+        move_player(0.f, 1.3f, dt);
+    if (UI::keys[GLFW_KEY_DOWN])
+        move_player(0.f, -1.3f, dt);
+    if (UI::keys[GLFW_KEY_LEFT])
+        move_player(-1.3f, 0.f, dt);
+    if (UI::keys[GLFW_KEY_RIGHT])
+        move_player(1.3f, 0.f, dt);
+
+    if (UI::keys[GLFW_KEY_F]) {
+        UI::keys[GLFW_KEY_F] = false;
+        toggle_flashlight();
+    }
 }
 
 //move to Scene
