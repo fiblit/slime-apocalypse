@@ -3,7 +3,7 @@
 
 #include "Object.hpp"
 
-#define PI 4.0*atan(1.0)
+const GLfloat PI = 4.0*atan(1.0);
 
 class Sphere : public Object {
 public:

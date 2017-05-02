@@ -11,11 +11,6 @@
 #include <GLFW/glfw3.h>// glfw: a library for I/O and OpenGL context creation: http://www.glfw.org/
 #include <glm/glm.hpp>// glm: OpenGL mathematics: http://glm.g-truc.net/0.9.8/index.html
 
-using glm::vec3;
-using std::vector;
-using std::cout;
-using std::endl;
-
 class Scene {
 public:
 	Scene();
@@ -25,19 +20,19 @@ public:
 	void addWall(float h, float x1, float y1, float x2, float y2);
 
 	void setPlayerColor(float r, float g, float b);
-	void setPlayerColor(vec3 rgb);
+	void setPlayerColor(glm::vec3 rgb);
 
 	void updatePRM();
 
-	void setBounds(vec3 min, vec3 max);
+	void setBounds(glm::vec3 min, glm::vec3 max);
 
 	void simulate(double dt);
 
 	void render();
 
 	Object *playerObject;
-	vector<Object *> enemyObjects;
-	vector<Object *> staticObjects;
+	std::vector<Object *> enemyObjects;
+	std::vector<Object *> staticObjects;
 	//PRM prm;
 	bufferContainer bc;
 };
