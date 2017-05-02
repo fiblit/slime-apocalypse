@@ -18,24 +18,25 @@
 
 typedef std::vector<Node<glm::vec2> *> VecPoint;
 
-class Cspace_2D {
+//TODO dalton: extract CSspace2D into new .c/hpp
+class Cspace2D {
 private:
 public:
     std::vector<BoundingVolume *> c_obs;
-	Cspace_2D(std::vector<BoundingVolume *> obs, BoundingVolume * agent);
+	Cspace2D(std::vector<BoundingVolume *> obs, BoundingVolume * agent);
 	bool is_collision(glm::vec2 a);
 	bool line_of_sight(glm::vec2 a, glm::vec2 b);
 };
 
 class PRM {
 private:
-	Cspace_2D * c_space;
-	VecPoint * sample_nodes(Cspace_2D * c_space);
+	Cspace2D * c_space;
+	VecPoint * sample_nodes(Cspace2D * c_space, float perturb, float bin_dim, int bin_samps, std::pair<float, float> bounds);
 	VecPoint * find_nearest_neighbours(VecPoint * nodes, int targetIdx);
 	Graph<glm::vec2> * connect_roadmap(VecPoint * nodes);
 public:
 	Graph<glm::vec2> * roadmap;
-	PRM(glm::vec2 start, glm::vec2 goal, Cspace_2D * c_space);
+	PRM(glm::vec2 start, glm::vec2 goal, Cspace2D * c_space);
 };
 
 #endif // PRM_H_GUARD
