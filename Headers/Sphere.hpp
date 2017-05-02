@@ -18,8 +18,8 @@ public:
 
 	Object *cObstacle(vec3 inputParams);
 
+    //replace by my BoundingVolume
 	bool collides(vec3 p);
-
 	bool intersects(vec3 origin, vec3 ray);
 
 	// params[0] is radius

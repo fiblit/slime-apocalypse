@@ -12,12 +12,18 @@ namespace agent {
 class Agent {
 public:
     glm::vec2 start, goal;
+
+    //deprecate in favor of the grouping strategy
     Cspace_2D * cspace; //wish I could split this up into static/dynamic
     PRM * prm; //this seems wasteful...?
 
+    //for the sake of physics, I will need to maintain pos/vel/acc
     glm::vec2 vel;//hack for ttc
     bool boid;//hack for boids
 
+    //somehow this needs to be abstracted away from Object
+    //Perhaps "Agent" can be a component tacked onto Objects
+    //In turn, BoundingVolumes would either be tacked on the Agents or the Objects
     std::vector<Node<glm::vec2> *> * plan;
     int completed_nodes;
     //"Model" -- nope -- too much work RN 

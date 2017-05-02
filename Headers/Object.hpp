@@ -37,8 +37,8 @@ public:
 
 	virtual Object *cObstacle(vec3 inputParams) = 0;
 
+    //will be replaced by Bounding Volumes
 	virtual bool collides(vec3 p) = 0;
-
 	virtual bool intersects(vec3 origin, vec3 ray) = 0;
 
 	virtual void construct() = 0;
