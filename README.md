@@ -19,7 +19,7 @@ directory structure:
 
 To Init:
 ```
-git --recursive clone https://github.com/fiblit/gg-engine.git
+git --recursive clone https://github.umn.edu/hildr039/slime-apocalypse
 ```
 
 To Build:
