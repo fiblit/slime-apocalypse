@@ -7,11 +7,11 @@
 
 //should be in scene if we're going to be honest,
 //however, UI is the only thing touching this atm
-Camera * cam;
+extern Camera * cam;
 
 namespace UI {
-    GLfloat cursor_sensitivity = 1.f;
-    GLboolean keys[1024];
+    extern GLfloat cursor_sensitivity;
+    extern GLboolean keys[1024];
 }
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
