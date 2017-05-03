@@ -38,6 +38,8 @@ Sphere::Sphere(vec3 p, float r) : Object(p) {
 Sphere::~Sphere() {}
 
 void Sphere::construct() {
+    this->bv = new Circ(glm::vec2(dyn.pos[0], dyn.pos[1]), params[0]);
+
 	vertices.clear();
 	colors.clear();
 	normals.clear();

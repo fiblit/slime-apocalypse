@@ -71,6 +71,7 @@ void Object::moveBy(float x, float y, float z) {
 // Simple movement functions; we'll need to adapt these to however our objects move
 void Object::moveBy(vec3 t) {
 	dyn.pos += t;
+    bv->o += vec2(t);
 	for (int i = 0; i < vertices.size(); i++) {
 		vertices[i] += t;
 	}
@@ -85,6 +86,7 @@ void Object::moveTo(float x, float y, float z) {
 void Object::moveTo(vec3 position) {
 	vec3 p = position - dyn.pos;
 	dyn.pos += p;
+    bv->o += vec2(p);
 	for (int i = 0; i < vertices.size(); i++) {
 		vertices[i] += p;
 	}

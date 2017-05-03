@@ -13,6 +13,7 @@ class Rect;
 class BoundingVolume {
 public:
     enum class volume_type { CIRC, RECT };
+    //TODO dalton: remove origin, if possible
     glm::vec2 o;//origin
     volume_type vt;//what type this is instantiated as; manual polymorphism
     virtual bool is_collision(glm::vec2 p) = 0;

@@ -43,6 +43,8 @@ Rectangle::Rectangle(vec3 p, float w, float h) : Object(p) {
 Rectangle::~Rectangle() {}
 
 void Rectangle::construct() {
+    this->bv = new Rect(glm::vec2(dyn.pos[0], dyn.pos[1]), params[0], params[1]);
+
 	vertices.clear();
 	colors.clear();
 	normals.clear();
