@@ -7,23 +7,23 @@ using std::min;
 using std::max;
 
 Object::Object() {
-	dyn.pos = vec3();
+	dyn.dyn.pos = vec3();
 }
 
 Object::Object(vec2 p) {
-    dyn.pos = vec3(p.x, p.y, 0.);
+    dyn.dyn.pos = vec3(p.x, p.y, 0.);
 }
 
 Object::Object(float x, float y) {
-	dyn.pos = vec3(x, y, 0.0);
+	dyn.dyn.pos = vec3(x, y, 0.0);
 }
 
 Object::Object(vec3 p) {
-	dyn.pos = p;
+	dyn.dyn.pos = p;
 }
 
 Object::Object(float x, float y, float y) {
-    dyn.pos = vec3(x, y, z);
+    dyn.dyn.pos = vec3(x, y, z);
 }
 
 Object::~Object() {}
@@ -70,7 +70,7 @@ void Object::moveBy(float x, float y, float z) {
 
 // Simple movement functions; we'll need to adapt these to however our objects move
 void Object::moveBy(vec3 t) {
-	pos += t;
+	dyn.pos += t;
 	for (int i = 0; i < vertices.size(); i++) {
 		vertices[i] += t;
 	}
@@ -83,8 +83,8 @@ void Object::moveTo(float x, float y, float z) {
 
 // Simple movement functions; we'll need to adapt these to however our objects move
 void Object::moveTo(vec3 position) {
-	vec3 p = position - pos;
-	pos += p;
+	vec3 p = position - dyn.pos;
+	dyn.pos += p;
 	for (int i = 0; i < vertices.size(); i++) {
 		vertices[i] += p;
 	}
