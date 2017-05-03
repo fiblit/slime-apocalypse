@@ -13,6 +13,7 @@
 #include "LocalMotionPlanner.hpp"
 #include "Agent.hpp"
 #include "Scenario.hpp"
+#include "Scene.hpp"
 
 /* GLOBALS */
 /* GL */
@@ -119,6 +120,8 @@ const GLuint cylinder_res = 11;
 
 GLuint cur_mode;
 BoundingVolume * cur_ob;
+
+Scene * scene;
 
 Circ * player;
 std::vector<Agent *> boidlings;
