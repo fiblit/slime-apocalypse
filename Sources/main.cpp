@@ -7,6 +7,9 @@
    stb, glad, etc. ) */
 //need to pull stuff out of main into either a Scene or Renderer
 //refactor. refactor, refactor
+
+using namespace mcl;
+
 int main() {
     GLFWwindow * window = init_window_context();
     if (window == nullptr)
@@ -17,13 +20,17 @@ int main() {
     game_loop_clock = &(G::time::stack[0]);
 
 	/* Shaders */
-	Shader * cube_shader = new Shader(
+	Shader * cube_shader = new Shader();
+	Shader * flat_shader = new Shader();
+	Shader * lamp_shader = new Shader();
+
+	cube_shader->init_from_strings(
 		((std::string)PROJECT_SOURCE_DIR + "/Shaders/cube.vert").c_str(), 
 		((std::string)PROJECT_SOURCE_DIR + "/Shaders/cube.frag").c_str());
-	Shader * flat_shader = new Shader(
+	flat_shader->init_from_strings(
 		((std::string)PROJECT_SOURCE_DIR + "/Shaders/flat.vert").c_str(),
 		((std::string)PROJECT_SOURCE_DIR + "/Shaders/flat.frag").c_str());
-	Shader * lamp_shader = new Shader(
+	lamp_shader->init_from_strings(
 		((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.vert").c_str(),
 		((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.frag").c_str());
 
@@ -77,7 +84,7 @@ int main() {
 	glBindVertexArray(0);*/
 
 	/* Load textures */
-	GLenum tex_format;
+	/*GLenum tex_format;
 	GLint tex_width, tex_height, tex_channels;
 	std::string RESOURCES_DIR = (std::string)PROJECT_SOURCE_DIR + "/Resources/";
 	GLubyte * image = stbi_load((RESOURCES_DIR + "container2.png").c_str(), &tex_width, &tex_height, &tex_channels, 0);
@@ -122,7 +129,7 @@ int main() {
 	glTexImage2D(GL_TEXTURE_2D, 0, tex_format, tex_width, tex_height, 0, tex_format, GL_UNSIGNED_BYTE, image);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(image);
-	glBindTexture(GL_TEXTURE_2D, 1);
+	glBindTexture(GL_TEXTURE_2D, 1);*/
 
 	/* Path Planning */
 	init_planning();
@@ -165,48 +172,48 @@ int main() {
 		glm::mat4 view = cam->getView();
 		glm::mat4 model;
 
-		cube_shader->use();
-		glActiveTexture(GL_TEXTURE0);
+		cube_shader->enable();
+		/*glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, tex_container);
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, tex_container_specular);
+		glBindTexture(GL_TEXTURE_2D, tex_container_specular);*/
 
-		glUniform3f(cube_shader->Uni("material.ambient"), 1.0f, 0.5f, 0.31f);
-		glUniform1f(cube_shader->Uni("material.shine"), 32.0f);
-		glUniform1i(cube_shader->Uni("material.diffuse"), 0);
-		glUniform1i(cube_shader->Uni("material.specular"), 1);
+		glUniform3f(cube_shader->uniform("material.ambient"), 1.0f, 0.5f, 0.31f);
+		glUniform1f(cube_shader->uniform("material.shine"), 32.0f);
+		glUniform1i(cube_shader->uniform("material.diffuse"), 0);
+		glUniform1i(cube_shader->uniform("material.specular"), 1);
 
-		glUniform3f(cube_shader->Uni("dirLight.direction"), dir_light_dir.x, -dir_light_dir.y, dir_light_dir.z);
-		glUniform3f(cube_shader->Uni("dirLight.ambient"), light_ambient.x*0.1f, light_ambient.y*0.1f, light_ambient.z*0.1f);
-		glUniform3f(cube_shader->Uni("dirLight.diffuse"), light_diffuse.x*0.1f, light_diffuse.y*0.1f, light_diffuse.z*0.1f);
-		glUniform3f(cube_shader->Uni("dirLight.specular"), light_specular.x*0.1f, light_specular.y*0.1f, light_specular.z*0.1f);
+		glUniform3f(cube_shader->uniform("dirLight.direction"), dir_light_dir.x, -dir_light_dir.y, dir_light_dir.z);
+		glUniform3f(cube_shader->uniform("dirLight.ambient"), light_ambient.x*0.1f, light_ambient.y*0.1f, light_ambient.z*0.1f);
+		glUniform3f(cube_shader->uniform("dirLight.diffuse"), light_diffuse.x*0.1f, light_diffuse.y*0.1f, light_diffuse.z*0.1f);
+		glUniform3f(cube_shader->uniform("dirLight.specular"), light_specular.x*0.1f, light_specular.y*0.1f, light_specular.z*0.1f);
 
 		for (GLuint i = 0; i < 4; i++) {
 			std::string si = "pointLights[" + std::to_string(i) + "].";
-			glUniform3f(cube_shader->Uni(si + "position"), point_light_positions[i].x, point_light_positions[i].y, point_light_positions[i].z);
-			glUniform1f(cube_shader->Uni(si + "constant"), 1.0f);
-			glUniform1f(cube_shader->Uni(si + "linear"), 0.045f);
-			glUniform1f(cube_shader->Uni(si + "quadratic"), 0.0075f);
-			glUniform3f(cube_shader->Uni(si + "ambient"), light_ambient.x, light_ambient.y, light_ambient.z);
-			glUniform3f(cube_shader->Uni(si + "diffuse"), light_diffuse.x, light_diffuse.y, light_diffuse.z);
-			glUniform3f(cube_shader->Uni(si + "specular"), light_specular.x, light_specular.y, light_specular.z);
+			glUniform3f(cube_shader->uniform(si + "position"), point_light_positions[i].x, point_light_positions[i].y, point_light_positions[i].z);
+			glUniform1f(cube_shader->uniform(si + "constant"), 1.0f);
+			glUniform1f(cube_shader->uniform(si + "linear"), 0.045f);
+			glUniform1f(cube_shader->uniform(si + "quadratic"), 0.0075f);
+			glUniform3f(cube_shader->uniform(si + "ambient"), light_ambient.x, light_ambient.y, light_ambient.z);
+			glUniform3f(cube_shader->uniform(si + "diffuse"), light_diffuse.x, light_diffuse.y, light_diffuse.z);
+			glUniform3f(cube_shader->uniform(si + "specular"), light_specular.x, light_specular.y, light_specular.z);
 		}
 
-		glUniform3f(cube_shader->Uni("spotLight.position"), cam->pos.x, cam->pos.y, cam->pos.z);
-		glUniform3f(cube_shader->Uni("spotLight.direction"), cam->dir.x, cam->dir.y, cam->dir.z);
-		glUniform3f(cube_shader->Uni("spotLight.ambient"), light_ambient.x*is_flashlight_on, light_ambient.y*is_flashlight_on, light_ambient.z*is_flashlight_on);
-		glUniform3f(cube_shader->Uni("spotLight.diffuse"), light_diffuse.x*is_flashlight_on, light_diffuse.y*is_flashlight_on, light_diffuse.z*is_flashlight_on);
-		glUniform3f(cube_shader->Uni("spotLight.specular"), light_specular.x*is_flashlight_on, light_specular.y*is_flashlight_on, light_specular.z*is_flashlight_on);
-		glUniform1f(cube_shader->Uni("spotLight.cutOff"), glm::cos(glm::radians(12.5f)));
-		glUniform1f(cube_shader->Uni("spotLight.fadeOff"), glm::cos(glm::radians(17.5f)));
-		glUniform1f(cube_shader->Uni("spotLight.constant"), 1.0f);
-		glUniform1f(cube_shader->Uni("spotLight.linear"), 0.007f);
-		glUniform1f(cube_shader->Uni("spotLight.quadratic"), 0.0002f);
+		glUniform3f(cube_shader->uniform("spotLight.position"), cam->pos.x, cam->pos.y, cam->pos.z);
+		glUniform3f(cube_shader->uniform("spotLight.direction"), cam->dir.x, cam->dir.y, cam->dir.z);
+		glUniform3f(cube_shader->uniform("spotLight.ambient"), light_ambient.x*is_flashlight_on, light_ambient.y*is_flashlight_on, light_ambient.z*is_flashlight_on);
+		glUniform3f(cube_shader->uniform("spotLight.diffuse"), light_diffuse.x*is_flashlight_on, light_diffuse.y*is_flashlight_on, light_diffuse.z*is_flashlight_on);
+		glUniform3f(cube_shader->uniform("spotLight.specular"), light_specular.x*is_flashlight_on, light_specular.y*is_flashlight_on, light_specular.z*is_flashlight_on);
+		glUniform1f(cube_shader->uniform("spotLight.cutOff"), glm::cos(glm::radians(12.5f)));
+		glUniform1f(cube_shader->uniform("spotLight.fadeOff"), glm::cos(glm::radians(17.5f)));
+		glUniform1f(cube_shader->uniform("spotLight.constant"), 1.0f);
+		glUniform1f(cube_shader->uniform("spotLight.linear"), 0.007f);
+		glUniform1f(cube_shader->uniform("spotLight.quadratic"), 0.0002f);
 
-		glUniformMatrix4fv(cube_shader->Uni("proj"), 1, GL_FALSE, glm::value_ptr(proj));
-		glUniformMatrix4fv(cube_shader->Uni("view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(cube_shader->uniform("proj"), 1, GL_FALSE, glm::value_ptr(proj));
+		glUniformMatrix4fv(cube_shader->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
 
-		glBindVertexArray(VAO[0]);
+		glBindVertexArray(scene->bc.scene_vao);
 
 		for (GLuint i = 0; i <obj::NR_RECT_IN_CIRC; i++) {
 			model = glm::mat4();
@@ -217,8 +224,8 @@ int main() {
                     obj::rect_in_circ_rotation[i].y, 
                     obj::rect_in_circ_rotation[i].z));
 			model = glm::scale(model, glm::vec3(obj::rect_in_circ_scale[i]));
-			glUniformMatrix4fv(cube_shader->Uni("model"), 1, GL_FALSE, glm::value_ptr(model));
-			glUniformMatrix4fv(cube_shader->Uni("normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
+			glUniformMatrix4fv(cube_shader->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
+			glUniformMatrix4fv(cube_shader->uniform("normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
@@ -227,8 +234,8 @@ int main() {
 			model = glm::mat4();
 			model = glm::translate(model, obj::rect_positions[i]);
 			model = glm::scale(model, glm::vec3(obj::rect_scale[i][0], 1.0f , obj::rect_scale[i][1]));
-			glUniformMatrix4fv(cube_shader->Uni("model"), 1, GL_FALSE, glm::value_ptr(model));
-			glUniformMatrix4fv(cube_shader->Uni("normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
+			glUniformMatrix4fv(cube_shader->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
+			glUniformMatrix4fv(cube_shader->uniform("normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
@@ -242,8 +249,8 @@ int main() {
                     obj::agent_rotation[i].y,
                     obj::agent_rotation[i].z));
 			model = glm::scale(model, glm::vec3(obj::agent_scale[i]));
-			glUniformMatrix4fv(cube_shader->Uni("model"), 1, GL_FALSE, glm::value_ptr(model));
-			glUniformMatrix4fv(cube_shader->Uni("normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
+			glUniformMatrix4fv(cube_shader->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
+			glUniformMatrix4fv(cube_shader->uniform("normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
@@ -258,8 +265,8 @@ int main() {
 					model = glm::translate(model, glm::vec3(cur_cob->o.x, 0.0f - 0.001f*i, cur_cob->o.y));
 					model = glm::scale(model, glm::vec3(cur_cob->r * static_cast<float>(sqrt(2))));
 					model = glm::rotate(model, glm::radians(360.0f / cylinder_res*i), glm::vec3(0.f, 1.f, 0.f));
-					glUniformMatrix4fv(cube_shader->Uni("model"), 1, GL_FALSE, glm::value_ptr(model));
-					glUniformMatrix4fv(cube_shader->Uni("normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
+					glUniformMatrix4fv(cube_shader->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
+					glUniformMatrix4fv(cube_shader->uniform("normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
 
 					glDrawArrays(GL_TRIANGLES, 0, 36);
 				}
@@ -272,8 +279,8 @@ int main() {
 				model = glm::mat4();
 				model = glm::translate(model, glm::vec3(cur_rob->o.x, 0.0f, cur_rob->o.y));
 				model = glm::scale(model, glm::vec3(cur_rob->w, 1.0f, cur_rob->h));
-				glUniformMatrix4fv(cube_shader->Uni("model"), 1, GL_FALSE, glm::value_ptr(model));
-				glUniformMatrix4fv(cube_shader->Uni("normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
+				glUniformMatrix4fv(cube_shader->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
+				glUniformMatrix4fv(cube_shader->uniform("normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
 
 				glDrawArrays(GL_TRIANGLES, 0, 36);
 			}
@@ -281,66 +288,65 @@ int main() {
 		}
 		/* end cube shaders */
 
-		flat_shader->use();
-		glUniform3f(flat_shader->Uni("material.ambient"), 1.0f, 0.5f, 0.31f);
-		glUniform1f(flat_shader->Uni("material.shine"), 32.0f);
+		flat_shader->enable();
+		glUniform3f(flat_shader->uniform("material.ambient"), 1.0f, 0.5f, 0.31f);
+		glUniform1f(flat_shader->uniform("material.shine"), 32.0f);
 
-		glUniform3f(flat_shader->Uni("dirLight.direction"), dir_light_dir.x, dir_light_dir.y, dir_light_dir.z);
-		glUniform3f(flat_shader->Uni("dirLight.ambient"), light_ambient.x*0.1f, light_ambient.y*0.1f, light_ambient.z*0.1f);
-		glUniform3f(flat_shader->Uni("dirLight.diffuse"), light_diffuse.x*0.1f, light_diffuse.y*0.1f, light_diffuse.z*0.1f);
-		glUniform3f(flat_shader->Uni("dirLight.specular"), light_specular.x*0.1f, light_specular.y*0.1f, light_specular.z*0.1f);
+		glUniform3f(flat_shader->uniform("dirLight.direction"), dir_light_dir.x, dir_light_dir.y, dir_light_dir.z);
+		glUniform3f(flat_shader->uniform("dirLight.ambient"), light_ambient.x*0.1f, light_ambient.y*0.1f, light_ambient.z*0.1f);
+		glUniform3f(flat_shader->uniform("dirLight.diffuse"), light_diffuse.x*0.1f, light_diffuse.y*0.1f, light_diffuse.z*0.1f);
+		glUniform3f(flat_shader->uniform("dirLight.specular"), light_specular.x*0.1f, light_specular.y*0.1f, light_specular.z*0.1f);
 
 		for (GLuint i = 0; i < 4; i++) {
 			std::string si = "pointLights[" + std::to_string(i) + "].";
-			glUniform3f(flat_shader->Uni( si + "position"), point_light_positions[i].x, point_light_positions[i].y, point_light_positions[i].z);
-			glUniform1f(flat_shader->Uni( si + "constant"), 1.0f);
-			glUniform1f(flat_shader->Uni( si + "linear"), 0.045f);
-			glUniform1f(flat_shader->Uni( si + "quadratic"), 0.0075f);
-			glUniform3f(flat_shader->Uni( si + "ambient"), light_ambient.x, light_ambient.y, light_ambient.z);
-			glUniform3f(flat_shader->Uni( si + "diffuse"), light_diffuse.x, light_diffuse.y, light_diffuse.z);
-			glUniform3f(flat_shader->Uni( si + "specular"), light_specular.x, light_specular.y, light_specular.z);
+			glUniform3f(flat_shader->uniform( si + "position"), point_light_positions[i].x, point_light_positions[i].y, point_light_positions[i].z);
+			glUniform1f(flat_shader->uniform( si + "constant"), 1.0f);
+			glUniform1f(flat_shader->uniform( si + "linear"), 0.045f);
+			glUniform1f(flat_shader->uniform( si + "quadratic"), 0.0075f);
+			glUniform3f(flat_shader->uniform( si + "ambient"), light_ambient.x, light_ambient.y, light_ambient.z);
+			glUniform3f(flat_shader->uniform( si + "diffuse"), light_diffuse.x, light_diffuse.y, light_diffuse.z);
+			glUniform3f(flat_shader->uniform( si + "specular"), light_specular.x, light_specular.y, light_specular.z);
 		}
 
-		glUniform3f(flat_shader->Uni( "spotLight.position"), cam->pos.x, cam->pos.y, cam->pos.z);
-		glUniform3f(flat_shader->Uni( "spotLight.direction"), cam->dir.x, cam->dir.y, cam->dir.z);
-		glUniform3f(flat_shader->Uni( "spotLight.ambient"), light_ambient.x*is_flashlight_on, light_ambient.y*is_flashlight_on, light_ambient.z*is_flashlight_on);
-		glUniform3f(flat_shader->Uni( "spotLight.diffuse"), light_diffuse.x*is_flashlight_on, light_diffuse.y*is_flashlight_on, light_diffuse.z*is_flashlight_on);
-		glUniform3f(flat_shader->Uni( "spotLight.specular"), light_specular.x*is_flashlight_on, light_specular.y*is_flashlight_on, light_specular.z*is_flashlight_on);
-		glUniform1f(flat_shader->Uni( "spotLight.cutOff"), glm::cos(glm::radians(12.5f)));
-		glUniform1f(flat_shader->Uni( "spotLight.fadeOff"), glm::cos(glm::radians(17.5f)));
-		glUniform1f(flat_shader->Uni( "spotLight.constant"), 1.0f);
-		glUniform1f(flat_shader->Uni( "spotLight.linear"), 0.045f);
-		glUniform1f(flat_shader->Uni( "spotLight.quadratic"), 0.0075f);
+		glUniform3f(flat_shader->uniform( "spotLight.position"), cam->pos.x, cam->pos.y, cam->pos.z);
+		glUniform3f(flat_shader->uniform( "spotLight.direction"), cam->dir.x, cam->dir.y, cam->dir.z);
+		glUniform3f(flat_shader->uniform( "spotLight.ambient"), light_ambient.x*is_flashlight_on, light_ambient.y*is_flashlight_on, light_ambient.z*is_flashlight_on);
+		glUniform3f(flat_shader->uniform( "spotLight.diffuse"), light_diffuse.x*is_flashlight_on, light_diffuse.y*is_flashlight_on, light_diffuse.z*is_flashlight_on);
+		glUniform3f(flat_shader->uniform( "spotLight.specular"), light_specular.x*is_flashlight_on, light_specular.y*is_flashlight_on, light_specular.z*is_flashlight_on);
+		glUniform1f(flat_shader->uniform( "spotLight.cutOff"), glm::cos(glm::radians(12.5f)));
+		glUniform1f(flat_shader->uniform( "spotLight.fadeOff"), glm::cos(glm::radians(17.5f)));
+		glUniform1f(flat_shader->uniform( "spotLight.constant"), 1.0f);
+		glUniform1f(flat_shader->uniform( "spotLight.linear"), 0.045f);
+		glUniform1f(flat_shader->uniform( "spotLight.quadratic"), 0.0075f);
 
-		glUniformMatrix4fv(flat_shader->Uni( "proj"), 1, GL_FALSE, glm::value_ptr(proj));
-		glUniformMatrix4fv(flat_shader->Uni( "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(flat_shader->uniform( "proj"), 1, GL_FALSE, glm::value_ptr(proj));
+		glUniformMatrix4fv(flat_shader->uniform( "view"), 1, GL_FALSE, glm::value_ptr(view));
 
 		for (GLuint i = 0; i < obj::NR_CUBES; i++) {
-			glUniform3f(flat_shader->Uni("material.diffuse"), obj::cube_diffuse_color[i].x, obj::cube_diffuse_color[i].y, obj::cube_diffuse_color[i].z);
-			glUniform3f(flat_shader->Uni("material.specular"), obj::cube_specular_color[i].x, obj::cube_specular_color[i].y, obj::cube_specular_color[i].z);
+			glUniform3f(flat_shader->uniform("material.diffuse"), obj::cube_diffuse_color[i].x, obj::cube_diffuse_color[i].y, obj::cube_diffuse_color[i].z);
+			glUniform3f(flat_shader->uniform("material.specular"), obj::cube_specular_color[i].x, obj::cube_specular_color[i].y, obj::cube_specular_color[i].z);
 			model = glm::mat4();
 			model = glm::translate(model, obj::cube_positions[i]);
 			model = glm::scale(model, glm::vec3(obj::cube_scale[i]));
-			glUniformMatrix4fv(flat_shader->Uni("model"), 1, GL_FALSE, glm::value_ptr(model));
-			glUniformMatrix4fv(flat_shader->Uni( "normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
+			glUniformMatrix4fv(flat_shader->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
+			glUniformMatrix4fv(flat_shader->uniform( "normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		/* end flat shaders */
 
-		lamp_shader->use();
-		glUniformMatrix4fv(lamp_shader->Uni( "proj"), 1, GL_FALSE, glm::value_ptr(proj));
-		glUniformMatrix4fv(lamp_shader->Uni("view"), 1, GL_FALSE, glm::value_ptr(view));
+		lamp_shader->enable();
+		glUniformMatrix4fv(lamp_shader->uniform( "proj"), 1, GL_FALSE, glm::value_ptr(proj));
+		glUniformMatrix4fv(lamp_shader->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
 
-		glUniform3f(lamp_shader->Uni("lightColor"), light_specular.x, light_specular.y, light_specular.z);
+		glUniform3f(lamp_shader->uniform("lightColor"), light_specular.x, light_specular.y, light_specular.z);
 
 		for (GLuint i = 0; i < 4; i++) {
 			model = glm::mat4();
 			model = glm::translate(model, point_light_positions[i]);
 			model = glm::scale(model, glm::vec3(0.2f));
-			glUniformMatrix4fv(lamp_shader->Uni("model"), 1, GL_FALSE, glm::value_ptr(model));
+			glUniformMatrix4fv(lamp_shader->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
 
-			glBindVertexArray(light_VAO);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		glBindVertexArray(0);
@@ -354,8 +360,12 @@ int main() {
 	
 
 	// Properly de-allocate all resources once they've outlived their purpose
-	glDeleteVertexArrays(2, VAO);
-	glDeleteBuffers(2, VBO);
+	glDeleteVertexArrays(1, const_cast<GLuint *>(&scene->bc.scene_vao));
+	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.position_vbo));
+	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.colors_vbo));
+	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.normals_vbo));
+	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.faces_ibo));
+	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.edges_ibo));
 
 	/* Exit */
     return kill_app(EXIT_SUCCESS);
