@@ -38,8 +38,6 @@ struct ai_comp {
     int completed_nodes;
     //the amount of pointing might cause cache-misses
     std::vector<Node<glm::vec2> *> * plan;
-
-    //so we have 
 };
 
 #endif // STRUCTS_H_GUARD

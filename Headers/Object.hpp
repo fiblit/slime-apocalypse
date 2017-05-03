@@ -37,7 +37,6 @@ public:
 
 	void render(bufferContainer bc);
 
-
 	// Member variables
     BoundingVolume * bv;
     dynamics_comp dyn;
