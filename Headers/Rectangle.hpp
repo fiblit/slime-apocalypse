@@ -14,12 +14,6 @@ public:
 
 	void construct();
 
-	Object *cObstacle(vec3 inputParams);
-
-    //replace by my BoundingVolume
-	bool collides(vec3 p);
-	bool intersects(vec3 origin, vec3 ray);
-
 	// width is params[0]
 	// height is params[1]
 };

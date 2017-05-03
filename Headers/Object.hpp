@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm> // min, max
 #include "Structs.hpp"
+#include "BoundingVolume.hpp"
 
 #pragma warning(push, 0)
 #include <glad/glad.h>
@@ -36,12 +37,15 @@ public:
 
 	void render(bufferContainer bc);
 
+
 	// Member variables
+    BoundingVolume * bv;
     dynamics_comp dyn;
+    ai_comp ai;
 
 	glm::vec3 params;
 	glm::vec3 color = glm::vec3(0, 0, 1);
-	bool sphere;
+	bool sphere; //this seems... not right
 
 	// Rendering variables
 	std::vector<glm::vec3> vertices;
