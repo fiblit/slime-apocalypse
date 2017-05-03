@@ -1,20 +1,29 @@
 #include "Object.hpp"
 
+using glm::vec2;
 using glm::vec3;
 using std::vector;
 using std::min;
 using std::max;
 
 Object::Object() {
-	pos = vec3();
+	dyn.pos = vec3();
+}
+
+Object::Object(vec2 p) {
+    dyn.pos = vec3(p.x, p.y, 0.);
 }
 
 Object::Object(float x, float y) {
-	pos = vec3(x, y, 0.0);
+	dyn.pos = vec3(x, y, 0.0);
 }
 
 Object::Object(vec3 p) {
-	pos = p;
+	dyn.pos = p;
+}
+
+Object::Object(float x, float y, float y) {
+    dyn.pos = vec3(x, y, z);
 }
 
 Object::~Object() {}

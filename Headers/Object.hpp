@@ -13,8 +13,10 @@
 class Object {
 public:
 	Object();
+    Object(glm::vec2 p);
 	Object(float x, float y);
 	Object(glm::vec3 p);
+    Object(float x, float y, float z);
 	virtual ~Object();
 
 	virtual void setParams(float x);
