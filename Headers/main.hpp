@@ -14,9 +14,6 @@
 #include "Object.hpp"
 #include "Scenario.hpp"
 
-//TO BE REMOVED ON NEXT COMMIT
-#include "Agent.hpp"
-
 /* GLOBALS */
 /* GL */
 #pragma warning(push, 0)
@@ -116,34 +113,29 @@ namespace obj {//should be in G
 	glm::vec3 * agent_positions;
 }
 
-G::time::Timer * game_loop_clock;
-
-void inc_NR_AGENT_TO_DRAW(std::vector<Agent *> agents);
-void count_NR_AGENT_TO_DRAW();//ttc_grid_branch(^^)
-
-void update_agents_bin(std::vector<Agent *> agents, GLuint * offset);
-void init_agent_data();//ttc_grid_branch(^^)
-
-void handle_input(GLfloat dt);
+Gtime::Timer * game_loop_clock;
 
 GLboolean is_flashlight_on;
 void toggle_flashlight();
+void handle_input(GLfloat dt);
 
-void init_planning();
-GLint selected_agent_debug = 0;
-void init_planning_vis();
-void replan();
-
-void place_obst(glm::vec3 pos);
-void place_goal_node(glm::vec3 pos);
-void place_start_node(glm::vec3 pos);
-void mode_toggle_current_obstacle();
-void scale_current_obstacle(GLfloat xs, GLfloat ys, GLfloat dt);
-void move_current_obstacle(GLfloat xs, GLfloat ys, GLfloat dt);
 
 void move_player(GLfloat dx, GLfloat dy, GLfloat dt);
 
-void calc_LMP_force(Object * agent, GLfloat dt);
-void animate_agents(Object * agents, GLfloat dt);
+//AI?
+void animate_agents(std::vector<Object *> agents, GLfloat dt);
+/* TO be moved to AI manager class */
+namespace ai {
+    Cspace2D * std_cspace;
+    PRM * std_prm;
+    //todo dalton: deprecate the following three in favor of spatial struct
+    std::vector<Object *> std_NNai;
+    std::vector<Object *> std_NNboids;
+    std::vector<Object *> std_NNstatic;
+    void init(std::vector<BoundingVolume *> bv, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic);
+    void replan(std::vector<Object *> agents, Gtime::Timer * clock);
+    void calc_LMP_force(Object * a, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic, Cspace2D * a_cspace, GLfloat dt);
+};
+/* Above move to AI mngr */
 
 #endif //MAIN

@@ -19,12 +19,12 @@ Scene::~Scene() {
 	if (playerObject)
 		delete playerObject;
 
-	for (int i = 0; i < enemyObjects.size(); i++) {
+	for (size_t i = 0; i < enemyObjects.size(); i++) {
 		delete enemyObjects[i];
 	}
 	enemyObjects.clear();
 
-	for (int i = 0; i < staticObjects.size(); i++) {
+	for (size_t i = 0; i < staticObjects.size(); i++) {
 		delete staticObjects[i];
 	}
 	staticObjects.clear();
@@ -72,6 +72,7 @@ void Scene::replan(double dt) {
 }
 */
 
+//TODO dalton: let dalton clean up 1 thing in the LMP before adding this in.
 void Scene::simulate(double dt) {
 	// For each enemy object:
     //      Integrate motion/dynamics 

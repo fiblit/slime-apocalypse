@@ -5,6 +5,14 @@
 #include <glm/glm.hpp>
 #include "graph.hpp"
 
+/*
+TODO:
+I'm going to split these up into more headers, as sometimes the POD structs/components I make are better
+suited with having functions
+*/
+
+
+
 struct bufferContainer {
 	GLuint scene_vao;
 	GLuint position_vbo;
@@ -48,6 +56,12 @@ struct ai_comp {
     bool has_indy_f() {
         return method == ai_comp::Planner::LEAD || method == ai_comp::Planner::INDY;
     };
+
+    /*
+    It might be more convenient for me to have a reference to the cspace somehow (like, in the
+    dynamics or collision component). Rather than passing that in as a parameter everywhere.
+    The same would be true for the PRM, however, I'll see what I can do without that step.    
+    */
 };
 
 #endif // STRUCTS_H_GUARD

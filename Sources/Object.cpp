@@ -7,23 +7,23 @@ using std::min;
 using std::max;
 
 Object::Object() {
-	dyn.dyn.pos = vec3();
+	dyn.pos = vec3();
 }
 
 Object::Object(vec2 p) {
-    dyn.dyn.pos = vec3(p.x, p.y, 0.);
+    dyn.pos = vec3(p.x, p.y, 0.);
 }
 
 Object::Object(float x, float y) {
-	dyn.dyn.pos = vec3(x, y, 0.0);
+	dyn.pos = vec3(x, y, 0.0);
 }
 
 Object::Object(vec3 p) {
-	dyn.dyn.pos = p;
+	dyn.pos = p;
 }
 
-Object::Object(float x, float y, float y) {
-    dyn.dyn.pos = vec3(x, y, z);
+Object::Object(float x, float y, float z) {
+    dyn.pos = vec3(x, y, z);
 }
 
 Object::~Object() {}
@@ -58,7 +58,7 @@ void Object::setColor(float r, float g, float b) {
 
 void Object::setColor(vec3 rgb) {
 	color = vec3(max(0.0f, min(1.0f, rgb[0])), max(0.0f, min(1.0f, rgb[1])), max(0.0f, min(1.0f, rgb[2])));
-	for (int i = 0; i < colors.size(); i++) {
+	for (size_t i = 0; i < colors.size(); i++) {
 		colors[i] = color;
 	}
 }
@@ -72,7 +72,7 @@ void Object::moveBy(float x, float y, float z) {
 void Object::moveBy(vec3 t) {
 	dyn.pos += t;
     bv->o += vec2(t);
-	for (int i = 0; i < vertices.size(); i++) {
+	for (size_t i = 0; i < vertices.size(); i++) {
 		vertices[i] += t;
 	}
 }
@@ -87,7 +87,7 @@ void Object::moveTo(vec3 position) {
 	vec3 p = position - dyn.pos;
 	dyn.pos += p;
     bv->o += vec2(p);
-	for (int i = 0; i < vertices.size(); i++) {
+	for (size_t i = 0; i < vertices.size(); i++) {
 		vertices[i] += p;
 	}
 }

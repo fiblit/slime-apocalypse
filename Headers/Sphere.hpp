@@ -11,7 +11,7 @@ public:
 	Sphere(float x, float y);
 	Sphere(float x, float y, float r);
 	Sphere(float r);
-	Sphere(vec3 p, float r);
+	Sphere(glm::vec3 p, float r);
 	virtual ~Sphere();
 
 	void construct();
