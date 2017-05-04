@@ -7,8 +7,10 @@
 #include "Structs.hpp"
 
 #pragma warning(push, 0)
+#pragma warning(disable: 4055)
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#pragma warning(disable: 4201)
 #include <glm/glm.hpp>
 #pragma warning(pop)
 

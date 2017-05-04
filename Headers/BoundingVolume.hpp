@@ -2,8 +2,9 @@
 #define BOUNDING_VOLUME_H_GUARD
 
 #pragma warning(push, 0)
-#include <glm/glm.hpp>
 #include <vector>
+#pragma warning(disable: 4201)
+#include <glm/glm.hpp>
 #pragma warning(pop)
 
 class Circ;

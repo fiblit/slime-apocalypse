@@ -1,17 +1,17 @@
 #ifndef STRUCTS_H_GUARD
 #define STRUCTS_H_GUARD
 
+#pragma warning(push, 0)
+#pragma warning(disable: 4055)
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include "graph.hpp"
+#pragma warning(pop)
 
 /*
 TODO:
 I'm going to split these up into more headers, as sometimes the POD structs/components I make are better
 suited with having functions
 */
-
-
 
 struct bufferContainer {
 	GLuint scene_vao;
@@ -31,6 +31,7 @@ struct dynamics_comp {
     glm::vec3 force;
 };
 
+#include "graph.hpp"
 //used by the motion planning module (mostly global MP)
 struct ai_comp {
     /* LEADlings attract PACKlings and plan independently

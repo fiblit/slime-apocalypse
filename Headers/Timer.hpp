@@ -7,8 +7,11 @@
 
 /* GLOBALS */
 /* GL */
+#pragma warning(push, 0)
+#pragma warning(disable: 4055)
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#pragma warning(pop)
 
 //TODO dalton: template to use either single or double point precision 
 //also, I may potentially want to use chrono for ns precision.

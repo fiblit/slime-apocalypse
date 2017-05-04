@@ -13,6 +13,7 @@
 #include <unordered_set>
 #include <iostream>
 #include <string>
+#pragma warning(disable: 4201)
 #include <glm/glm.hpp>
 #pragma warning(pop)
 
@@ -36,7 +37,7 @@ private:
 	Graph<glm::vec2> * connect_roadmap(VecPoint * nodes);
 public:
 	Graph<glm::vec2> * roadmap;
-	PRM(glm::vec2 start, glm::vec2 goal, Cspace2D * c_space);
+	PRM(Cspace2D * c_space);
 };
 
 #endif // PRM_H_GUARD

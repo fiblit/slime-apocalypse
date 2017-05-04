@@ -11,14 +11,18 @@
 #include "PRM.hpp"
 #include "GlobalMotionPlanner.hpp"
 #include "LocalMotionPlanner.hpp"
+#include "AI.hpp"
 #include "Object.hpp"
 #include "Scenario.hpp"
+#include "Structs.hpp"
 
 /* GLOBALS */
 /* GL */
 #pragma warning(push, 0)
+#pragma warning(disable: 4055)
 #include <glad/glad.h>// glad: an OpenGL function loader: https://github.com/Dav1dde/glad
 #include <GLFW/glfw3.h>// glfw: a library for I/O and OpenGL context creation: http://www.glfw.org/
+#pragma warning(disable: 4201)
 #include <glm/glm.hpp>// glm: OpenGL mathematics: http://glm.g-truc.net/0.9.8/index.html
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -31,8 +35,8 @@
 //#include <assimp/scene.h>
 /* STL */
 #include <cstdio>
-#include <iostream>
 #include <cstdlib>
+#include <iostream>
 #include <string>
 #include <chrono>
 #include <thread>
@@ -118,24 +122,5 @@ Gtime::Timer * game_loop_clock;
 GLboolean is_flashlight_on;
 void toggle_flashlight();
 void handle_input(GLfloat dt);
-
-
-void move_player(GLfloat dx, GLfloat dy, GLfloat dt);
-
-//AI?
-void animate_agents(std::vector<Object *> agents, GLfloat dt);
-/* TO be moved to AI manager class */
-namespace ai {
-    Cspace2D * std_cspace;
-    PRM * std_prm;
-    //todo dalton: deprecate the following three in favor of spatial struct
-    std::vector<Object *> std_NNai;
-    std::vector<Object *> std_NNboids;
-    std::vector<Object *> std_NNstatic;
-    void init(std::vector<BoundingVolume *> bv, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic);
-    void replan(std::vector<Object *> agents, Gtime::Timer * clock);
-    void calc_LMP_force(Object * a, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic, Cspace2D * a_cspace, GLfloat dt);
-};
-/* Above move to AI mngr */
 
 #endif //MAIN

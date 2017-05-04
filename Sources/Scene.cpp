@@ -30,13 +30,16 @@ Scene::~Scene() {
 	staticObjects.clear();
 }
 
+#include "debug.hpp"
 void Scene::addEnemyObject(float r, float x, float y, float z) {
+    UNUSED(r, x, y, z);
 	// Instantiate an enemy object
 
 	// Add instantiated object to enemyObjects vector
 }
 
 void Scene::addWall(float h, float x1, float y1, float x2, float y2) {
+    UNUSED(h,x1,y1,x2,y2);
 	// Instantiate a wall object
 
 	// Add instantiated object to staticObjects vector
@@ -59,7 +62,9 @@ void Scene::updatePRM() {
 	// Call PRM functions to update it
 }
 //may need to pass a handful more parameters to the PRM (e.g. how it samples)
+//in fact I would replace this with a call to the PRM constructor
 void Scene::setBounds(vec3 min, vec3 max) {
+    UNUSED(min, max);
 	// Set the sampling space of the PRM
 }
 
@@ -74,6 +79,7 @@ void Scene::replan(double dt) {
 
 //TODO dalton: let dalton clean up 1 thing in the LMP before adding this in.
 void Scene::simulate(double dt) {
+    UNUSED(dt);
 	// For each enemy object:
     //      Integrate motion/dynamics 
     //      notify other systems of events such as collisions (for particle effects, merging, etc.)

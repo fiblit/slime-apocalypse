@@ -8,8 +8,8 @@ public:
 	Rectangle();
 	Rectangle(float x, float y);
 	Rectangle(float x, float y, float w, float h);
-	Rectangle(vec3 p);
-	Rectangle(vec3 p, float w, float h);
+	Rectangle(glm::vec3 p);
+    Rectangle(glm::vec3 p, float w, float h);
 	virtual ~Rectangle();
 
 	void construct();

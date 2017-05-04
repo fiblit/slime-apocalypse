@@ -127,5 +127,5 @@ void Object::render(bufferContainer bc) {
 	else
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
 
-	glDrawElements(GL_TRIANGLES, faces.size(), GL_UNSIGNED_INT, (GLvoid*) 0);
+	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(faces.size()), GL_UNSIGNED_INT, (GLvoid*) 0);
 }

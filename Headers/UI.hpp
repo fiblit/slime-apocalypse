@@ -1,4 +1,5 @@
 #pragma warning(push, 0)
+#pragma warning(disable: 4055)
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #pragma warning(pop)
