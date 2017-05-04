@@ -8,9 +8,10 @@ std::vector<Object *> ai::std_NNstatic;
 
 //move AI/planner
 //refactor
+//todo dalton: replace NN's with every object/the tree struct access
 void ai::init(std::vector<BoundingVolume *> bv, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic) {
     //try to only use circ agents(&statics) since I did not expand ttc for rects yet
-    ai::std_cspace = new Cspace2D(bv, NNai[0]->bv);
+    ai::std_cspace = new Cspace2D(bv, NNai[0]->bv);//todo dalton: null value checks
     ai::std_prm = new PRM(/*NNai[0]->bv->o, NNai[0]->bv->o,*/ ai::std_cspace);
     ai::std_NNai = NNai;
     ai::std_NNboids = NNboids;
