@@ -11,8 +11,11 @@
 #include "PRM.hpp"
 #include "GlobalMotionPlanner.hpp"
 #include "LocalMotionPlanner.hpp"
-#include "Agent.hpp"
+#include "Object.hpp"
 #include "Scenario.hpp"
+
+//TO BE REMOVED ON NEXT COMMIT
+#include "Agent.hpp"
 
 /* GLOBALS */
 /* GL */
@@ -115,22 +118,6 @@ namespace obj {//should be in G
 
 G::time::Timer * game_loop_clock;
 
-const GLuint cylinder_res = 11;
-
-GLuint cur_mode;
-BoundingVolume * cur_ob;
-
-Circ * player;
-std::vector<Agent *> boidlings;
-
-namespace G { const GLboolean WITH_TTC_GRID = GL_TRUE; }
-std::vector<Agent *> agents_old;
-int NUM_AGENTS = 0;
-std::vector<Agent *> agents[100][100];
-
-std::vector<Rect *> rect_bounds;
-std::vector<Circ *> obst_bounds;
-
 void inc_NR_AGENT_TO_DRAW(std::vector<Agent *> agents);
 void count_NR_AGENT_TO_DRAW();//ttc_grid_branch(^^)
 
@@ -156,6 +143,7 @@ void move_current_obstacle(GLfloat xs, GLfloat ys, GLfloat dt);
 
 void move_player(GLfloat dx, GLfloat dy, GLfloat dt);
 
-void animate_agents(GLfloat dt);
+void calc_LMP_force(Object * agent, GLfloat dt);
+void animate_agents(Object * agents, GLfloat dt);
 
 #endif //MAIN

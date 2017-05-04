@@ -5,6 +5,7 @@
 
 #include "PRM.hpp"
 
+//deprecated
 class Agent {
 public:
     glm::vec2 start, goal;

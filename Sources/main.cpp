@@ -422,72 +422,83 @@ side effects:
     agent_now may be updated
 
 */
-void lookahead(glm::vec2 * agent_now, glm::vec2 * next_node, Agent * a, float * speed, float dt) {
-    if (a->completed_nodes < static_cast<int>(a->plan->size())) {
-        *next_node = (*a->plan)[a->completed_nodes]->data;
+glm::vec2 lookahead(Object * a, glm::vec2 target, Cspace2D * a_cspace) {
+    glm::vec2 t_new = target;
+    if (static_cast<size_t>(a->ai.num_done) < a->ai.plan->size()) {
+        t_new = (*(a->ai.plan))[a->ai.num_done]->data;
 
-        while (a->completed_nodes + 1 < static_cast<int>(a->plan->size())
-            && a->cspace->line_of_sight(*agent_now, (*a->plan)[a->completed_nodes + 1]->data)) {
-            a->completed_nodes++;
-            *next_node = (*a->plan)[a->completed_nodes]->data;
-        }
-
-        float dist = glm::distance(*next_node, *agent_now);
-        if (dist < 0.1f) {
-            a->completed_nodes++;
-            //not sure why I have this, as this will, like, never happen.
-            if (dist < dt*(*speed)) {//detects overshooting
-                *agent_now = *next_node;//move to the node, but not past...
-                *speed -= dist / dt;
-            }
+        while (static_cast<size_t>(a->ai.num_done) + 1 < a->ai.plan->size()
+            && a_cspace->line_of_sight(a->bv->o, (*(a->ai.plan))[a->ai.num_done + 1]->data)) {
+            a->ai.num_done++;
+            t_new = (*(a->ai.plan))[a->ai.num_done]->data;
         }
     }
     else
-        *next_node = (*a->plan)[a->plan->size() - 1]->data;
+        t_new = (*(a->ai.plan))[a->ai.plan->size() - 1]->data;
+    return t_new
 }
 
 //move to LMP
 void ttc_forces_(double ttc, glm::vec2 * avoid_force, glm::vec2 dir) {
     dir /= glm::length(dir);
 
-    double t_h = 3.0;//seconds
+    double t_h = 5.0;//seconds
     double mag = 0;
     if (ttc >= 0 && ttc <= t_h)
         mag = (t_h - ttc) / (ttc + 0.001);
     mag = mag > 20 ? 20 : mag;
     *avoid_force += glm::vec2(mag * dir.x, mag * dir.y);
 }
-void ttc_forces(Agent * a, Circ * b, double ttc, glm::vec2 * FAVOID) {
-    glm::vec2 V_dt(a->vel.x * ttc, a->vel.y * ttc);
+void ttc_forces(Object * a, Circ * b, float ttc, glm::vec2 * FAVOID) {
+    glm::vec2 V_dt(a->dyn.vel);
     glm::vec2 dir = (a->bv->o + V_dt - b->o);
     ttc_forces_(ttc, FAVOID, dir);
 }
-void ttc_forces(Agent * a, Agent * b, double ttc, glm::vec2 * FAVOID) {
-    glm::vec2 V_dt(a->vel.x * ttc, a->vel.y * ttc);
-    glm::vec2 bV_dt(b->vel.x * ttc, b->vel.y * ttc);
+void ttc_forces(Object * a, Object * b, float ttc, glm::vec2 * FAVOID) {
+    glm::vec2 V_dt(a->dyn.vel * ttc);
+    glm::vec2 bV_dt(b->dyn.vel * ttc);
     glm::vec2 dir = (a->bv->o + V_dt - b->bv->o - bV_dt);
     ttc_forces_(ttc, FAVOID, dir);
 }
 
+//distance to leader, weak close, strong far
+//TOOD: replace near_pack with the ability to access/search a spatial struct
+glm::vec2 follow_force(Object * lead, std::vector<Object *> near_pack) {
+    GLfloat ff0_r = 2.0f;//radius of following force of 0
+    GLfloat ff1_r = 10.0f;//radius of following force of 1 towards leader
+
+    glm::vec2 ff;
+    for (Object * b : near_pack) {
+        //todo dalton: del o ref
+        glm::vec2 toLeader = lead->bv->o - b->bv->o;
+        float dist2_to_leader = glm::dot(toLeader, toLeader);
+        if (dist2_to_leader < ff0_r * ff0_r)
+            ff = glm::vec2(0);
+        else
+            ff = toLeader * (dist2_to_leader - ff0_r) / (ff1_r - ff0_r);
+    }
+    return ff;
+}
+
 //move to LMP
-void boid_forces(Agent * a, glm::vec2 * boid_force) {
+//TOOD: replace near_boids with the ability to access/search a spatial struct of boids
+glm::vec2 boid_force(Object * a, std::vector<Object *> near_boids) {
     const float boid_speed = 1.2f;
 
     glm::vec2 avg_vel(0, 0), avg_pos(0, 0), avg_dir(0, 0);
     GLfloat cohes_r_look = 1.0f, align_r_look = 1.0f, separ_r_look = .5f;//limit to search for forces for boidlings
-    GLfloat ff0_r = 2.0f;//radius of following force of 0
-    GLfloat ff1_r = 10.0f;//radius of following force of 1 towards leader
     glm::vec2 align_force, cohesion_force, follow_force, spread_force;
 
-    for (int i = 0; i < static_cast<int>(boidlings.size()); i++) {
-        Agent * boid = boidlings[i];
+    for (size_t i = 0; i < near_boids.size(); i++) {
+        Object * boid = near_boids[i];
         if (boid == a)
             continue;
         glm::vec2 dist = boid->bv->o - a->bv->o;
+        float fi = static_cast<float>(i);
         if (glm::dot(dist, dist) < align_r_look * align_r_look)
-            avg_vel = (avg_vel * static_cast<float>(i) + boid->vel) / static_cast<float>(i + 1);
+            avg_vel = (avg_vel * fi + glm::vec2(boid->dyn.vel)) / (fi + 1.f);
         if (glm::dot(dist, dist) < cohes_r_look * cohes_r_look)
-            avg_pos = (avg_pos * static_cast<float>(i) + boid->bv->o) / static_cast<float>(i + 1);
+            avg_pos = (avg_pos * fi + glm::vec2(boid->bv->o)) / (fi + 1.f);
     }
 
     /* alignnment force */
@@ -495,39 +506,31 @@ void boid_forces(Agent * a, glm::vec2 * boid_force) {
     float norm = glm::length(avg_vel);
     if (norm != 0)
         avg_vel /= norm;
-    align_force = (avg_vel - a->vel) * boid_speed;
+    align_force = (avg_vel - glm::vec2(a->dyn.vel)) * boid_speed;
 
     /* cohesion force */
     //average cohesion; pull towards that
     cohesion_force = avg_pos - a->bv->o;
 
-    /* follow force */
-    //distance to leader, weak close, strong far
-    glm::vec2 toLeader = player->o - a->bv->o;
-    float dist2leader = glm::dot(toLeader, toLeader);
-    if (dist2leader < ff0_r * ff0_r)
-        follow_force = glm::vec2(0);
-    else
-        follow_force = toLeader * (dist2leader - ff0_r) / (ff1_r - ff0_r);
-
     /* separation force */
     //force from inverted direction of nearest neighbours
-    for (int i = 0; i < static_cast<int>(boidlings.size()); i++) {
-        Agent * boid = boidlings[i];
+    for (size_t i = 0; i < near_boids.size(); i++) {
+        Object * boid = near_boids[i];
         if (boid == a)
             continue;
         glm::vec2 toBoid = boid->bv->o - a->bv->o;
-        float dist2boid = glm::dot(toBoid, toBoid);
+        float dist2_to_boid = glm::dot(toBoid, toBoid);
 
-        if (dist2boid < separ_r_look * separ_r_look)
-            spread_force += -toBoid / (10*sqrt(dist2boid));
+        if (dist2_to_boid < separ_r_look * separ_r_look)
+            spread_force += -toBoid / (10*sqrt(dist2_to_boid));
     }
 
-    (*boid_force) += align_force + cohesion_force + follow_force + spread_force;
-    if (glm::dot(*boid_force, *boid_force) > 20 * 20) {
-        *boid_force /= glm::length(*boid_force);
-        *boid_force *= 20.f;
+    glm::vec2 boid_force = align_force + cohesion_force + spread_force;
+    if (glm::dot(boid_force, boid_force) > 20 * 20) {
+        boid_force /= glm::length(boid_force);
+        boid_force *= 20.f;
     }
+    return boid_force;
 }
 
 //move to LMP(?)
@@ -542,14 +545,15 @@ global references:
 side effects:
     
 */
-//needs to be refactored
-void force_agents(GLfloat dt, Agent * a, int i, int j, std::vector<Agent *> grid_new[100][100]) {
-    
+//needs to be refactored; hopefully I can decouple it from physics
+void calc_LMP_force(Object * a, std::vector<Object *> NNs, GLfloat dt) {
     float speed = 1.0f; // x m/s
     glm::vec2 agent_now = a->bv->o;
     glm::vec2 next_node;
     glm::vec2 goal_vel;
-    if (a->plan != nullptr && 0 < a->plan->size()) {
+
+    //if there is a plan
+    if (a->ai.has_plan()) {
         lookahead(&agent_now, &next_node, a, &speed, dt);
         goal_vel = (next_node - agent_now) / glm::distance(next_node, agent_now) * (speed /* * dt */);
     }
@@ -560,65 +564,39 @@ void force_agents(GLfloat dt, Agent * a, int i, int j, std::vector<Agent *> grid
 
     /* ttc - approximate */
     glm::vec2 goal_force;
-    if (a->boid)
+    //using ai_comp::Planner;
+    if (a->ai.method == ai_comp::Planner::BOID || a->ai.method == ai_comp::Planner::PACK)
         goal_force = glm::vec2(0);
     else
-        goal_force = 2.0f*(goal_vel - a->vel);
+        goal_force = 2.0f*(goal_vel - glm::vec2(a->dyn.vel));
 
     glm::vec2 sum_force = goal_force;
 
     glm::vec2 avoid_force(0), boid_force(0);
-
-    if (G::WITH_TTC_GRID) {
-        for (int k = (0 < i - 4) ? i - 4 : 0; k < ((100 > i + 4) ? i + 4 : 100); k++) { // spatial search
-            for (int l = (0 < j - 4) ? j - 4 : 0; l < ((100 > j + 4) ? j + 4 : 100); l++) {
-                for (Agent * b : agents[k][l]) {
-                    if (a == b)
-                        continue;
-
-                    double ttc = LMP::ttc(a->bv, a->vel, b->bv, b->vel);
-
-                    if (ttc > 10)
-                        continue;
-
-                    //suggestion to handle collisions
-                    //float originalAr = static_cast<Circ *>(a->bv)->r;
-                    //float originalBr = static_cast<Circ *>(b->bv)->r;
-                    ttc_forces(a, b, ttc, &avoid_force);
-                }
-            }
-        }
-    }//with ttc grid
-    else {
-        for (Agent * b : agents_old) {
-            if (a == b)
-                continue;
-
-            double ttc = LMP::ttc(a->bv, a->vel, b->bv, b->vel);
-
-            if (ttc > 10)
-                continue;
-
-            ttc_forces(a, b, ttc, &avoid_force);
-        }
+    for (Object * b : NNs) {
+        if (a == b)
+            continue;
+        double ttc = LMP::ttc(a->bv, a->dyn.vel, b->bv, b->dyn.vel);
+        if (ttc > 5/*seconds*/)
+            continue;
+        avoid_force = ttc_forces(a, b, ttc);
     }
 
     for (Circ * c : obst_bounds) {
-        double ttc = LMP::ttc(a->bv, a->vel, c, glm::vec2(0));
+        double ttc = LMP::ttc(a->bv, a->dyn.vel, c, glm::vec2(0));
 
-        if (ttc > 10)
+        if (ttc > 5)
             continue;
 
         ttc_forces(a, c, ttc, &avoid_force);
     }
 
-    if (a->boid) {
+    if (a->ai.has_boid_f())
         boid_forces(a, &boid_force);
-    }
 
     sum_force += avoid_force + boid_force;
-    a->vel += sum_force * dt;
-    a->bv->o += a->vel * dt;
+    a->dyn.vel += sum_force * dt;
+    a->bv->o += a->dyn.vel * dt;
 
     if (G::WITH_TTC_GRID) {
         int x = static_cast<int>(a->bv->o.x * 5 + 50);
@@ -631,59 +609,27 @@ void force_agents(GLfloat dt, Agent * a, int i, int j, std::vector<Agent *> grid
     }
 }
 
-//move to AI/planner
-void animate_agents(GLfloat dt) {
-    std::vector<Agent *> grid_new[100][100];
-    for (int i = 0; i < 100; i++) {
-        for (int j = 0; j < 100; j++) {
-            grid_new[i][j] = std::vector<Agent *>();
-        }
-    }
-
-    if (G::WITH_TTC_GRID)
-        for (int i = 0; i < 100; i++)
-            for (int j = 0; j < 100; j++)
-                for (Agent * a : agents[i][j])
-                    force_agents(dt, a, i, j, grid_new);
-    else
-        for (Agent * a : agents_old)
-            force_agents(dt, a, -1, -1, nullptr);
-
-    if (G::WITH_TTC_GRID)
-        for (int i = 0; i < 100; i++)
-            for (int j = 0; j < 100; j++)
-                agents[i][j] = grid_new[i][j];
+//move to AI/planner --- this is a force-based LMP
+/*
+global references:
+    force_agents()
+side effects
+    force_agents()
+*/
+void animate_agents(std::vector<Object *> agents, GLfloat dt) {
+    for (Object * a : agents)
+        calc_LMP_force(a, dt);
 
     int agent_mesh_drawn = 0;
-    if (G::WITH_TTC_GRID) { //EVERY SINGLE ONE OF THESE COULD HAVE THEIR INTERNALS AS FUNCTIONS
-        for (int c = 0; c < 100; c++) {
-            for (int r = 0; r < 100; r++) {
-                for (Agent * a : agents[c][r]) {
-                    GLuint step;
-                    if (a->vt == agent::volume_type::RECT)
-                        step = 1;
-                    else
-                        step = cylinder_res;
-
-                    for (GLuint i = 0; i < step; i++)
-                        obj::agent_positions[i + agent_mesh_drawn] = glm::vec3(a->bv->o.x, 0.0f + 0.001f*(i /*+ offset*/), a->bv->o.y);
-                    agent_mesh_drawn += step;
-                }
-            }
-        }
-    }
-    else {
-        for (Agent * a : agents_old) {
-            GLuint step;
-            if (a->vt == agent::volume_type::RECT)
-                step = 1;
-            else
-                step = cylinder_res;
-
-            for (GLuint i = 0; i < step; i++)
-                obj::agent_positions[i + agent_mesh_drawn] = glm::vec3(a->bv->o.x, 0.0f + 0.001f*(i /*+ offset*/), a->bv->o.y);
-            agent_mesh_drawn += step;
-        }
+    for (Object * a : agents) {
+        GLuint step;
+        if (a->bv->vt == BoundingVolume::volume_type::RECT)
+            step = 1;
+        else
+            step = cylinder_res;
+        for (GLuint i = 0; i < step; i++)
+            obj::agent_positions[i + agent_mesh_drawn] = glm::vec3(a->bv->o.x, 0.0f + 0.001f*(i /*+ offset*/), a->bv->o.y);
+        agent_mesh_drawn += step;
     }
 }
 
@@ -773,7 +719,7 @@ void init_planning() {
     for (int i = 0; i < group_size.x; i++) {
         for (int j = 0; j < group_size.y; j++) {
             glm::vec2 o(start1.x + spacing.x * (i - offset.x), start1.y + spacing.y * (j - offset.y));
-            Agent * a = new Agent(agent::volume_type::CIRC,
+            Agent * a = new Agent(a::volume_type::CIRC,
                 new Circ(o, static_cast<float>(agent_size)),
                 glm::vec2(
                     goal1.x + spacing.y*(i - offset.x),
@@ -794,7 +740,7 @@ void init_planning() {
     for (int i = 0; i < group_size.x; i++) {
         for (int j = 0; j < group_size.y; j++) {
             glm::vec2 o(start2.x + spacing.x * (i - offset.x), start2.y + spacing.y * (j - offset.y));
-            Agent * a = new Agent(agent::volume_type::CIRC,
+            Agent * a = new Agent(a::volume_type::CIRC,
                 new Circ(o, static_cast<float>(agent_size)),
                 glm::vec2(
                     goal2.x + spacing.x*(i - offset.x),
@@ -815,7 +761,7 @@ void init_planning() {
     for (int i = 0; i < boidling_ranks.x; i++) {
         for (int j = 0; j < boidling_ranks.y; j++) {
             glm::vec2 o(boid_spawn.x + boidling_spacing.x * (i - boidling_offset.x), boid_spawn.y + boidling_spacing.y * (j - boidling_offset.y));
-            Agent * a = new Agent(agent::volume_type::CIRC, new Circ(o, static_cast<float>(boidling_size)), glm::vec2(0));
+            Agent * a = new Agent(a::volume_type::CIRC, new Circ(o, static_cast<float>(boidling_size)), glm::vec2(0));
             a->boid = true;
 
             if (G::WITH_TTC_GRID) {
@@ -966,7 +912,7 @@ void init_planning_vis() {
         obj::rect_scale[i] = glm::vec2(rect_bounds[i]->w, rect_bounds[i]->h);
     }
 
-    //add agent -- could be polymorphised -- :P
+    //add a -- could be polymorphised -- :P
     count_NR_AGENT_TO_DRAW();
 
     init_agent_data();
@@ -975,7 +921,7 @@ void init_planning_vis() {
 //with planning vis
 void inc_NR_AGENT_TO_DRAW(std::vector<Agent *> agents) {
     for (Agent * a : agents)
-        if (a->vt == agent::volume_type::RECT)
+        if (a->vt == a::volume_type::RECT)
             obj::NR_AGENT_TO_DRAW++;
         else
             obj::NR_AGENT_TO_DRAW += cylinder_res;
@@ -994,7 +940,7 @@ void count_NR_AGENT_TO_DRAW() {
 void update_agents_bin(std::vector<Agent *> agents, GLuint * offset) {
     for (Agent * a : agents) {
         GLuint step;
-        if (a->vt == agent::volume_type::RECT)
+        if (a->vt == a::volume_type::RECT)
             step = 1;
         else
             step = cylinder_res;
@@ -1006,7 +952,7 @@ void update_agents_bin(std::vector<Agent *> agents, GLuint * offset) {
                 glm::vec4(
                     0.f, 1.f, 0.f,
                     glm::radians(360.f / cylinder_res * (i % cylinder_res)));
-            if (a->vt == agent::volume_type::CIRC)
+            if (a->vt == a::volume_type::CIRC)
                 obj::agent_scale[i + *offset] =
                     static_cast<Circ *>(a->bv)->r * static_cast<GLfloat>(sqrt(2));
             else
@@ -1033,55 +979,13 @@ void init_agent_data() {
 
 //move to AI/planner
 //refactor
-void replan() {
-    game_loop_clock->pause();
-	switch (cur_mode) {
-	case 0:
-		if (cur_ob != nullptr) {
-            Circ * cur_cob = dynamic_cast<Circ *>(cur_ob);
-			obst_bounds.push_back(cur_cob);
-			delete cur_cob;
-			cur_cob = nullptr;
-		}
-		break;
-	case 1:
-		if (cur_ob != nullptr) {
-            Rect * cur_rob = dynamic_cast<Rect *>(cur_ob);
-			rect_bounds.push_back(cur_rob);
-			delete cur_rob;
-			cur_rob = nullptr;
-		}
-		break;
-	}
+void replan(, Timer * clock) {
+    clock->pause();
 
-    //int positions_updated = 0;
-
-    if (G::WITH_TTC_GRID)
-        for (int i = 0; i < 100; i++)
-            for (int j = 0; j < 100; j++)
-                for (Agent * a : agents[i][j]) {
-                    if (!a->boid) {
-                        a->bv->o = a->start;
-                        a->vel = glm::vec2(0, 0);
-                    }
-
-                    //int step;
-                    //if (a->vt == agent::volume_type::RECT)
-                    //    step = 1;
-                    //else
-                    //    step = cylinder_res;
-
-                    //for (GLuint i = 0; i < step; i++)
-                    //    obj::agent_positions[i + positions_updated] = glm::vec3(a->start.x, 0.0f, a->start.y);
-
-                    //positions_updated += step;
-                }
-    else {
-        for (Agent * a : agents_old) {
-            if (!a->boid) {
-                a->bv->o = a->start;
-                a->vel = glm::vec2(0, 0);
-            }
+    for (Agent * a : agents_old) {
+        if (!a->boid) {
+            a->bv->o = a->start;
+            a->vel = glm::vec2(0, 0);
         }
     }
 
@@ -1130,7 +1034,7 @@ void replan() {
                         //for (int i = 0; i < pathVec->size(); i++)
                         //    path_->insert((*pathVec)[i]);
 
-                        a->completed_nodes = 0;
+                        a->num_done = 0;
                     }
                 }
     }
@@ -1138,13 +1042,13 @@ void replan() {
         for (Agent * a : agents_old) {
             if (!a->boid) {
                 a->plan = GMP::find_path_Astar(1.f, a->prm->roadmap);
-                a->completed_nodes = 0;
+                a->num_done = 0;
             }
         }
     }
 
     init_planning_vis();
-    game_loop_clock->play();
+    clock->play();
 }
 
 //move to Scene 

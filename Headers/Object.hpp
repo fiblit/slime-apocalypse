@@ -39,8 +39,8 @@ public:
 
 	// Member variables
     BoundingVolume * bv;
-    dynamics_comp dyn;
     ai_comp ai;
+    dynamics_comp dyn;
 
 	glm::vec3 params;
 	glm::vec3 color = glm::vec3(0, 0, 1);
