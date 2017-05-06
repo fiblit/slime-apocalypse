@@ -19,6 +19,13 @@ int main() {
     Gtime::init_stack(1);
     game_loop_clock = &(Gtime::stack[0]);
 
+    //there's a reason I said it should be in the scene. :p
+	cam = new Camera();
+
+	// initialize the scene
+	scene = new Scene();
+	scene->camera = cam;
+
 	/* Shaders */
 	Shader * cube_shader = new Shader();
 	scene->shaders[TEXTURE] = cube_shader;
@@ -27,22 +34,15 @@ int main() {
 	Shader * lamp_shader = new Shader();
 	scene->shaders[LIGHT] = lamp_shader;
 
-	cube_shader->init_from_strings(
+	cube_shader->init_from_files(
 		((std::string)PROJECT_SOURCE_DIR + "/Shaders/cube.vert").c_str(), 
 		((std::string)PROJECT_SOURCE_DIR + "/Shaders/cube.frag").c_str());
-	flat_shader->init_from_strings(
+	flat_shader->init_from_files(
 		((std::string)PROJECT_SOURCE_DIR + "/Shaders/flat.vert").c_str(),
 		((std::string)PROJECT_SOURCE_DIR + "/Shaders/flat.frag").c_str());
-	lamp_shader->init_from_strings(
+	lamp_shader->init_from_files(
 		((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.vert").c_str(),
 		((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.frag").c_str());
-
-    //there's a reason I said it should be in the scene. :p
-	cam = new Camera();
-
-	// initialize the scene
-	scene = new Scene();
-	scene->camera = cam;
 
 	/* Objects */
 	glGenVertexArrays(1, &scene->bc.scene_vao);
@@ -144,13 +144,16 @@ int main() {
 	//change properties for the path -- instantiate cube visualizations
 	//init_planning_vis();
 
+	scene->setupTestingObjects();
+	scene->enableFlatShader();
+
     /* Game Loop */
     game_loop_clock->frame();
 	D(std::cout << std::endl << "Entering Game Loop..." << std::endl << std::endl);	
 	while (!glfwWindowShouldClose(window)) {
         game_loop_clock->frame();
 
-		ai::animate_agents(ai::std_NNai, game_loop_clock->delta());
+		//ai::animate_agents(ai::std_NNai, game_loop_clock->delta());
 
 		// Callbacks 
 		glfwPollEvents();

@@ -1,3 +1,6 @@
+#ifndef AI_H_GUARD
+#define AI_H_GUARD
+
 #include "Object.hpp"
 #include "PRM.hpp"
 #include "BoundingVolume.hpp"
@@ -13,3 +16,5 @@ namespace ai {
     void init(std::vector<BoundingVolume *> bv, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic);
     void animate_agents(std::vector<Object *> agents, GLfloat dt);
 };
+
+#endif // AI_H_GUARD

@@ -10,6 +10,7 @@ public:
 	Sphere();
 	Sphere(float x, float y);
 	Sphere(float x, float y, float r);
+	Sphere(float x, float y, float z, float r);
 	Sphere(float r);
 	Sphere(glm::vec3 p, float r);
 	virtual ~Sphere();

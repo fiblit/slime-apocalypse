@@ -4,6 +4,9 @@ using glm::vec3;
 using std::vector;
 using std::cout;
 using std::endl;
+using std::min;
+using std::max;
+using std::abs;
 
 Scene::Scene() {
 	// Generate player object
@@ -34,17 +37,23 @@ Scene::~Scene() {
 void Scene::addEnemyObject(float r, float x, float y, float z) {
     UNUSED(r, x, y, z);
 	// Instantiate an enemy object
+	Sphere * enemy = new Sphere(x, y, z, r);
 
 	// Add instantiated object to enemyObjects vector
+	enemyObjects.push_back(enemy);
 }
 
 void Scene::addWall(float h, float x1, float y1, float x2, float y2) {
-    UNUSED(h,x1,y1,x2,y2);
+    UNUSED(h);
+
 	// Instantiate a wall object
+	Cube * wall = new Cube((x1+x2)/2, (y1+y2)/2, abs(x1-x2), abs(y1-y2), h);
 
 	// Add instantiated object to staticObjects vector
+	staticObjects.push_back(wall);
 
 	// Modify and/or rebuild PRM
+	// ???
 }
 
 void Scene::setPlayerColor(float r, float g, float b) {
@@ -106,16 +115,12 @@ void Scene::render() {
 
 	// Render the UI (if we have one)
 	// maybe if I add on dear-imgui later
+}
 
-
-	// ** The following is uniform initializzation code for each shader; we'll have to figure out how we want to do this for everything that we render **/
-
-	// shaders; pass uniforms; draw
+void Scene::enableTextureShader() {
 	glm::mat4 proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 100.0f);
 	glm::mat4 view = camera->getView();
 	glm::mat4 model;
-
-	/* begin cube shaders */
 
 	shaders[TEXTURE]->enable();
 
@@ -158,9 +163,12 @@ void Scene::render() {
 
 	glUniformMatrix4fv(shaders[TEXTURE]->uniform("proj"), 1, GL_FALSE, glm::value_ptr(proj));
 	glUniformMatrix4fv(shaders[TEXTURE]->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
+}
 
-	/* end cube shaders */
-	/* begin flat shaders */
+void Scene::enableFlatShader() {
+	glm::mat4 proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 100.0f);
+	glm::mat4 view = camera->getView();
+	glm::mat4 model;
 
 	shaders[FLAT]->enable();
 
@@ -197,20 +205,19 @@ void Scene::render() {
 	glUniformMatrix4fv(shaders[FLAT]->uniform( "proj"), 1, GL_FALSE, glm::value_ptr(proj));
 	glUniformMatrix4fv(shaders[FLAT]->uniform( "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-	for (GLuint i = 0; i < obj::NR_CUBES; i++) {
-		glUniform3f(shaders[FLAT]->uniform("material.diffuse"), obj::cube_diffuse_color[i].x, obj::cube_diffuse_color[i].y, obj::cube_diffuse_color[i].z);
-		glUniform3f(shaders[FLAT]->uniform("material.specular"), obj::cube_specular_color[i].x, obj::cube_specular_color[i].y, obj::cube_specular_color[i].z);
-		model = glm::mat4();
-		model = glm::translate(model, obj::cube_positions[i]);
-		model = glm::scale(model, glm::vec3(obj::cube_scale[i]));
-		glUniformMatrix4fv(shaders[FLAT]->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(shaders[FLAT]->uniform( "normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
+	glUniform3f(shaders[FLAT]->uniform("material.diffuse"), 1, 0, 0);
+	glUniform3f(shaders[FLAT]->uniform("material.specular"), 1, 1, 1);
+	model = glm::mat4();
+	//model = glm::translate(model, obj::cube_positions[i]);
+	//model = glm::scale(model, glm::vec3(obj::cube_scale[i]));
+	glUniformMatrix4fv(shaders[FLAT]->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
+	glUniformMatrix4fv(shaders[FLAT]->uniform( "normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
+}
 
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-	}
-
-	/* end flat shaders */
-	/* begin lamp shaders */
+void Scene::enableLightShader() {
+	glm::mat4 proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 100.0f);
+	glm::mat4 view = camera->getView();
+	glm::mat4 model;
 
 	shaders[LIGHT]->enable();
 
@@ -227,7 +234,19 @@ void Scene::render() {
 
 		//glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
+}
 
-	/* end lamp shaders */
+void Scene::setupTestingObjects() {
+	// walls
+	addWall(2, -5, -6, 5, -8);
+	addWall(3, 3, -8, 5, 8);
+	addWall(1, -5, 6, 3, 8);
+	addWall(3, -3, -3, -1, 3);
 
+	// enemies
+	addEnemyObject(1, 0, 0, 0);
+	addEnemyObject(1, 2, -2, 0);
+	addEnemyObject(12, -1, 3, 0);
+
+	playerObject = new Sphere(0, -7, 6);
 }

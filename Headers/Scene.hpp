@@ -4,7 +4,10 @@
 #include <vector>
 #include <iostream>
 #include <unordered_map>
+#include <algorithm>
 #include "Object.hpp"
+#include "Cube.hpp"
+#include "Sphere.hpp"
 #include "Structs.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
@@ -36,6 +39,8 @@ public:
 	void setPlayerColor(float r, float g, float b);
 	void setPlayerColor(glm::vec3 rgb);
 
+	void setupTestingObjects();
+
 	void updatePRM();
 
 	void setBounds(glm::vec3 min, glm::vec3 max);
@@ -44,6 +49,10 @@ public:
 
 	void render();
 
+	void enableTextureShader();
+	void enableFlatShader();
+	void enableLightShader();
+
 	Object *playerObject;
 	std::vector<Object *> enemyObjects;
 	std::vector<Object *> staticObjects;
@@ -51,7 +60,7 @@ public:
 
 	bufferContainer bc;
 
-	std::unordered_map<int, mcl::Shader *> shaders;
+	std::unordered_map<shaderNames, mcl::Shader *> shaders;
 
 	Camera * camera;
 
