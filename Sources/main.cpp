@@ -138,8 +138,9 @@ int main() {
 	glBindTexture(GL_TEXTURE_2D, 1);*/
 
 	/* Path Planning */
-	ai::init(std::vector<BoundingVolume *>(), std::vector<Object *>(), std::vector<Object *>(), std::vector<Object *>());
-	GMP::replan(ai::std_NNai, game_loop_clock);
+    //todo dalton: reintegrate
+	//ai::init(std::vector<BoundingVolume *>(), std::vector<Object *>(), std::vector<Object *>(), std::vector<Object *>());
+	//GMP::replan(ai::std_NNai, game_loop_clock);
 
 	//change properties for the path -- instantiate cube visualizations
 	//init_planning_vis();
@@ -153,6 +154,7 @@ int main() {
 	while (!glfwWindowShouldClose(window)) {
         game_loop_clock->frame();
 
+        //reintegrate
 		//ai::animate_agents(ai::std_NNai, game_loop_clock->delta());
 
 		// Callbacks 
@@ -243,7 +245,7 @@ GLFWwindow * init_window_context() {
     return window;
 }
 
-//move to Scene 
+//TODO: move to Scene 
 void handle_input(GLfloat dt) {
     if (UI::keys[GLFW_KEY_W])
         cam->translate_camera(G::CAMERA::FORWARD, dt);
@@ -265,8 +267,7 @@ void handle_input(GLfloat dt) {
     }
 }
 
-//move to Scene
+// TODO: move to Scene
 void toggle_flashlight() {
-	// TODO: move to Scene
 	is_flashlight_on = !is_flashlight_on;
 }
