@@ -129,7 +129,7 @@ void Scene::enableTextureShader() {
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, tex_container_specular);*/
 
-	glUniform3f(shaders[TEXTURE]->uniform("material.ambient"), 1.0f, 0.5f, 0.31f);
+	//glUniform3f(shaders[TEXTURE]->uniform("material.ambient"), 1.0f, 0.5f, 0.31f);
 	glUniform1f(shaders[TEXTURE]->uniform("material.shine"), 32.0f);
 	glUniform1i(shaders[TEXTURE]->uniform("material.diffuse"), 0);
 	glUniform1i(shaders[TEXTURE]->uniform("material.specular"), 1);
@@ -172,7 +172,7 @@ void Scene::enableFlatShader() {
 
 	shaders[FLAT]->enable();
 
-	glUniform3f(shaders[FLAT]->uniform("material.ambient"), 1.0f, 0.5f, 0.31f);
+	//glUniform3f(shaders[FLAT]->uniform("material.ambient"), 1.0f, 0.5f, 0.31f);
 	glUniform1f(shaders[FLAT]->uniform("material.shine"), 32.0f);
 
 	glUniform3f(shaders[FLAT]->uniform("dirLight.direction"), dir_light_dir.x, dir_light_dir.y, dir_light_dir.z);

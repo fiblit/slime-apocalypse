@@ -146,7 +146,7 @@ int main() {
 	//init_planning_vis();
 
 	scene->setupTestingObjects();
-	scene->enableFlatShader();
+	scene->enableLightShader();
 
     /* Game Loop */
     game_loop_clock->frame();
