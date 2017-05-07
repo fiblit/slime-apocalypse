@@ -11,6 +11,9 @@ public:
 	Rectangle(vec3 p);
 	Rectangle(vec3 p, float w, float h);
 	virtual ~Rectangle();
+    bool contains(vec3 point);
+    bool contains(float x, float y, float z);
+    bool contains(float x, float y);
 
 	void construct();
 

@@ -13,6 +13,7 @@
 #include "LocalMotionPlanner.hpp"
 #include "Agent.hpp"
 #include "Scenario.hpp"
+#include "Scene.hpp"
 
 /* GLOBALS */
 /* GL */

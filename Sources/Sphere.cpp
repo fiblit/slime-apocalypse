@@ -37,6 +37,8 @@ Sphere::Sphere(vec3 p, float r) : Object(p) {
 
 Sphere::~Sphere() {}
 
+
+
 void Sphere::construct() {
 	vertices.clear();
 	colors.clear();

@@ -45,7 +45,6 @@ public:
 
 	glm::vec3 params;
 	glm::vec3 color = glm::vec3(0, 0, 1);
-	bool sphere; //this seems... not right
 
 	// Rendering variables
 	std::vector<glm::vec3> vertices;

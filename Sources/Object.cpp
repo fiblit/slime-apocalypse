@@ -7,23 +7,23 @@ using std::min;
 using std::max;
 
 Object::Object() {
-	dyn.dyn.pos = vec3();
+	dyn.pos = vec3();
 }
 
 Object::Object(vec2 p) {
-    dyn.dyn.pos = vec3(p.x, p.y, 0.);
+    dyn.pos = vec3(p.x, p.y, 0.);
 }
 
 Object::Object(float x, float y) {
-	dyn.dyn.pos = vec3(x, y, 0.0);
+	dyn.pos = vec3(x, y, 0.0);
 }
 
 Object::Object(vec3 p) {
-	dyn.dyn.pos = p;
+	dyn.pos = p;
 }
 
-Object::Object(float x, float y, float y) {
-    dyn.dyn.pos = vec3(x, y, z);
+Object::Object(float x, float y, float z) {
+    dyn.pos = vec3(x, y, z);
 }
 
 Object::~Object() {}

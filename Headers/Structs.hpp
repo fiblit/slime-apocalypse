@@ -5,6 +5,20 @@
 #include <glm/glm.hpp>
 #include "graph.hpp"
 
+//data container Scene's maze creation algorithm.
+struct mazeData {
+    int height;
+    int width;
+    float cellSize;
+    float chanceGennedAlive;
+    glm::vec3 center;
+};
+
+struct mazeCell {
+    int filled;
+    bool active;
+};
+
 struct bufferContainer {
 	GLuint scene_vao;
 	GLuint position_vbo;
