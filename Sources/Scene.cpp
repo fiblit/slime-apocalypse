@@ -35,7 +35,6 @@ Scene::~Scene() {
 
 #include "debug.hpp"
 void Scene::addEnemyObject(float r, float x, float y, float z) {
-    UNUSED(r, x, y, z);
 	// Instantiate an enemy object
 	Sphere * enemy = new Sphere(x, y, z, r);
 
@@ -44,8 +43,6 @@ void Scene::addEnemyObject(float r, float x, float y, float z) {
 }
 
 void Scene::addWall(float h, float x1, float y1, float x2, float y2) {
-    UNUSED(h);
-
 	// Instantiate a wall object
 	Cube * wall = new Cube((x1+x2)/2, (y1+y2)/2, abs(x1-x2), abs(y1-y2), h);
 
