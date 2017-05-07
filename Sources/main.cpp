@@ -255,11 +255,7 @@ void handle_input(GLfloat dt) {
 
     if (UI::keys[GLFW_KEY_F]) {
         UI::keys[GLFW_KEY_F] = false;
-        toggle_flashlight();
+        scene->toggle_flashlight();
     }
 }
 
-// TODO: move to Scene
-void toggle_flashlight() {
-	is_flashlight_on = !is_flashlight_on;
-}

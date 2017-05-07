@@ -53,6 +53,8 @@ public:
 	void enableFlatShader();
 	void enableLightShader();
 
+    void toggle_flashlight();
+
 	Object *playerObject;
 	std::vector<Object *> enemyObjects;
 	std::vector<Object *> staticObjects;
@@ -75,6 +77,7 @@ public:
 		glm::vec3(5.f,  2.f, -5.f)
 	};
 	glm::vec3 dir_light_dir = glm::vec3(-0.5f, 1.0f, -0.7f);
+
 	bool is_flashlight_on = true;
 };
 

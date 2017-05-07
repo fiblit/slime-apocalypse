@@ -52,8 +52,6 @@ Gtime::Timer * game_loop_clock;
 
 Scene * scene;
 
-GLboolean is_flashlight_on;
-void toggle_flashlight();
 void handle_input(GLfloat dt);
 
 #endif //MAIN

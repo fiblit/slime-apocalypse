@@ -247,3 +247,7 @@ void Scene::setupTestingObjects() {
 
 	playerObject = new Sphere(0, -7, 6);
 }
+
+void Scene::toggle_flashlight() {
+    is_flashlight_on = !is_flashlight_on;
+}
