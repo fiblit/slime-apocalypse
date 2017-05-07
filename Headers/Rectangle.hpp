@@ -2,7 +2,7 @@
 #define RECTANGLE_H_GUARD
 
 #include "Object.hpp"
-
+using namespace glm;
 class Rectangle : public Object {
 public:
 	Rectangle();

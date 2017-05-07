@@ -29,14 +29,12 @@ Rectangle::Rectangle(float x, float y, float w, float h) : Object(vec3(x, y, 0.0
 Rectangle::Rectangle(vec3 p) : Object(p) {
 	params[0] = 1.0;
 	params[1] = 1.0;
-	sphere = false;
 	construct();
 }
 
 Rectangle::Rectangle(vec3 p, float w, float h) : Object(p) {
 	params[0] = w;
 	params[1] = h;
-	sphere = false;
 	construct();
 }
 

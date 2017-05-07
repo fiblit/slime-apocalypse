@@ -19,12 +19,13 @@ Scene::Scene() {
 Scene::~Scene() {
 	if (playerObject)
 		delete playerObject;
-
-	for (int i = 0; i < enemyObjects.size(); i++) {
+    int enemies = enemyObjects.size();
+	for (int i = 0; i < enemies; i++) {
 		delete enemyObjects[i];
 	}
 	enemyObjects.clear();
-	for (int i = 0; i < staticObjects.size(); i++) {
+    int staticObjectsCount = staticObjects.size();
+	for (int i = 0; i < staticObjectsCount; i++) {
 		delete staticObjects[i];
 	}
 	staticObjects.clear();
@@ -117,18 +118,18 @@ void Scene::generateMoreMaze(){
     glm::ivec3 gridMoves = (newCenter - mazeInfo.center)/ mazeInfo.cellSize;
     //unload enemies that are outside of X by X grid & generate new ones
     int enemyObjectCount = enemyObjects.size();
-    int i = 0;
-    while (i < enemyObjectCount) {
-        vec3 gridEnemyPos = snapToGrid(enemyObjects[i]->dyn.pos);
+    int idx= 0;
+    while (idx< enemyObjectCount) {
+        vec3 gridEnemyPos = snapToGrid(enemyObjects[idx]->dyn.pos);
         float xDist = abs(newCenter[0] - gridEnemyPos[0]);
         float yDist = abs(newCenter[1] - gridEnemyPos[1]);
         if (xDist > 15 || yDist > 15) {
-            enemyObjects.erase(enemyObjects.begin() + i);
+            enemyObjects.erase(enemyObjects.begin() + idx);
             enemyObjectCount--;
             //TODO: Generate New Enemy Object
         }
         else {
-            i++;
+            idx++;
         }
     }
 
@@ -139,7 +140,8 @@ void Scene::generateMoreMaze(){
         }
     }
     else if (gridMoves[0] > 0){
-        for (int i = 0; i < maze.size() - gridMoves[0]; i++) {
+        int shiftUpTo = maze.size() - gridMoves[0];
+        for (int i = 0; i < shiftUpTo; i++) {
             maze[i] = maze[i + gridMoves[0]];
         }
     }
@@ -160,26 +162,35 @@ void Scene::generateMoreMaze(){
     //generate new columns and rows.
     int xIterator = gridMoves[0] / abs(gridMoves[0]);
     int yIterator = gridMoves[1] / abs(gridMoves[1]);
-    int i = (maze.size() + gridMoves[0]) % maze.size() - 1;
-    int j = (maze[0].size() + gridMoves[1]) % maze[0].size() - 1;
+    int xIdx = (maze.size() + gridMoves[0]) % maze.size() - 1;
+    int yIdx = (maze[0].size() + gridMoves[1]) % maze[0].size() - 1;
     //update horizontal rows with newly generated cells
-    while (i >= 0 && i < maze.size()) {
-        for (int y = 0; y < maze[i].size(); y++) {
-            maze[i][y].active = 1;
-            maze[i][y].filled = (rand() > mazeInfo.chanceGennedAlive) ? 1 : 0;
+    while (xIdx >= 0 && xIdx < maze.size()) {
+        for (int y = 0; y < maze[xIdx].size(); y++) {
+            maze[xIdx][y].active = 1;
+            maze[xIdx][y].filled = (rand() > mazeInfo.chanceGennedAlive) ? 1 : 0;
         }
-        i += xIterator;
+        xIdx += xIterator;
     }
     //update vertical rows 
-    while (j >= 0 && j < maze[0].size()) {
+    while (yIdx >= 0 && yIdx < maze[0].size()) {
         for (int x = 0; x < maze.size(); x++) {
-            maze[x][j].active = 1;
-            maze[x][j].filled = (rand() > mazeInfo.chanceGennedAlive) ? 1 : 0;
+            maze[x][yIdx].active = 1;
+            maze[x][yIdx].filled = (rand() > mazeInfo.chanceGennedAlive) ? 1 : 0;
         }
-        j += yIterator;
+        yIdx += yIterator;
     }
     //run the simulation with the new active cells
     automatonSimulate();
+
+    //add the Objects 
+    for (int i = 0; i < maze.size(); i++) {
+        for (int j = 0; j < maze[i].size(); j++) {
+            if (maze[i][j].filled) {
+                //add to staticObjects list
+            }
+        }
+    }
 
     //add PRM nodes that exist in newly generated maze area
 
