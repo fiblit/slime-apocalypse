@@ -6,10 +6,14 @@ using namespace std;
 
 Scene::Scene() {
     this->camera = new Camera();
-
 	// Generate player object
 	playerObject = new  Sphere(0.0, 0.0, 1.0);
 	// Generate static objects (walls, floors, etc.)
+    mazeInfo.height = 30;
+    mazeInfo.width = 30;
+    mazeInfo.chanceGennedAlive = .5;
+    mazeInfo.cellSize = 10;
+    mazeInfo.center = vec3(0, 0, 0);
     initMaze();
 	// Generate enemy objects
 	for (int i = 0; i < maxEnemies; i++) {
@@ -30,6 +34,11 @@ Scene::~Scene() {
 	staticObjects.clear();
 }
 
+
+int Scene::mod(int num1, int num2) {
+    int r = num1 % num2;
+    return (r < 0) ? r + num2 : r;
+}
 void Scene::automatonSimulate() {
     int numIterations = 15;
     for (int a = 0; a < numIterations; a++) {
@@ -41,14 +50,15 @@ void Scene::automatonSimulate() {
                     int neighbors = 0;
                     mazeCell cBuffer = {};
                     cBuffer.active = 1;
-                    neighbors += maze[(i - 1) % mazeInfo.width][(j - 1) % mazeInfo.height].filled;
-                    neighbors += maze[(i) % mazeInfo.width][(j - 1) % mazeInfo.height].filled;
-                    neighbors += maze[(i + 1) % mazeInfo.width][(j - 1) % mazeInfo.height].filled;
-                    neighbors += maze[(i - 1) % mazeInfo.width][(j + 1) % mazeInfo.height].filled;
-                    neighbors += maze[(i) % mazeInfo.width][(j + 1) % mazeInfo.height].filled;
-                    neighbors += maze[(i + 1) % mazeInfo.width][(j + 1) % mazeInfo.height].filled;
-                    neighbors += maze[(i + 1) % mazeInfo.width][(j) % mazeInfo.height].filled;
-                    neighbors += maze[(i - 1) % mazeInfo.width][(j) % mazeInfo.height].filled;
+                    
+                    neighbors += maze[mod((i - 1), mazeInfo.width)][mod(j - 1, mazeInfo.height)].filled;
+                    neighbors += maze[mod(i, mazeInfo.width)][mod(j - 1, mazeInfo.height)].filled;
+                    neighbors += maze[mod((i + 1), mazeInfo.width)][mod((j - 1),mazeInfo.height)].filled;
+                    neighbors += maze[mod((i - 1), mazeInfo.width)][mod((j + 1), mazeInfo.height)].filled;
+                    neighbors += maze[mod(i,mazeInfo.width)][mod((j + 1),mazeInfo.height)].filled;
+                    neighbors += maze[mod((i + 1), mazeInfo.width)][mod((j + 1), mazeInfo.height)].filled;
+                    neighbors += maze[mod((i + 1), mazeInfo.width)][mod(j, mazeInfo.height)].filled;
+                    neighbors += maze[mod((i - 1), mazeInfo.width)][mod(j, mazeInfo.height)].filled;
                     cBuffer.filled = (neighbors <= 1 || neighbors >= 4) ? 0 : 1;
                     bufferRow.push_back(cBuffer);
                 }
@@ -60,11 +70,6 @@ void Scene::automatonSimulate() {
         }
         maze = mazeBuffer;
     }
-    for (int i = 0; i < mazeInfo.width; i++) {
-        for (int j = 0; j < mazeInfo.height; j++) {
-            maze[i][j].active = 0;
-        }
-    }
     return;
 }
 
@@ -72,15 +77,13 @@ void Scene::automatonSimulate() {
 //generate a randomly initialized grid and run through a fixed number of interations of the automaton algorithm
 void Scene::initMaze() {
     //initialize the maze
-    mazeInfo.height = 30;
-    mazeInfo.width = 30;
-    mazeInfo.chanceGennedAlive = .25;
     for (int i = 0; i < mazeInfo.width; i++) {
         std::vector<mazeCell> row;
         for (int j = 0; j < mazeInfo.height; j++) {
             mazeCell c = {};
             c.active = 1;
-            c.filled = (rand() > mazeInfo.chanceGennedAlive) ? 1 : 0;
+            float randNum = ((float)rand()) / RAND_MAX;
+            c.filled = (randNum > mazeInfo.chanceGennedAlive) ? 1 : 0;
             row.push_back(c);
         }
         maze.push_back(row);
@@ -89,6 +92,7 @@ void Scene::initMaze() {
     maze[14][14].filled = 0;
     //iterate through Conways game of life a fixed number of times.
     automatonSimulate();
+    maze[14][14].filled = 0;
     //put the nearby cells that have objects in to the staticObjects vector
     return;
 }
@@ -105,6 +109,7 @@ vec3 Scene::snapToGrid(vec3 pos) {
 
     return vec3(xSnap, ySnap, 0);
 }
+
 //Take the player position and generate maze cells for any cells in the X by X grid surrounding the player that don't
 //have cells generated.
 //TODO: Possibly have it hold on to pre-generated cells, only load static objects associated with cells in nearby area.
@@ -167,7 +172,7 @@ void Scene::generateMoreMaze(){
     while (xIdx >= 0 && xIdx < maze.size()) {
         for (size_t y = 0; y < maze[xIdx].size(); y++) {
             maze[xIdx][y].active = 1;
-            maze[xIdx][y].filled = (rand() > mazeInfo.chanceGennedAlive) ? 1 : 0;
+            maze[xIdx][y].filled = (((float)rand()) > mazeInfo.chanceGennedAlive) ? 1 : 0;
         }
         xIdx += xIterator;
     }
@@ -175,7 +180,7 @@ void Scene::generateMoreMaze(){
     while (yIdx >= 0 && yIdx < maze[0].size()) {
         for (size_t x = 0; x < maze.size(); x++) {
             maze[x][yIdx].active = 1;
-            maze[x][yIdx].filled = (rand() > mazeInfo.chanceGennedAlive) ? 1 : 0;
+            maze[x][yIdx].filled = (((float)rand()) > mazeInfo.chanceGennedAlive) ? 1 : 0;
         }
         yIdx += yIterator;
     }

@@ -90,14 +90,13 @@ float LMP::ttc_(Circ * /*i*/, glm::vec2 /*iv*/, Rect * /*j*/, glm::vec2 /*jv*/) 
     return 0;
 }
 
-/* a_cspace shouldn't be affected, however declaring it as const causes issues... */
-glm::vec2 LMP::lookahead(Object * a, glm::vec2 target, Cspace2D * a_cspace) {
+glm::vec2 LMP::lookahead(Object * a, glm::vec2 target) {
     glm::vec2 t_new = target;
     if (static_cast<size_t>(a->ai.num_done) < a->ai.plan->size()) {
         t_new = (*(a->ai.plan))[a->ai.num_done]->data;
 
         while (static_cast<size_t>(a->ai.num_done) + 1 < a->ai.plan->size()
-            && a_cspace->line_of_sight(a->bv->o, (*(a->ai.plan))[a->ai.num_done + 1]->data)) {
+            && a->ai.cspace->line_of_sight(a->bv->o, (*(a->ai.plan))[a->ai.num_done + 1]->data)) {
             a->ai.num_done++;
             t_new = (*(a->ai.plan))[a->ai.num_done]->data;
         }
@@ -201,13 +200,13 @@ glm::vec2 boid_force(Object * a, std::vector<Object *> near_boids) {
 }
 
 //needs to be refactored; hopefully I can decouple it from physics
-glm::vec2 LMP::calc_sum_force(Object * a, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic, Cspace2D * a_cspace, GLfloat dt) {
+glm::vec2 LMP::calc_sum_force(Object * a, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic) {
     float speed = 1.0f; // x m/s
     glm::vec2 goal_vel;
 
     //if there is a plan
     if (a->ai.has_plan()) {
-        a->ai.goal = LMP::lookahead(a, a->ai.goal, a_cspace);
+        a->ai.goal = LMP::lookahead(a, a->ai.goal);
         goal_vel = (a->ai.goal - a->bv->o) / glm::distance(a->ai.goal, a->bv->o) * (speed /* * dt */);
     }
     else {

@@ -72,7 +72,7 @@ public:
     Camera * camera;
 private:
     glm::vec3 snapToGrid(glm::vec3 position);
-
+    int mod(int num1, int num2);
 	/* lighting */
 	glm::vec3 light_diffuse = glm::vec3(0.5f, 0.5f, 0.5f); // Decrease the influence
 	glm::vec3 light_ambient = glm::vec3(0.05f, 0.05f, 0.05f); // Low influence

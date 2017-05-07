@@ -72,7 +72,7 @@ void GMP::replan(std::vector<Object *> agents, Gtime::Timer * clock) {
     /* PATH PLANNING METHOD */
     for (Object * a : agents) {
         if (a->ai.has_indy_f()) {
-            a->ai.plan = GMP::find_path_Astar(1.f, ai::std_prm->roadmap);
+            a->ai.plan = GMP::find_path_Astar(1.f, a->ai.prm->roadmap);
             a->ai.num_done = 0;
         }
     }
