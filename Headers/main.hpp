@@ -44,14 +44,12 @@
 #pragma warning(pop)
 
 GLFWwindow * init_window_context();
+int kill_app(int retVal);
+
+void handle_input(Gtime::Timer * clock, Scene * scene);
 
 /* Globals */
-// moved the namespaces to Structs.hpp so that Scene could access them
-
-Gtime::Timer * game_loop_clock;
-
 Scene * scene;
 
-void handle_input(Gtime::Timer * clock, Camera * cam);
 
 #endif //MAIN

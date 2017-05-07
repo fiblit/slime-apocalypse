@@ -9,6 +9,8 @@ using std::max;
 using std::abs;
 
 Scene::Scene() {
+    this->camera = new Camera();
+
 	// Generate player object
     // ?
 	// Generate static objects (walls, floors, etc.)

@@ -9,14 +9,10 @@ int main() {
 
 	/* Management */
     Gtime::init_stack(1);
-    game_loop_clock = &(Gtime::stack[0]);
-
-    //there's a reason I said it should be in the scene. :p
-	cam = new Camera();
+    Gtime::Timer * game_loop_clock = &(Gtime::stack[0]);
 
 	// initialize the scene
 	scene = new Scene();
-	scene->camera = cam;
 
 	/* Shaders */
 	Shader * cube_shader = new Shader();
@@ -151,7 +147,7 @@ int main() {
 
 		// Callbacks 
 		glfwPollEvents();
-		handle_input(game_loop_clock, cam);
+		handle_input(game_loop_clock, scene);
 
 		// Render 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -238,15 +234,18 @@ GLFWwindow * init_window_context() {
 }
 
 //TODO: move to Scene 
-void handle_input(Gtime::Timer * clock, Camera * camera) {
+void handle_input(Gtime::Timer * clock, Scene * scene) {
+    scene->camera->mouse_rotate_camera(UI::cursor_edx, UI::cursor_edy);
+    scene->camera->scroll_zoom_camera(UI::d_scroll);
+
     if (UI::keys[GLFW_KEY_W])
-        camera->translate_camera(G::CAMERA::FORWARD, clock->delta());
+        scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta());
     if (UI::keys[GLFW_KEY_S])
-        camera->translate_camera(G::CAMERA::BACKWARD, clock->delta());
+        scene->camera->translate_camera(G::CAMERA::BACKWARD, clock->delta());
     if (UI::keys[GLFW_KEY_A])
-        camera->translate_camera(G::CAMERA::LEFT, clock->delta());
+        scene->camera->translate_camera(G::CAMERA::LEFT, clock->delta());
     if (UI::keys[GLFW_KEY_D])
-        camera->translate_camera(G::CAMERA::RIGHT, clock->delta());
+        scene->camera->translate_camera(G::CAMERA::RIGHT, clock->delta());
 
     if (UI::keys[GLFW_KEY_P]) {
         UI::keys[GLFW_KEY_P] = false;
@@ -259,3 +258,10 @@ void handle_input(Gtime::Timer * clock, Camera * camera) {
     }
 }
 
+int kill_app(int retVal) {
+    glfwTerminate();
+    std::cout << std::endl << "Application Terminated. With exit value: " << retVal << std::endl;
+    D(slow_print(50, 300, "\n\nGoodbye..."));
+    D(slow_print(150, 500, "OK"));
+    return retVal;
+}
