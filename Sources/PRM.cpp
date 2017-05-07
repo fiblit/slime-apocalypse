@@ -11,25 +11,6 @@ VecPoint * PRM::sample_nodes(Cspace2D * cSpace_, float perturb, float bin_dim, i
 	std::default_random_engine gen;
 	std::uniform_real_distribution<float> std(-0.5f, 0.5f);
 
-    bounds = std::make_pair(-10.f, 10.f);
-    switch (G::SCENARIO) {
-    case G::SCENE::WALL:
-    case G::SCENE::DEADEND:
-        bin_samps = 4;
-        bin_dim = 2.8f;
-        break;
-    case G::SCENE::MAZE:
-        bin_samps = 5;
-        bin_dim = 2.8f;
-        break;
-    case G::SCENE::DEFAULT:
-    case G::SCENE::NO_BOID:
-    default:
-        bin_samps = 1;//this does not work on all maps
-        bin_dim = 2.8f;
-        break;
-    }
-
 	VecPoint * sample = new VecPoint();
 	for (int i = 0; i < bin_samps; i++) {
 		for (float x = bounds.first+bin_dim/2; x < bounds.second-bin_dim/2; x+=bin_dim) {
@@ -88,9 +69,9 @@ VecPoint * PRM::find_nearest_neighbours(VecPoint * nodes, int targetIdx) {
 
 /* connects nearby of each node by Graph edges */
 Graph<glm::vec2> * PRM::connect_roadmap(VecPoint * nodes) {
-	Graph<glm::vec2> * roadmap = new Graph<glm::vec2>();
+	Graph<glm::vec2> * rm = new Graph<glm::vec2>();
 	for (int i = 0; i < static_cast<int>(nodes->size()); i++)
-		roadmap->add_vertex((*nodes)[i]);
+		rm->add_vertex((*nodes)[i]);
 
 	for (int i = 0; i < static_cast<int>(nodes->size()); i++) {
 		VecPoint * nearby = find_nearest_neighbours(nodes, i);
@@ -98,24 +79,20 @@ Graph<glm::vec2> * PRM::connect_roadmap(VecPoint * nodes) {
 			if (this->c_space->line_of_sight((*nearby)[n]->data, (*nodes)[i]->data)) {
 				// we want directed because we'll be passing over the other side during
 				// the course of the outer loop
-				roadmap->add_directed_edge((*nearby)[n], (*nodes)[i]);
+				rm->add_directed_edge((*nearby)[n], (*nodes)[i]);
 			}
 		}
 	}
 
-	return roadmap;
+	return rm;
 }
 
 /* bin_samps and connects a Pobabilistic Road Map */
-PRM::PRM(glm::vec2 start, glm::vec2 goal, Cspace2D * c_space) {
+PRM::PRM(Cspace2D * c_space) {
     this->c_space = c_space;
 
-    Node<glm::vec2> * start_node = new Node<glm::vec2>(start, new VecPoint());
-    Node<glm::vec2> * goal_node = new Node<glm::vec2>(goal, new VecPoint());
-
-    //VecPoint * sample = sample_nodes(this->c_space, 1,1,1, pair(1.0, 1));
-    //sample->insert(sample->begin(), goal_node);
-    //sample->insert(sample->begin(), start_node);
+    //Node<glm::vec2> * start_node = new Node<glm::vec2>(start, new VecPoint());
+    VecPoint * sample = sample_nodes(this->c_space, .1f, 2.8f, 1, std::make_pair(-10.f, 10.f));
 
     //this->roadmap = connect_roadmap(sample);
 }

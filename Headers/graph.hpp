@@ -1,5 +1,6 @@
 #ifndef GRAPH_H_GUARD
 #define GRAPH_H_GUARD
+#pragma once//there were issues....
 
 #include <vector>
 

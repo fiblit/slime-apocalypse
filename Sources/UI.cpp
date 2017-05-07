@@ -2,9 +2,11 @@
 #include "debug.hpp"
 #include <iostream>
 
-Camera * cam;
 namespace UI {
    GLfloat cursor_sensitivity = 1.f;
+   GLfloat cursor_edx = 0.f;
+   GLfloat cursor_edy = 0.f;
+   GLfloat d_scroll = 0.f;
    GLboolean keys[1024];
 }
 
@@ -27,30 +29,22 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     static GLboolean focus = false;
     static GLfloat last_x = 0.f;
     static GLfloat last_y = 0.f;
-
+    UI::cursor_edx = 0.f;
+    UI::cursor_edy = 0.f;
     if (!focus) {
         last_x = (GLfloat)xpos;
         last_y = (GLfloat)ypos;
         focus = true;
     }
-    GLfloat x_offset = (GLfloat)xpos - last_x;
-    GLfloat y_offset = (GLfloat)ypos - last_y;
-    x_offset *= UI::cursor_sensitivity;
-    y_offset *= UI::cursor_sensitivity;
+    UI::cursor_edx = (GLfloat)xpos - last_x;
+    UI::cursor_edy = (GLfloat)ypos - last_y;
+    UI::cursor_edx *= UI::cursor_sensitivity;
+    UI::cursor_edy *= UI::cursor_sensitivity;
     last_x = (GLfloat)xpos;
     last_y = (GLfloat)ypos;
-    cam->mouse_rotate_camera(x_offset, y_offset);
 }
 
 void scroll_callback(GLFWwindow * window, double xoffset, double yoffset) {
     UNUSED(window, xoffset);
-    cam->scroll_zoom_camera((GLfloat)yoffset);
-}
-
-int kill_app(int retVal) {
-    glfwTerminate();
-    std::cout << std::endl << "Application Terminated. With exit value: " << retVal << std::endl;
-    D(slow_print(50, 300, "\n\nGoodbye..."));
-    D(slow_print(150, 500, "OK"));
-    return retVal;
+    UI::d_scroll = (GLfloat)yoffset;
 }

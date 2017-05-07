@@ -7,7 +7,9 @@
 #include "BoundingVolume.hpp"
 
 #pragma warning(push, 0)
+#pragma warning(disable: 4055)
 #include <glad/glad.h>
+#pragma warning(disable: 4201)
 #include <glm/glm.hpp>
 #pragma warning(pop)
 
@@ -37,11 +39,10 @@ public:
 
 	void render(bufferContainer bc);
 
-
 	// Member variables
     BoundingVolume * bv;
-    dynamics_comp dyn;
     ai_comp ai;
+    dynamics_comp dyn;
 
 	glm::vec3 params;
 	glm::vec3 color = glm::vec3(0, 0, 1);

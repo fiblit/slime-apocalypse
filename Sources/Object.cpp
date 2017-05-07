@@ -58,7 +58,7 @@ void Object::setColor(float r, float g, float b) {
 
 void Object::setColor(vec3 rgb) {
 	color = vec3(max(0.0f, min(1.0f, rgb[0])), max(0.0f, min(1.0f, rgb[1])), max(0.0f, min(1.0f, rgb[2])));
-	for (int i = 0; i < colors.size(); i++) {
+	for (size_t i = 0; i < colors.size(); i++) {
 		colors[i] = color;
 	}
 }
@@ -71,7 +71,8 @@ void Object::moveBy(float x, float y, float z) {
 // Simple movement functions; we'll need to adapt these to however our objects move
 void Object::moveBy(vec3 t) {
 	dyn.pos += t;
-	for (int i = 0; i < vertices.size(); i++) {
+    bv->o += vec2(t);
+	for (size_t i = 0; i < vertices.size(); i++) {
 		vertices[i] += t;
 	}
 }
@@ -85,7 +86,8 @@ void Object::moveTo(float x, float y, float z) {
 void Object::moveTo(vec3 position) {
 	vec3 p = position - dyn.pos;
 	dyn.pos += p;
-	for (int i = 0; i < vertices.size(); i++) {
+    bv->o += vec2(p);
+	for (size_t i = 0; i < vertices.size(); i++) {
 		vertices[i] += p;
 	}
 }
@@ -125,5 +127,5 @@ void Object::render(bufferContainer bc) {
 	else
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
 
-	glDrawElements(GL_TRIANGLES, faces.size(), GL_UNSIGNED_INT, (GLvoid*) 0);
+	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(faces.size()), GL_UNSIGNED_INT, (GLvoid*) 0);
 }

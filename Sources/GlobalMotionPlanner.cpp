@@ -1,4 +1,5 @@
 #include "GlobalMotionPlanner.hpp"
+#include "AI.hpp"
 
 /* custom uniform cost search (aka Djikstra's search) for a PRM Graph
 simplifciation of A*. (h = 0)
@@ -63,4 +64,17 @@ VecPoint * GMP::find_path_Astar(float e, Graph<glm::vec2> * roadmap) {
     for (Vert v = goal; v != nullptr; v = parent[v])
         path->insert(path->begin(), v);
     return (*path)[0] == start ? path : new VecPoint();
+}
+
+//move to AI/planner (probably GMP)
+void GMP::replan(std::vector<Object *> agents, Gtime::Timer * clock) {
+    clock->pause();
+    /* PATH PLANNING METHOD */
+    for (Object * a : agents) {
+        if (a->ai.has_indy_f()) {
+            a->ai.plan = GMP::find_path_Astar(1.f, ai::std_prm->roadmap);
+            a->ai.num_done = 0;
+        }
+    }
+    clock->play();
 }

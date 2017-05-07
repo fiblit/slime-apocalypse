@@ -1,14 +1,179 @@
 #include "main.hpp"
 
-/* some of this might look like stuff from learnopengl.com ... probably not much anymore 
-   I have been changing it a lot. 
-   Oh, and I think there's a bit from github.com/Polytonic/glitter or maybe from the
-   stb github repo... It's mostly just stuff to interface with libraries (e.g. GLFW, 
-   stb, glad, etc. ) */
-//need to pull stuff out of main into either a Scene or Renderer
-//refactor. refactor, refactor
+using namespace mcl;
+
 int main() {
-    Scene * s = new Scene();
+    GLFWwindow * window = init_window_context();
+    if (window == nullptr)
+        return kill_app(EXIT_FAILURE);
+
+	/* Management */
+    Gtime::init_stack(1);
+    Gtime::Timer * game_loop_clock = &(Gtime::stack[0]);
+
+	// initialize the scene
+	scene = new Scene();
+
+	/* Shaders */
+	Shader * cube_shader = new Shader();
+	scene->shaders[TEXTURE] = cube_shader;
+	Shader * flat_shader = new Shader();
+	scene->shaders[FLAT] = flat_shader;
+	Shader * lamp_shader = new Shader();
+	scene->shaders[LIGHT] = lamp_shader;
+
+	cube_shader->init_from_files(
+		((std::string)PROJECT_SOURCE_DIR + "/Shaders/cube.vert").c_str(), 
+		((std::string)PROJECT_SOURCE_DIR + "/Shaders/cube.frag").c_str());
+	flat_shader->init_from_files(
+		((std::string)PROJECT_SOURCE_DIR + "/Shaders/flat.vert").c_str(),
+		((std::string)PROJECT_SOURCE_DIR + "/Shaders/flat.frag").c_str());
+	lamp_shader->init_from_files(
+		((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.vert").c_str(),
+		((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.frag").c_str());
+
+	/* Objects */
+	glGenVertexArrays(1, &scene->bc.scene_vao);
+
+	glGenBuffers(1, &scene->bc.position_vbo);
+	glGenBuffers(1, &scene->bc.colors_vbo);
+	glGenBuffers(1, &scene->bc.normals_vbo);
+	glGenBuffers(1, &scene->bc.faces_ibo);
+	glGenBuffers(1, &scene->bc.edges_ibo);
+
+	glBindVertexArray(scene->bc.scene_vao);
+
+	/*glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(obj::cube), obj::cube, GL_STATIC_DRAW);
+	// Position attr
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+	// Normal attr
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+	// Tex Coords attr
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(2);
+	glBindVertexArray(0);
+
+    glBindVertexArray(VAO[1]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
+    // Position attr
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+
+	// lamps
+	GLuint light_VAO;
+	glGenVertexArrays(1, &light_VAO);
+	glBindVertexArray(light_VAO);
+	// We only need to bind to the VBO, the container's VBO's data already contains the correct data.
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+	// Position attr
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+	glBindVertexArray(0);*/
+
+	/* Load textures */
+	/*GLenum tex_format;
+	GLint tex_width, tex_height, tex_channels;
+	std::string RESOURCES_DIR = (std::string)PROJECT_SOURCE_DIR + "/Resources/";
+	GLubyte * image = stbi_load((RESOURCES_DIR + "container2.png").c_str(), &tex_width, &tex_height, &tex_channels, 0);
+	if (!image)
+		std::cerr << "Failed to load texture " + RESOURCES_DIR + "container2.png" << std::endl;
+	switch (tex_channels) {
+		case 1: tex_format = GL_ALPHA;     break;
+		case 2: tex_format = GL_LUMINANCE; break;
+		case 4: tex_format = GL_RGBA;      break;
+        default:
+        case 3: tex_format = GL_RGB;       break;
+	}
+
+	GLuint tex_container;
+	glGenTextures(1, &tex_container);
+	glBindTexture(GL_TEXTURE_2D, tex_container);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, tex_format, tex_width, tex_height, 0, tex_format, GL_UNSIGNED_BYTE, image);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	stbi_image_free(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	image = stbi_load((RESOURCES_DIR+"container2_specular.png").c_str(), &tex_width, &tex_height, &tex_channels, 0);
+	if (!image)
+		std::cerr << "Failed to load texture "+RESOURCES_DIR+"container2_specular.png" << std::endl;
+	switch (tex_channels) {
+		case 1: tex_format = GL_ALPHA;     break;
+		case 2: tex_format = GL_LUMINANCE; break;
+		case 4: tex_format = GL_RGBA;      break;
+        default:
+        case 3: tex_format = GL_RGB;       break;
+	}
+
+	GLuint tex_container_specular;
+	glGenTextures(1, &tex_container_specular);
+	glBindTexture(GL_TEXTURE_2D, tex_container_specular);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, tex_format, tex_width, tex_height, 0, tex_format, GL_UNSIGNED_BYTE, image);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	stbi_image_free(image);
+	glBindTexture(GL_TEXTURE_2D, 1);*/
+
+	/* Path Planning */
+    //todo dalton: reintegrate
+	//ai::init(std::vector<BoundingVolume *>(), std::vector<Object *>(), std::vector<Object *>(), std::vector<Object *>());
+	//GMP::replan(ai::std_NNai, game_loop_clock);
+
+	//change properties for the path -- instantiate cube visualizations
+	//init_planning_vis();
+
+	scene->setupTestingObjects();
+	scene->enableLightShader();
+
+    /* Game Loop */
+    game_loop_clock->frame();
+	D(std::cout << std::endl << "Entering Game Loop..." << std::endl << std::endl);	
+	while (!glfwWindowShouldClose(window)) {
+        game_loop_clock->frame();
+
+        //reintegrate
+		//ai::update_agents(ai::std_NNai, game_loop_clock->delta());
+
+		// Callbacks 
+		glfwPollEvents();
+		handle_input(game_loop_clock, scene);
+
+		// Render 
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glBindVertexArray(scene->bc.scene_vao);
+
+		scene->render();
+
+		// Swap the Double Buffer
+		glfwSwapBuffers(window);
+    }
+	
+	D(std::cout << std::endl << "Exiting Game Loop..." << std::endl << std::endl);
+	
+
+	// Properly de-allocate all resources once they've outlived their purpose
+	glDeleteVertexArrays(1, const_cast<GLuint *>(&scene->bc.scene_vao));
+	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.position_vbo));
+	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.colors_vbo));
+	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.normals_vbo));
+	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.faces_ibo));
+	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.edges_ibo));
+
+	/* Exit */
+    return kill_app(EXIT_SUCCESS);
 }
 
 GLFWwindow * init_window_context() {
@@ -68,148 +233,34 @@ GLFWwindow * init_window_context() {
     return window;
 }
 
-//move to GMP
-/*
-global references: none
-side effects:
-    next_node is updated
-    speed may be updated
-    agent_now may be updated
 
-*/
-void lookahead(glm::vec2 * agent_now, glm::vec2 * next_node, Agent * a, float * speed, float dt) {
-    if (a->completed_nodes < static_cast<int>(a->plan->size())) {
-        *next_node = (*a->plan)[a->completed_nodes]->data;
-
-        while (a->completed_nodes + 1 < static_cast<int>(a->plan->size())
-            && a->cspace->line_of_sight(*agent_now, (*a->plan)[a->completed_nodes + 1]->data)) {
-            a->completed_nodes++;
-            *next_node = (*a->plan)[a->completed_nodes]->data;
-        }
-
-        float dist = glm::distance(*next_node, *agent_now);
-        if (dist < 0.1f) {
-            a->completed_nodes++;
-            //not sure why I have this, as this will, like, never happen.
-            if (dist < dt*(*speed)) {//detects overshooting
-                *agent_now = *next_node;//move to the node, but not past...
-                *speed -= dist / dt;
-            }
-        }
-    }
-    else
-        *next_node = (*a->plan)[a->plan->size() - 1]->data;
-}
-
-
-//move to LMP(?)
-/*
-global references:
-    lookahead()
-    G::WITH_TTC_GRID
-    agents
-    LMP::ttc()
-    ttc_forces()
-    boid_forces()
-side effects:
-    
-*/
-//move to Scene 
-void handle_input(GLfloat dt) {
+void handle_input(Gtime::Timer * clock, Scene * scene) {
+    scene->camera->mouse_rotate_camera(UI::cursor_edx, UI::cursor_edy);
+    scene->camera->scroll_zoom_camera(UI::d_scroll);
     if (UI::keys[GLFW_KEY_W])
-        cam->translate_camera(G::CAMERA::FORWARD, dt);
+        scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta());
     if (UI::keys[GLFW_KEY_S])
-        cam->translate_camera(G::CAMERA::BACKWARD, dt);
+        scene->camera->translate_camera(G::CAMERA::BACKWARD, clock->delta());
     if (UI::keys[GLFW_KEY_A])
-        cam->translate_camera(G::CAMERA::LEFT, dt);
+        scene->camera->translate_camera(G::CAMERA::LEFT, clock->delta());
     if (UI::keys[GLFW_KEY_D])
-        cam->translate_camera(G::CAMERA::RIGHT, dt);
+        scene->camera->translate_camera(G::CAMERA::RIGHT, clock->delta());
 
     if (UI::keys[GLFW_KEY_P]) {
         UI::keys[GLFW_KEY_P] = false;
-        replan();
-        init_planning_vis();
+        GMP::replan(ai::std_NNai, clock);
     }
-
-    //deprecated for the uniform grid to work
-    if (!G::WITH_TTC_GRID && UI::keys[GLFW_KEY_G]) {
-        UI::keys[GLFW_KEY_G] = false;
-        selected_agent_debug = (selected_agent_debug + 1) % NUM_AGENTS;
-        init_planning_vis();
-    }
-    if (!G::WITH_TTC_GRID && UI::keys[GLFW_KEY_T]) {
-        UI::keys[GLFW_KEY_T] = false;
-        selected_agent_debug = (selected_agent_debug - 1) % NUM_AGENTS;
-        init_planning_vis();
-    }
-
-    /* //the dynamic obstacle is buggy with multi-agents for some reason
-    if (UI::keys[GLFW_KEY_O]) {
-    UI::keys[GLFW_KEY_O] = false;
-    place_obst(cam->pos);
-    }
-    if (UI::keys[GLFW_KEY_M]) {
-    UI::keys[GLFW_KEY_M] = false;
-    mode_toggle_current_obstacle();
-    }
-    if (UI::keys[GLFW_KEY_I])
-    scale_current_obstacle(1.f, 1.1f, timer->getDelta());
-    if (UI::keys[GLFW_KEY_K])
-    scale_current_obstacle(1.f, 1/1.1f, timer->getDelta());
-    if (UI::keys[GLFW_KEY_J])
-    scale_current_obstacle(1 / 1.1f, 1.f, timer->getDelta());
-    if (UI::keys[GLFW_KEY_L])
-    scale_current_obstacle(1.1f, 1.f, timer->getDelta());
-    */
-    if (UI::keys[GLFW_KEY_UP])
-        move_player(0.f, 1.3f, dt);
-    if (UI::keys[GLFW_KEY_DOWN])
-        move_player(0.f, -1.3f, dt);
-    if (UI::keys[GLFW_KEY_LEFT])
-        move_player(-1.3f, 0.f, dt);
-    if (UI::keys[GLFW_KEY_RIGHT])
-        move_player(1.3f, 0.f, dt);
 
     if (UI::keys[GLFW_KEY_F]) {
         UI::keys[GLFW_KEY_F] = false;
-        toggle_flashlight();
+        scene->toggle_flashlight();
     }
 }
 
-//move to Scene
-void toggle_flashlight() {
-	is_flashlight_on = !is_flashlight_on;
-}
-
-//move to Scene
-void place_obst(glm::vec3 pos) {
-	switch (cur_mode) {
-	case 0:
-		if (cur_ob != nullptr) {
-            Circ * cur_cob = dynamic_cast<Circ *>(cur_ob);
-			obst_bounds.push_back(cur_cob);
-			init_planning_vis();
-			delete cur_cob;
-		}
-		cur_ob = new Circ(glm::vec2(pos.x, pos.z), 1.0f);
-		break;
-	case 1:
-        if (cur_ob != nullptr) {
-            Rect * cur_cob = dynamic_cast<Rect *>(cur_ob);
-            rect_bounds.push_back(cur_cob);
-            init_planning_vis();
-            delete cur_cob;
-        }
-        cur_ob = new Rect(glm::vec2(pos.x, pos.z), 1.0f, 1.0f);
-        break;
-	}
-
-    //replan();
-}
-
-//move to Scene
-void move_player(GLfloat dx, GLfloat dy, GLfloat dt) {
-    player->o.x += dx*dt;
-    player->o.y += dy*dt;
-    init_planning_vis();//really I just need to reinit the circ obstacles :P
+int kill_app(int retVal) {
+    glfwTerminate();
+    std::cout << std::endl << "Application Terminated. With exit value: " << retVal << std::endl;
+    D(slow_print(50, 300, "\n\nGoodbye..."));
+    D(slow_print(150, 500, "OK"));
+    return retVal;
 }

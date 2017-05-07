@@ -1,5 +1,6 @@
 #include "LocalMotionPlanner.hpp"
 #include "debug.hpp"
+#include <limits>
 
 //TODO: properly polymorph for all BoundingVolumes
 float LMP::ttc(BoundingVolume * i, glm::vec2 iv, BoundingVolume * j, glm::vec2 jv) {
@@ -88,3 +89,168 @@ float LMP::ttc_(Circ * /*i*/, glm::vec2 /*iv*/, Rect * /*j*/, glm::vec2 /*jv*/) 
     //if ()
     return 0;
 }
+
+/* a_cspace shouldn't be affected, however declaring it as const causes issues... */
+glm::vec2 LMP::lookahead(Object * a, glm::vec2 target, Cspace2D * a_cspace) {
+    glm::vec2 t_new = target;
+    if (static_cast<size_t>(a->ai.num_done) < a->ai.plan->size()) {
+        t_new = (*(a->ai.plan))[a->ai.num_done]->data;
+
+        while (static_cast<size_t>(a->ai.num_done) + 1 < a->ai.plan->size()
+            && a_cspace->line_of_sight(a->bv->o, (*(a->ai.plan))[a->ai.num_done + 1]->data)) {
+            a->ai.num_done++;
+            t_new = (*(a->ai.plan))[a->ai.num_done]->data;
+        }
+    }
+    else
+        t_new = (*(a->ai.plan))[a->ai.plan->size() - 1]->data;
+    return t_new;
+}
+
+glm::vec2 LMP::ttc_forces_(double ttc, glm::vec2 dir) {
+    dir /= glm::length(dir);
+
+    double t_h = 5.0;//seconds
+    double mag = 0;
+    if (ttc >= 0 && ttc <= t_h)
+        mag = (t_h - ttc) / (ttc + 0.001);
+    mag = mag > 20 ? 20 : mag;
+    return glm::vec2(mag * dir.x, mag * dir.y);
+}
+glm::vec2 LMP::ttc_forces(Object * a, Circ * b, float ttc) {
+    glm::vec2 V_dt(a->dyn.vel);
+    glm::vec2 dir = (a->bv->o + V_dt - b->o);
+    return ttc_forces_(ttc, dir);
+}
+glm::vec2 LMP::ttc_forces(Object * a, Object * b, float ttc) {
+    glm::vec2 V_dt(a->dyn.vel * ttc);
+    glm::vec2 bV_dt(b->dyn.vel * ttc);
+    glm::vec2 dir = (a->bv->o + V_dt - b->bv->o - bV_dt);
+    return ttc_forces_(ttc, dir);
+}
+
+//distance to leader, weak close, strong far
+//TOOD: replace near_pack with the ability to access/search a spatial struct
+glm::vec2 follow_force(Object * lead, std::vector<Object *> near_pack) {
+    GLfloat ff0_r = 2.0f;//radius of following force of 0
+    GLfloat ff1_r = 10.0f;//radius of following force of 1 towards leader
+
+    glm::vec2 ff;
+    for (Object * b : near_pack) {
+        //todo dalton: del o ref
+        glm::vec2 toLeader = lead->bv->o - b->bv->o;
+        float dist2_to_leader = glm::dot(toLeader, toLeader);
+        if (dist2_to_leader < ff0_r * ff0_r)
+            ff = glm::vec2(0);
+        else
+            ff = toLeader * (dist2_to_leader - ff0_r) / (ff1_r - ff0_r);
+    }
+    return ff;
+}
+
+//TOOD: replace near_boids with the ability to access/search a spatial struct of boids
+glm::vec2 boid_force(Object * a, std::vector<Object *> near_boids) {
+    const float boid_speed = 1.2f;
+
+    glm::vec2 avg_vel(0, 0), avg_pos(0, 0), avg_dir(0, 0);
+    GLfloat cohes_r_look = 1.0f, align_r_look = 1.0f, separ_r_look = .5f;//limit to search for forces for boidlings
+    glm::vec2 align_force, cohesion_force, follow_force, spread_force;
+
+    for (size_t i = 0; i < near_boids.size(); i++) {
+        Object * boid = near_boids[i];
+        if (boid == a)
+            continue;
+        glm::vec2 dist = boid->bv->o - a->bv->o;
+        float fi = static_cast<float>(i);
+        if (glm::dot(dist, dist) < align_r_look * align_r_look)
+            avg_vel = (avg_vel * fi + glm::vec2(boid->dyn.vel.x, boid->dyn.vel.z)) / (fi + 1.f);
+        if (glm::dot(dist, dist) < cohes_r_look * cohes_r_look)
+            avg_pos = (avg_pos * fi + glm::vec2(boid->bv->o)) / (fi + 1.f);
+    }
+
+    /* alignnment force */
+    //average velocity; pull towards that
+    float norm = glm::length(avg_vel);
+    if (norm != 0)
+        avg_vel /= norm;
+    align_force = (avg_vel - glm::vec2(a->dyn.vel.x, a->dyn.vel.z)) * boid_speed;
+
+    /* cohesion force */
+    //average cohesion; pull towards that
+    cohesion_force = avg_pos - a->bv->o;
+
+    /* separation force */
+    //force from inverted direction of nearest neighbours
+    for (size_t i = 0; i < near_boids.size(); i++) {
+        Object * boid = near_boids[i];
+        if (boid == a)
+            continue;
+        glm::vec2 toBoid = boid->bv->o - a->bv->o;
+        float dist2_to_boid = glm::dot(toBoid, toBoid);
+
+        if (dist2_to_boid < separ_r_look * separ_r_look)
+            spread_force += -toBoid / (10 * sqrt(dist2_to_boid));
+    }
+
+    glm::vec2 boid_force = align_force + cohesion_force + spread_force;
+    if (glm::dot(boid_force, boid_force) > 20 * 20) {
+        boid_force /= glm::length(boid_force);
+        boid_force *= 20.f;
+    }
+    return boid_force;
+}
+
+//needs to be refactored; hopefully I can decouple it from physics
+glm::vec2 LMP::calc_sum_force(Object * a, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic, Cspace2D * a_cspace, GLfloat dt) {
+    float speed = 1.0f; // x m/s
+    glm::vec2 goal_vel;
+
+    //if there is a plan
+    if (a->ai.has_plan()) {
+        a->ai.goal = LMP::lookahead(a, a->ai.goal, a_cspace);
+        goal_vel = (a->ai.goal - a->bv->o) / glm::distance(a->ai.goal, a->bv->o) * (speed /* * dt */);
+    }
+    else {
+        a->ai.goal = a->bv->o;
+        goal_vel = glm::vec2(0);
+    }
+
+    /* ttc - approximate */
+    glm::vec2 goal_F;
+    //using ai_comp::Planner;
+    if (a->ai.method == ai_comp::Planner::BOID || a->ai.method == ai_comp::Planner::PACK)
+        goal_F = glm::vec2(0);
+    else
+        goal_F = 2.0f*(goal_vel - glm::vec2(a->dyn.vel.x, a->dyn.vel.z));
+
+    glm::vec2 ttc_F(0), boid_F(0);
+    for (Object * b : NNai) {
+        if (a == b)
+            continue;
+        double ttc = LMP::ttc(a->bv, glm::vec2(a->dyn.vel.x, a->dyn.vel.z), b->bv, glm::vec2(b->dyn.vel.x, b->dyn.vel.z));
+        if (ttc > 5/*seconds*/)
+            continue;
+        ttc_F += LMP::ttc_forces(a, b, static_cast<float>(ttc));
+    }
+
+    for (Object * s : NNstatic) {
+        //TH
+        Circ * c = dynamic_cast<Circ *>(s->bv);
+
+        double ttc = LMP::ttc(a->bv, glm::vec2(a->dyn.vel.x, a->dyn.vel.z), c, glm::vec2(0));
+
+        if (ttc > 5)
+            continue;
+
+        ttc_F += ttc_forces(a, c, static_cast<float>(ttc));
+    }
+
+    if (a->ai.has_boid_f())
+        boid_F += boid_force(a, NNboids);
+
+    /* TODO dalton: decouple physics integration.
+    apply only the forces to the agents, and don't integrate*/
+    return goal_F + ttc_F + boid_F;
+}
+
+

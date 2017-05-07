@@ -3,13 +3,14 @@
 
 #include "Object.hpp"
 
-const GLfloat PI = 4.0*atan(1.0);
+const GLdouble PI = 4.0*atan(1.0);
 
 class Sphere : public Object {
 public:
 	Sphere();
 	Sphere(float x, float y);
 	Sphere(float x, float y, float r);
+	Sphere(float x, float y, float z, float r);
 	Sphere(float r);
 	Sphere(glm::vec3 p, float r);
 	virtual ~Sphere();

@@ -2,8 +2,9 @@
 #define BOUNDING_VOLUME_H_GUARD
 
 #pragma warning(push, 0)
-#include <glm/glm.hpp>
 #include <vector>
+#pragma warning(disable: 4201)
+#include <glm/glm.hpp>
 #pragma warning(pop)
 
 class Circ;
@@ -13,6 +14,7 @@ class Rect;
 class BoundingVolume {
 public:
     enum class volume_type { CIRC, RECT };
+    //TODO dalton: remove origin, if possible
     glm::vec2 o;//origin
     volume_type vt;//what type this is instantiated as; manual polymorphism
     virtual bool is_collision(glm::vec2 p) = 0;

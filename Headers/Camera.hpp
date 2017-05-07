@@ -3,7 +3,9 @@
 
 // GL
 #pragma warning(push, 0)
+#pragma warning(disable: 4055)
 #include <glad/glad.h>
+#pragma warning(disable: 4201)
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #pragma warning(pop)

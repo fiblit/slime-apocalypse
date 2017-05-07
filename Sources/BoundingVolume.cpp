@@ -13,14 +13,14 @@ Circ::Circ(glm::vec2 o, float r) {
 
 std::vector<BoundingVolume *> Circ::minkowskiSum(BoundingVolume * bv) {
     //I wish there was a way I didn't have to check the types..
-    Circ* c = dynamic_cast<Circ*>(bv);
-    if (c != nullptr) {
-        return minkowskiSum_(c);
+    Circ* circ = dynamic_cast<Circ*>(bv);
+    if (circ != nullptr) {
+        return minkowskiSum_(circ);
     }
     
-    Rect * r = dynamic_cast<Rect*>(bv);
-    if (r != nullptr) {
-        return minkowskiSum_(r);
+    Rect * rect = dynamic_cast<Rect*>(bv);
+    if (rect != nullptr) {
+        return minkowskiSum_(rect);
     }
 
     return std::vector<BoundingVolume *>();
@@ -152,7 +152,7 @@ bool Rect::lineSegCollision(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, glm::vec2 
 
 bool Rect::axialLineSegLineSegCollision(glm::vec2 pp1, glm::vec2 pp2, float val, int axis, float oValLo, float oValHi) {
     glm::vec3 l = glm::cross(glm::vec3(pp1, 1), glm::vec3(pp2, 1));
-    //ax+by+c = 0
+    //ax+by+circ = 0
 
     //vertical
     if (axis == 0) {// (1/val)*x + 0*y - 1 = 0 // x = val
