@@ -1,13 +1,5 @@
 #include "main.hpp"
 
-/* some of this might look like stuff from learnopengl.com ... probably not much anymore 
-   I have been changing it a lot. 
-   Oh, and I think there's a bit from github.com/Polytonic/glitter or maybe from the
-   stb github repo... It's mostly just stuff to interface with libraries (e.g. GLFW, 
-   stb, glad, etc. ) */
-//need to pull stuff out of main into either a Scene or Renderer
-//refactor. refactor, refactor
-
 using namespace mcl;
 
 int main() {
