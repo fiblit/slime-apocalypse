@@ -22,10 +22,9 @@ void ai::init(std::vector<Object *> NNai, std::vector<Object *> NNboids, std::ve
 }
 
 //move to AI/planner --- this is a force-based LMP
-//todo dalton: decouple the physics integration
 void ai::update_agents(std::vector<Object *> agents) {
     for (Object * a : agents) {
         glm::vec2 f2d = LMP::calc_sum_force(a, ai::std_NNai, ai::std_NNboids, ai::std_NNstatic);
         a->dyn.force += glm::vec3(f2d.x, 0, f2d.y);
-    }       
+    }
 }
