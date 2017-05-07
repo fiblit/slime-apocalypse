@@ -233,7 +233,6 @@ GLFWwindow * init_window_context() {
     return window;
 }
 
-//TODO: move to Scene 
 void handle_input(Gtime::Timer * clock, Scene * scene) {
     scene->camera->mouse_rotate_camera(UI::cursor_edx, UI::cursor_edy);
     scene->camera->scroll_zoom_camera(UI::d_scroll);
