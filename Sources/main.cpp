@@ -11,7 +11,7 @@ int main() {
     Gtime::init_stack(1);
     Gtime::Timer * game_loop_clock = &(Gtime::stack[0]);
 
-	// initialize the scene
+	// initialize the handle_scene
 	scene = new Scene();
 
 	/* Shaders */
@@ -68,7 +68,7 @@ int main() {
 	GLuint light_VAO;
 	glGenVertexArrays(1, &light_VAO);
 	glBindVertexArray(light_VAO);
-	// We only need to bind to the VBO, the container's VBO's data already contains the correct data.
+	// We only need to bind to the VBO, the container'handle_scene VBO'handle_scene data already contains the correct data.
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
 	// Position attr
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
@@ -142,12 +142,14 @@ int main() {
 	while (!glfwWindowShouldClose(window)) {
         game_loop_clock->frame();
 
-        //reintegrate
-		//ai::update_agents(ai::std_NNai, game_loop_clock->delta());
+        // Callbacks 
+        glfwPollEvents();
+        handle_input(game_loop_clock, scene);
 
-		// Callbacks 
-		glfwPollEvents();
-		handle_input(game_loop_clock, scene);
+        //reintegrate
+		//ai::update_agents(ai::std_NNai);
+
+        //scene->simulate();
 
 		// Render 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -233,18 +235,18 @@ GLFWwindow * init_window_context() {
     return window;
 }
 
-void handle_input(Gtime::Timer * clock, Scene * scene) {
-    scene->camera->mouse_rotate_camera(UI::cursor_edx, UI::cursor_edy);
-    scene->camera->scroll_zoom_camera(UI::d_scroll);
+void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
+    handle_scene->camera->mouse_rotate_camera(UI::cursor_edx, UI::cursor_edy);
+    handle_scene->camera->scroll_zoom_camera(UI::d_scroll);
 
     if (UI::keys[GLFW_KEY_W])
-        scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta());
+        handle_scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta());
     if (UI::keys[GLFW_KEY_S])
-        scene->camera->translate_camera(G::CAMERA::BACKWARD, clock->delta());
+        handle_scene->camera->translate_camera(G::CAMERA::BACKWARD, clock->delta());
     if (UI::keys[GLFW_KEY_A])
-        scene->camera->translate_camera(G::CAMERA::LEFT, clock->delta());
+        handle_scene->camera->translate_camera(G::CAMERA::LEFT, clock->delta());
     if (UI::keys[GLFW_KEY_D])
-        scene->camera->translate_camera(G::CAMERA::RIGHT, clock->delta());
+        handle_scene->camera->translate_camera(G::CAMERA::RIGHT, clock->delta());
 
     if (UI::keys[GLFW_KEY_P]) {
         UI::keys[GLFW_KEY_P] = false;
@@ -253,7 +255,7 @@ void handle_input(Gtime::Timer * clock, Scene * scene) {
 
     if (UI::keys[GLFW_KEY_F]) {
         UI::keys[GLFW_KEY_F] = false;
-        scene->toggle_flashlight();
+        handle_scene->toggle_flashlight();
     }
 }
 

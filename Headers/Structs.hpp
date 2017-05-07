@@ -39,6 +39,7 @@ struct dynamics_comp {
 };
 
 #include "graph.hpp"
+#include "PRM.hpp"
 //used by the motion planning module (mostly global MP)
 struct ai_comp {
     /* LEADlings attract PACKlings and plan independently
@@ -52,8 +53,15 @@ struct ai_comp {
     glm::vec2 goal;
 
     int num_done;
-    //the amount of pointing might cause cache-misses
     std::vector<Node<glm::vec2> *> * plan;
+
+    /*
+    It might be more convenient for me to have a reference to the cspace somehow (like, in the
+    dynamics or collision component). Rather than passing that in as a parameter everywhere.
+    The same would be true for the PRM, however, I'll see what I can do without that step.
+    */
+    Cspace2D * cspace;
+    PRM * prm;
 
     bool has_plan() {
         return plan != nullptr && plan->size() > static_cast<size_t>(0);
@@ -64,12 +72,6 @@ struct ai_comp {
     bool has_indy_f() {
         return method == ai_comp::Planner::LEAD || method == ai_comp::Planner::INDY;
     };
-
-    /*
-    It might be more convenient for me to have a reference to the cspace somehow (like, in the
-    dynamics or collision component). Rather than passing that in as a parameter everywhere.
-    The same would be true for the PRM, however, I'll see what I can do without that step.    
-    */
 };
 
 #endif // STRUCTS_H_GUARD

@@ -16,13 +16,13 @@ namespace LMP {
     float ttc_(Rect * i, glm::vec2 iv, Rect * j, glm::vec2 jv);
     float ttc_(Circ * i, glm::vec2 iv, Rect * j, glm::vec2 jv);
 
-    glm::vec2 lookahead(Object * a, glm::vec2 target, Cspace2D * a_cspace);
+    glm::vec2 lookahead(Object * a, glm::vec2 target);
 
     glm::vec2 ttc_forces_(double ttc, glm::vec2 dir);
     glm::vec2 ttc_forces(Object * a, Circ * b, float ttc);
     glm::vec2 ttc_forces(Object * a, Object * b, float ttc);
 
-    glm::vec2 calc_sum_force(Object * a, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic, Cspace2D * a_cspace, GLfloat dt);
+    glm::vec2 calc_sum_force(Object * a, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic);
 }
 
 #endif//LOCAL_MOTION_PLANNER_H_GUARD

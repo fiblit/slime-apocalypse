@@ -13,8 +13,8 @@ namespace ai {
     extern std::vector<Object *> std_NNai;
     extern std::vector<Object *> std_NNboids;
     extern std::vector<Object *> std_NNstatic;
-    void init(std::vector<BoundingVolume *> bv, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic);
-    void update_agents(std::vector<Object *> agents, GLfloat dt);
+    void init(std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic);
+    void update_agents(std::vector<Object *> agents);
 };
 
 #endif // AI_H_GUARD
