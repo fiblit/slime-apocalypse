@@ -85,35 +85,46 @@ void Scene::replan(double dt) {
 }
 */
 
-//TODO dalton: let dalton clean up 1 thing in the LMP before adding this in.
-void Scene::simulate(double dt) {
-    UNUSED(dt);
-	// For each enemy object:
-    //      Integrate motion/dynamics 
-    //      notify other systems of events such as collisions (for particle effects, merging, etc.)
+//note for later: should this be renamed to animate_dynamics?
+//the actual simulation is kinda spread out, particularly in force-based functions
+//like the stuff in the LMP.
+void Scene::simulate(GLfloat dt) {
+    // For each dynamic object:
+    for (Object * o : enemyObjects) {
+        //Forward euler integration of motion
+        o->dyn.vel += o->dyn.force * dt;
+        //o->dyn.pos += o->dyn.vel * dt;
+        o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
 
-	// Move the player character? (I don't know if we should have that logic in the scene)
+        //TODO dalton: notify other systems of events such as collisions (for particle effects, merging, etc.)
+
+        //Reset forces for next frame
+        o->dyn.force = glm::vec3(0);
+    }
+
+    // Move the player character? (I don't know if we should have that logic in the scene)
     // All UI does is say that the player should be moving somebody needs to actually move it
     // However, it might be best to have a preceding function for handling input
+    playerObject->dyn.vel += playerObject->dyn.force * dt;
+    //playerObject->dyn.pos += playerObject->dyn.vel * dt;
+    playerObject->moveBy(playerObject->dyn.vel * dt);//has side effects of changing dyn->pos
+    playerObject->dyn.force = glm::vec3(0);
 }
 
 void Scene::render() {
 	// Render the player object
     this->playerObject->render(this->bc);
 
-
 	// Render each enemy object
     for (Object * o : enemyObjects)
         o->render(this->bc);
-
 
 	// Render each static object
 	for (Object * o : staticObjects)
 		o->render(this->bc);
 
-
 	// Render the UI (if we have one)
-	// maybe if I add on dear-imgui later
+	// maybe if I (dalton) add on dear-imgui later
 }
 
 void Scene::enableTextureShader() {

@@ -22,7 +22,7 @@ namespace LMP {
     glm::vec2 ttc_forces(Object * a, Circ * b, float ttc);
     glm::vec2 ttc_forces(Object * a, Object * b, float ttc);
 
-    void calc_force(Object * a, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic, Cspace2D * a_cspace, GLfloat dt);
+    glm::vec2 calc_sum_force(Object * a, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic, Cspace2D * a_cspace, GLfloat dt);
 }
 
 #endif//LOCAL_MOTION_PLANNER_H_GUARD

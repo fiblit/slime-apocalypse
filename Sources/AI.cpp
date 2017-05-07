@@ -20,10 +20,14 @@ void ai::init(std::vector<BoundingVolume *> bv, std::vector<Object *> NNai, std:
 
 //move to AI/planner --- this is a force-based LMP
 //todo dalton: decouple the physics integration
-void ai::animate_agents(std::vector<Object *> agents, GLfloat dt) {
+void ai::update_agents(std::vector<Object *> agents, GLfloat dt) {
     for (Object * a : agents)
-        LMP::calc_force(a, ai::std_NNai, ai::std_NNboids, ai::std_NNstatic, ai::std_cspace, dt);
+        a->dyn.force += 
+            LMP::calc_sum_force(
+                a,
+                ai::std_NNai, ai::std_NNboids, ai::std_NNstatic, 
+                ai::std_cspace, dt);
 
-    for (Object * a : agents)
-        a->moveTo(glm::vec3(a->bv->o.x, 0.f, a->bv->o.y));
+   // for (Object * a : agents)
+   //     a->moveTo(glm::vec3(a->bv->o.x, 0.f, a->bv->o.y));
 }

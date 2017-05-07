@@ -201,7 +201,7 @@ glm::vec2 boid_force(Object * a, std::vector<Object *> near_boids) {
 }
 
 //needs to be refactored; hopefully I can decouple it from physics
-void LMP::calc_force(Object * a, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic, Cspace2D * a_cspace, GLfloat dt) {
+glm::vec2 LMP::calc_sum_force(Object * a, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic, Cspace2D * a_cspace, GLfloat dt) {
     float speed = 1.0f; // x m/s
     glm::vec2 goal_vel;
 
@@ -250,12 +250,7 @@ void LMP::calc_force(Object * a, std::vector<Object *> NNai, std::vector<Object 
 
     /* TODO dalton: decouple physics integration.
     apply only the forces to the agents, and don't integrate*/
-    glm::vec2 sum_F = goal_F + ttc_F + boid_F;
-    a->dyn.vel += glm::vec3((sum_F * dt).x, 0, (sum_F * dt).y);
-    /* TODO TODO TODO:
-    buffer physics! That's almost guarenteably what is causing the explosions */
-    a->moveBy(a->dyn.vel * dt);
-    //return sum_F;
+    return goal_F + ttc_F + boid_F;
 }
 
 

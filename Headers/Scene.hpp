@@ -45,7 +45,7 @@ public:
 
 	void setBounds(glm::vec3 min, glm::vec3 max);
 
-	void simulate(double dt);
+	void simulate(GLfloat dt);
 
 	void render();
 

@@ -143,7 +143,7 @@ int main() {
         game_loop_clock->frame();
 
         //reintegrate
-		//ai::animate_agents(ai::std_NNai, game_loop_clock->delta());
+		//ai::update_agents(ai::std_NNai, game_loop_clock->delta());
 
 		// Callbacks 
 		glfwPollEvents();
