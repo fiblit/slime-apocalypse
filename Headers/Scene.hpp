@@ -24,6 +24,7 @@ public:
 	void addCylinder(float h, float r, float x, float y);
 	void setPlayerColor(float r, float g, float b);
 	void setPlayerColor(glm::vec3 rgb);
+    void automatonSimulate();
     void initMaze();
     void generateMoreMaze();
 	void updatePRM();
@@ -44,7 +45,6 @@ public:
 	bufferContainer bc;
 
 private:
-
     glm::vec3 snapToGrid(glm::vec3 position);
 };
 
