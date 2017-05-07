@@ -151,7 +151,7 @@ int main() {
 
 		// Callbacks 
 		glfwPollEvents();
-		handle_input(game_loop_clock->delta());
+		handle_input(game_loop_clock, cam);
 
 		// Render 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -238,19 +238,19 @@ GLFWwindow * init_window_context() {
 }
 
 //TODO: move to Scene 
-void handle_input(GLfloat dt) {
+void handle_input(Gtime::Timer * clock, Camera * camera) {
     if (UI::keys[GLFW_KEY_W])
-        cam->translate_camera(G::CAMERA::FORWARD, dt);
+        camera->translate_camera(G::CAMERA::FORWARD, clock->delta());
     if (UI::keys[GLFW_KEY_S])
-        cam->translate_camera(G::CAMERA::BACKWARD, dt);
+        camera->translate_camera(G::CAMERA::BACKWARD, clock->delta());
     if (UI::keys[GLFW_KEY_A])
-        cam->translate_camera(G::CAMERA::LEFT, dt);
+        camera->translate_camera(G::CAMERA::LEFT, clock->delta());
     if (UI::keys[GLFW_KEY_D])
-        cam->translate_camera(G::CAMERA::RIGHT, dt);
+        camera->translate_camera(G::CAMERA::RIGHT, clock->delta());
 
     if (UI::keys[GLFW_KEY_P]) {
         UI::keys[GLFW_KEY_P] = false;
-        GMP::replan(ai::std_NNai, game_loop_clock);
+        GMP::replan(ai::std_NNai, clock);
     }
 
     if (UI::keys[GLFW_KEY_F]) {

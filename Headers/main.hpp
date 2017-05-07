@@ -52,6 +52,6 @@ Gtime::Timer * game_loop_clock;
 
 Scene * scene;
 
-void handle_input(GLfloat dt);
+void handle_input(Gtime::Timer * clock, Camera * cam);
 
 #endif //MAIN
