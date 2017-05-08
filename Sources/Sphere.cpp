@@ -7,37 +7,31 @@ using std::max;
 
 Sphere::Sphere() : Object() {
 	params[0] = 1.0;
-	sphere = true;
 	construct();
 }
 
 Sphere::Sphere(float x, float y)  : Object(vec3(x, y, 0.0)) {
 	params[0] = 1.0;
-	sphere = true;
 	construct();
 }
 
 Sphere::Sphere(float x, float y, float r) : Object(vec3(x, y, 0.0)) {
 	params[0] = r;
-	sphere = true;
 	construct();
 }
 
 Sphere::Sphere(float x, float y, float z, float r) : Object(vec3(x, y, z)) {
 	params[0] = r;
-	sphere = true;
 	construct();
 }
 
 Sphere::Sphere(float r) : Object() {
 	params[0] = r;
-	sphere = true;
 	construct();
 }
 
 Sphere::Sphere(vec3 p, float r) : Object(p) {
 	params[0] = r;
-	sphere = true;
 	construct();
 }
 

@@ -153,7 +153,10 @@ void Shader::init_from_files(std::string vertex_file, std::string frag_file) {
 }
 void Shader::enable() {
 	if (program_id != 0) { glUseProgram(program_id); }
-	else { throw std::runtime_error("\n**Shader Error: Can't enable, not initialized"); }
+	else {
+		std::cout << "Shader - NOT INITIALIZED: " << std::endl;
+		throw std::runtime_error("\n**Shader Error: Can't enable, not initialized");
+	}
 }
 GLuint Shader::attribute(const std::string name) {
 	// Add the attribute to the map table if it doesn't already exist

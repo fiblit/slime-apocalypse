@@ -12,6 +12,8 @@
 #include <glad/glad.h>
 #pragma warning(disable: 4201)
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #pragma warning(pop)
 
 class Object {
@@ -38,6 +40,8 @@ public:
 
 	virtual void construct() = 0;
 
+	void draw(Shader * shader);
+
 	// Member variables
     BoundingVolume * bv;
     ai_comp ai;
@@ -45,7 +49,6 @@ public:
 
 	glm::vec3 params;
 	glm::vec3 color = glm::vec3(0, 0, 1);
-	bool sphere; //this seems... not right
 
 	// Rendering variables
 	Mesh * mesh;

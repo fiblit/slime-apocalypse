@@ -28,6 +28,11 @@ int main() {
     lamp_shader->init_from_files(
         ((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.vert").c_str(),
         ((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.frag").c_str());
+	Shader * test_shader = new Shader();
+	scene->shaders[TEST] = test_shader;
+	test_shader->init_from_files(
+		((std::string)PROJECT_SOURCE_DIR + "/Shaders/test.vert").c_str(),
+		((std::string)PROJECT_SOURCE_DIR + "/Shaders/test.frag").c_str());
 
 	/* Load textures */
 	/*GLenum tex_format;
@@ -82,8 +87,9 @@ int main() {
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        scene->enableLightShader();
-        //it might be a real pain to get specific textures to objects via this singular VAO method
+		// currently must enable shader every frame to update view matrix; easily fixed
+		scene->enableFlatShader();
+        
 		scene->render();
 
 		// Swap the Double Buffer
@@ -180,7 +186,7 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
 int kill_app(int retVal) {
     glfwTerminate();
     std::cout << std::endl << "Application Terminated. With exit value: " << retVal << std::endl;
-    D(slow_print(50, 300, "\n\nGoodbye..."));
-    D(slow_print(150, 500, "OK"));
+    //D(slow_print(50, 300, "\n\nGoodbye..."));
+    //D(slow_print(150, 500, "OK"));
     return retVal;
 }

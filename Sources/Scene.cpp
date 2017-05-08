@@ -113,15 +113,15 @@ void Scene::simulate(GLfloat dt) {
 
 void Scene::render() {
 	// Render the player object
-    this->playerObject->mesh->draw(shaders[FLAT]);
+    this->playerObject->draw(shaders[FLAT]);
 
 	// Render each enemy object
     for (Object * o : enemyObjects)
-        o->mesh->draw(shaders[FLAT]);
+        o->draw(shaders[FLAT]);
 
 	// Render each static object
 	for (Object * o : staticObjects)
-		o->mesh->draw(shaders[FLAT]);
+		o->draw(shaders[FLAT]);
 
 	// Render the UI (if we have one)
 	// maybe if I (dalton) add on dear-imgui later
@@ -178,7 +178,6 @@ void Scene::enableTextureShader() {
 void Scene::enableFlatShader() {
 	glm::mat4 proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 100.0f);
 	glm::mat4 view = camera->getView();
-	glm::mat4 model;
 
 	shaders[FLAT]->enable();
 
@@ -212,38 +211,37 @@ void Scene::enableFlatShader() {
 	glUniform1f(shaders[FLAT]->uniform( "spotLight.linear"), 0.045f);
 	glUniform1f(shaders[FLAT]->uniform( "spotLight.quadratic"), 0.0075f);
 
-	glUniformMatrix4fv(shaders[FLAT]->uniform( "proj"), 1, GL_FALSE, glm::value_ptr(proj));
-	glUniformMatrix4fv(shaders[FLAT]->uniform( "view"), 1, GL_FALSE, glm::value_ptr(view));
+	glUniformMatrix4fv(shaders[FLAT]->uniform("proj"), 1, GL_FALSE, glm::value_ptr(proj));
+	glUniformMatrix4fv(shaders[FLAT]->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
 
 	glUniform3f(shaders[FLAT]->uniform("material.diffuse"), 1, 0, 0);
 	glUniform3f(shaders[FLAT]->uniform("material.specular"), 1, 1, 1);
-	model = glm::mat4();
-	//model = glm::translate(model, obj::cube_positions[i]);
-	//model = glm::scale(model, glm::vec3(obj::cube_scale[i]));
-	glUniformMatrix4fv(shaders[FLAT]->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
-	glUniformMatrix4fv(shaders[FLAT]->uniform( "normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
 }
 
 void Scene::enableLightShader() {
 	glm::mat4 proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 100.0f);
 	glm::mat4 view = camera->getView();
-	glm::mat4 model;
 
 	shaders[LIGHT]->enable();
 
-	glUniformMatrix4fv(shaders[LIGHT]->uniform( "proj"), 1, GL_FALSE, glm::value_ptr(proj));
+	glUniformMatrix4fv(shaders[LIGHT]->uniform("proj"), 1, GL_FALSE, glm::value_ptr(proj));
 	glUniformMatrix4fv(shaders[LIGHT]->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
 
 	glUniform3f(shaders[LIGHT]->uniform("lightColor"), light_specular.x, light_specular.y, light_specular.z);
+}
 
-	//for (GLuint i = 0; i < 4; i++) {
-		model = glm::mat4();
-		//model = glm::translate(model, point_light_positions[i]);
-		//model = glm::scale(model, glm::vec3(0.2f));
-		glUniformMatrix4fv(shaders[LIGHT]->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
+void Scene::enableTestShader() {
+	glm::mat4 proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 100.0f);
+	glm::mat4 view = camera->getView();
 
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-	//}
+	shaders[TEST]->enable();
+
+	glUniformMatrix4fv(shaders[TEST]->uniform("proj"), 1, GL_FALSE, glm::value_ptr(proj));
+	glUniformMatrix4fv(shaders[TEST]->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
+
+	glUniform3f(shaders[TEST]->uniform("material.diffuse"), 1, 0, 0);
+	glUniform3f(shaders[TEST]->uniform("material.specular"), 1, 1, 1);
+	glUniform1f(shaders[TEST]->uniform("material.shine"), 32.0f);
 }
 
 void Scene::setupTestingObjects() {
@@ -256,9 +254,9 @@ void Scene::setupTestingObjects() {
 	// enemies
 	addEnemyObject(1, 0, 0, 0);
 	addEnemyObject(1, 2, -2, 0);
-	addEnemyObject(12, -1, 3, 0);
+	addEnemyObject(2, -1, 3, 0);
 
-	playerObject = new Sphere(0, -7, 6);
+	playerObject = new Sphere(0, -7, 6, 1);
 }
 
 void Scene::toggle_flashlight() {

@@ -1,5 +1,6 @@
 #include "Mesh.hpp"
 
+/* Taken from https://learnopengl.com/#!Model-Loading/Mesh */
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices)
 {
@@ -64,7 +65,7 @@ void Mesh::setupMesh() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*) 0);
 
 	// Vertex normals
-	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*) offsetof(Vertex, Normal));
 
 	// Vertex texture coords

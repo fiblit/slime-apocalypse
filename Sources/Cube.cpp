@@ -9,7 +9,6 @@ Cube::Cube() : Object() {
 	params[0] = 1.0;
 	params[1] = 1.0;
 	params[2] = 1.0;
-	sphere = false;
 	construct();
 }
 
@@ -17,7 +16,6 @@ Cube::Cube(float x, float y) : Object(vec3(x, y, 0.0)) {
 	params[0] = 1.0;
 	params[1] = 1.0;
 	params[2] = 1.0;
-	sphere = false;
 	construct();
 }
 
@@ -25,7 +23,6 @@ Cube::Cube(float x, float y, float w, float h) : Object(vec3(x, y, 0.0)) {
 	params[0] = w;
 	params[1] = h;
 	params[2] = 1.0;
-	sphere = false;
 	construct();
 }
 
@@ -33,7 +30,6 @@ Cube::Cube(float x, float y, float w, float h, float d) : Object(vec3(x, y, 0.0)
 	params[0] = w;
 	params[1] = h;
 	params[2] = d;
-	sphere = false;
 	construct();
 }
 
@@ -41,7 +37,6 @@ Cube::Cube(vec3 p) : Object(p) {
 	params[0] = 1.0;
 	params[1] = 1.0;
 	params[2] = 1.0;
-	sphere = false;
 	construct();
 }
 
@@ -49,7 +44,6 @@ Cube::Cube(vec3 p, float w, float h) : Object(p) {
 	params[0] = w;
 	params[1] = h;
 	params[2] = 1.0;
-	sphere = false;
 	construct();
 }
 
@@ -57,7 +51,6 @@ Cube::Cube(vec3 p, float w, float h, float d) : Object(p) {
 	params[0] = w;
 	params[1] = h;
 	params[2] = d;
-	sphere = false;
 	construct();
 }
 

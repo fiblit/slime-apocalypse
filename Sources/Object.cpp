@@ -2,6 +2,8 @@
 
 using glm::vec2;
 using glm::vec3;
+using glm::mat4;
+
 using std::vector;
 using std::min;
 using std::max;
@@ -39,7 +41,7 @@ void Object::setParams(float x) {
 void Object::setParams(float x, float y) {
 	params[0] = x;
 	params[1] = y;
-	params[2] = 0;
+	params[2] = 1;
 
 	construct();
 }
@@ -93,4 +95,16 @@ void Object::moveTo(vec3 position) {
 	/*for (size_t i = 0; i < vertices.size(); i++) {
 		vertices[i] += p;
 	}*/
+}
+
+void Object::draw(Shader * shader) {
+	mat4 model;
+	model = mat4();
+	model = glm::translate(model, dyn.pos);
+	model = glm::scale(model, params);
+	glUniformMatrix4fv(shader->uniform("model"), 1, GL_FALSE, glm::value_ptr(mat4()));
+
+	//glUniformMatrix4fv(shader->uniform("normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
+
+	mesh->draw(shader);
 }

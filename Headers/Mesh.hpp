@@ -11,6 +11,8 @@
 #include <glm/glm.hpp>
 #pragma warning(pop)
 
+/* Taken from https://learnopengl.com/#!Model-Loading/Mesh */
+
 struct Vertex {
 	glm::vec3 Position;
 	glm::vec3 Normal;

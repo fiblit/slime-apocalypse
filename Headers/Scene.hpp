@@ -25,7 +25,8 @@
 enum shaderNames {
 	TEXTURE,
 	FLAT,
-	LIGHT
+	LIGHT,
+	TEST
 };
 
 class Scene {
@@ -52,6 +53,7 @@ public:
 	void enableTextureShader();
 	void enableFlatShader();
 	void enableLightShader();
+	void enableTestShader();
 
     void toggle_flashlight();
 
