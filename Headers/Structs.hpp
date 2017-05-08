@@ -20,6 +20,11 @@ namespace G {
 	const GLboolean WIN_FULLSCREEN = GL_FALSE;
 }
 
+struct vertex {
+
+};
+
+//replace with Meshes and vector of vertexes
 struct bufferContainer {
 	GLuint scene_vao;
 	GLuint position_vbo;

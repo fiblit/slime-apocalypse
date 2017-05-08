@@ -60,6 +60,7 @@ public:
 	std::vector<Object *> staticObjects;
 	//PRM prm;
 
+    //TODO remove when mesh is added
 	bufferContainer bc;
 
 	std::unordered_map<shaderNames, mcl::Shader *> shaders;

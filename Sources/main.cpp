@@ -17,63 +17,34 @@ int main() {
 	/* Shaders */
 	Shader * cube_shader = new Shader();
 	scene->shaders[TEXTURE] = cube_shader;
+    cube_shader->init_from_files(
+        ((std::string)PROJECT_SOURCE_DIR + "/Shaders/cube.vert").c_str(),
+        ((std::string)PROJECT_SOURCE_DIR + "/Shaders/cube.frag").c_str());
 	Shader * flat_shader = new Shader();
 	scene->shaders[FLAT] = flat_shader;
+    flat_shader->init_from_files(
+        ((std::string)PROJECT_SOURCE_DIR + "/Shaders/flat.vert").c_str(),
+        ((std::string)PROJECT_SOURCE_DIR + "/Shaders/flat.frag").c_str());
 	Shader * lamp_shader = new Shader();
 	scene->shaders[LIGHT] = lamp_shader;
+    lamp_shader->init_from_files(
+        ((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.vert").c_str(),
+        ((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.frag").c_str());
 
-	cube_shader->init_from_files(
-		((std::string)PROJECT_SOURCE_DIR + "/Shaders/cube.vert").c_str(), 
-		((std::string)PROJECT_SOURCE_DIR + "/Shaders/cube.frag").c_str());
-	flat_shader->init_from_files(
-		((std::string)PROJECT_SOURCE_DIR + "/Shaders/flat.vert").c_str(),
-		((std::string)PROJECT_SOURCE_DIR + "/Shaders/flat.frag").c_str());
-	lamp_shader->init_from_files(
-		((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.vert").c_str(),
-		((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.frag").c_str());
 
 	/* Objects */
 	glGenVertexArrays(1, &scene->bc.scene_vao);
 
-	glGenBuffers(1, &scene->bc.position_vbo);
+    glGenBuffers(1, &scene->bc.position_vbo);
 	glGenBuffers(1, &scene->bc.colors_vbo);
 	glGenBuffers(1, &scene->bc.normals_vbo);
 	glGenBuffers(1, &scene->bc.faces_ibo);
 	glGenBuffers(1, &scene->bc.edges_ibo);
 
-	glBindVertexArray(scene->bc.scene_vao);
-
-	/*glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(obj::cube), obj::cube, GL_STATIC_DRAW);
-	// Position attr
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	// Normal attr
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-	// Tex Coords attr
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(2);
-	glBindVertexArray(0);
-
-    glBindVertexArray(VAO[1]);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-    glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
-    // Position attr
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
+    glBindVertexArray(scene->bc.scene_vao);
+    //vertexAttribs go here?
     glBindVertexArray(0);
 
-	// lamps
-	GLuint light_VAO;
-	glGenVertexArrays(1, &light_VAO);
-	glBindVertexArray(light_VAO);
-	// We only need to bind to the VBO, the container'handle_scene VBO'handle_scene data already contains the correct data.
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-	// Position attr
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	glBindVertexArray(0);*/
 
 	/* Load textures */
 	/*GLenum tex_format;
@@ -100,41 +71,14 @@ int main() {
 	glTexImage2D(GL_TEXTURE_2D, 0, tex_format, tex_width, tex_height, 0, tex_format, GL_UNSIGNED_BYTE, image);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(image);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	image = stbi_load((RESOURCES_DIR+"container2_specular.png").c_str(), &tex_width, &tex_height, &tex_channels, 0);
-	if (!image)
-		std::cerr << "Failed to load texture "+RESOURCES_DIR+"container2_specular.png" << std::endl;
-	switch (tex_channels) {
-		case 1: tex_format = GL_ALPHA;     break;
-		case 2: tex_format = GL_LUMINANCE; break;
-		case 4: tex_format = GL_RGBA;      break;
-        default:
-        case 3: tex_format = GL_RGB;       break;
-	}
-
-	GLuint tex_container_specular;
-	glGenTextures(1, &tex_container_specular);
-	glBindTexture(GL_TEXTURE_2D, tex_container_specular);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, tex_format, tex_width, tex_height, 0, tex_format, GL_UNSIGNED_BYTE, image);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	stbi_image_free(image);
-	glBindTexture(GL_TEXTURE_2D, 1);*/
+	glBindTexture(GL_TEXTURE_2D, 0);*/
 
 	/* Path Planning */
     //todo dalton: reintegrate
 	//ai::init(std::vector<BoundingVolume *>(), std::vector<Object *>(), std::vector<Object *>(), std::vector<Object *>());
 	//GMP::replan(ai::std_NNai, game_loop_clock);
 
-	//change properties for the path -- instantiate cube visualizations
-	//init_planning_vis();
-
 	scene->setupTestingObjects();
-	scene->enableLightShader();
 
     /* Game Loop */
     game_loop_clock->frame();
@@ -155,9 +99,11 @@ int main() {
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        scene->enableLightShader();
+        //it might be a real pain to get specific textures to objects via this singular VAO method
 		glBindVertexArray(scene->bc.scene_vao);
-
 		scene->render();
+        glBindVertexArray(0);
 
 		// Swap the Double Buffer
 		glfwSwapBuffers(window);

@@ -236,14 +236,14 @@ void Scene::enableLightShader() {
 
 	glUniform3f(shaders[LIGHT]->uniform("lightColor"), light_specular.x, light_specular.y, light_specular.z);
 
-	for (GLuint i = 0; i < 4; i++) {
+	//for (GLuint i = 0; i < 4; i++) {
 		model = glm::mat4();
-		model = glm::translate(model, point_light_positions[i]);
-		model = glm::scale(model, glm::vec3(0.2f));
+		//model = glm::translate(model, point_light_positions[i]);
+		//model = glm::scale(model, glm::vec3(0.2f));
 		glUniformMatrix4fv(shaders[LIGHT]->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
 
 		//glDrawArrays(GL_TRIANGLES, 0, 36);
-	}
+	//}
 }
 
 void Scene::setupTestingObjects() {

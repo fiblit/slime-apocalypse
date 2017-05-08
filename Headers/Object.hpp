@@ -37,6 +37,7 @@ public:
 
 	virtual void construct() = 0;
 
+    //TODO; use a Mesh
 	void render(bufferContainer bc);
 
 	// Member variables
