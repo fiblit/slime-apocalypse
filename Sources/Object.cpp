@@ -93,6 +93,9 @@ void Object::moveTo(vec3 position) {
 }
 
 void Object::render(bufferContainer bc) {
+    //TODO: repurpose as using a Mesh; everything you see below is broken
+
+
 	// I originally used a Globals namespace to access the vbos, but
 	// we can just pass around a struct instead.
 	// This really only works if the Scene class really does handle
@@ -105,21 +108,21 @@ void Object::render(bufferContainer bc) {
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), &vertices[0][0], GL_DYNAMIC_DRAW);
 	else
 		glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, bc.colors_vbo);
 	if (!colors.empty())
 		glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(colors[0]), &colors[0][0], GL_DYNAMIC_DRAW);
 	else
 		glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, bc.normals_vbo);
 	if (!normals.empty())
 		glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(normals[0]), &normals[0][0], GL_DYNAMIC_DRAW);
 	else
 		glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bc.faces_ibo);
 	if (!faces.empty())
@@ -128,4 +131,5 @@ void Object::render(bufferContainer bc) {
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
 
 	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(faces.size()), GL_UNSIGNED_INT, (GLvoid*) 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
