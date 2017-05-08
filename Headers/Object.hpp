@@ -38,7 +38,9 @@ public:
 	void moveTo(float x, float y, float z);
 	void moveTo(glm::vec3 position);
 
-	virtual void construct() = 0;
+	virtual void constructStandardMesh(bool override = false) = 0;
+	virtual void useStandardMesh() = 0;
+	virtual void useCustomMesh() = 0;
 
 	void draw(Shader * shader);
 

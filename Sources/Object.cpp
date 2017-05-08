@@ -35,7 +35,7 @@ void Object::setParams(float x) {
 	params[1] = x;
 	params[2] = x;
 
-	construct();
+	constructStandardMesh(true);
 }
 
 void Object::setParams(float x, float y) {
@@ -43,7 +43,7 @@ void Object::setParams(float x, float y) {
 	params[1] = y;
 	params[2] = 1;
 
-	construct();
+	constructStandardMesh(true);
 }
 
 void Object::setParams(float x, float y, float z) {
@@ -51,7 +51,7 @@ void Object::setParams(float x, float y, float z) {
 	params[1] = y;
 	params[2] = z;
 
-	construct();
+	constructStandardMesh(true);
 }
 
 void Object::setColor(float r, float g, float b) {
@@ -102,7 +102,7 @@ void Object::draw(Shader * shader) {
 	model = mat4();
 	model = glm::translate(model, dyn.pos);
 	model = glm::scale(model, params);
-	glUniformMatrix4fv(shader->uniform("model"), 1, GL_FALSE, glm::value_ptr(mat4()));
+	glUniformMatrix4fv(shader->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
 
 	mesh->draw(shader);
 }

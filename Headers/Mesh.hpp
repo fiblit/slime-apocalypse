@@ -32,6 +32,8 @@ public:
 	virtual ~Mesh();
 
 	void draw(Shader * shader);
+	Mesh * copy();
+	void updateVertices(std::vector<Vertex> vertices);
 
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;

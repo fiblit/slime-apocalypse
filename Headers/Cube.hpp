@@ -6,15 +6,17 @@
 class Cube : public Object {
 public:
 	Cube();
-	Cube(float x, float y);
-	Cube(float x, float y, float w, float h);
-	Cube(float x, float y, float w, float h, float d);
+	Cube(float w, float l, float h, float x, float y, float z);
 	Cube(glm::vec3 p);
-	Cube(glm::vec3 p, float w, float h);
-	Cube(glm::vec3 p, float w, float h, float d);
+	Cube(float w, float l, float h, glm::vec3 p);
 	virtual ~Cube();
 
-	void construct();
+	void constructStandardMesh(bool override = false);
+	void useStandardMesh();
+	void useCustomMesh();
+
+	static Mesh * standardMesh;
+	bool usingStandardMesh = true;
 
 	// width is params[0]
 	// height is params[1]

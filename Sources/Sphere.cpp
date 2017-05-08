@@ -5,54 +5,69 @@ using std::vector;
 using std::min;
 using std::max;
 
+Mesh * Sphere::standardMesh;
+
 Sphere::Sphere() : Object() {
 	params[0] = 1.0;
 	params[1] = 1.0;
 	params[2] = 1.0;
-	construct();
+	constructStandardMesh();
 }
 
-Sphere::Sphere(float x, float y)  : Object(vec3(x, y, 0.0)) {
-	params[0] = 1.0;
-	params[1] = 1.0;
-	params[2] = 1.0;
-	construct();
-}
-
-Sphere::Sphere(float x, float y, float r) : Object(vec3(x, y, 0.0)) {
+Sphere::Sphere(float r, float x, float y, float z) : Object(vec3(x, y, z)) {
 	params[0] = r;
 	params[1] = r;
 	params[2] = r;
-	construct();
-}
-
-Sphere::Sphere(float x, float y, float z, float r) : Object(vec3(x, y, z)) {
-	params[0] = r;
-	params[1] = r;
-	params[2] = r;
-	construct();
+	constructStandardMesh();
 }
 
 Sphere::Sphere(float r) : Object() {
 	params[0] = r;
 	params[1] = r;
 	params[2] = r;
-	construct();
+	constructStandardMesh();
 }
 
-Sphere::Sphere(vec3 p, float r) : Object(p) {
+Sphere::Sphere(float r, vec3 p) : Object(p) {
 	params[0] = r;
 	params[1] = r;
 	params[2] = r;
-	construct();
+	constructStandardMesh();
 }
 
-Sphere::~Sphere() {}
+Sphere::~Sphere() {
+	if (mesh && mesh != standardMesh)
+		delete mesh;
+}
 
-void Sphere::construct() {
+void Sphere::useStandardMesh() {
+	if (usingStandardMesh)
+		return;
+
+	if (mesh)
+		delete mesh;
+
+	usingStandardMesh = true;
+	mesh = standardMesh;
+}
+
+void Sphere::useCustomMesh() {
+	if (!usingStandardMesh)
+		return; // might want to make it re-copy the standard in this case?
+
+	usingStandardMesh = false;
+	mesh = standardMesh->copy();
+}
+
+void Sphere::constructStandardMesh(bool override) {
     this->bv = new Circ(glm::vec2(dyn.pos[0], dyn.pos[1]), params[0]);
 
-	int stacks = 20;
+	if (!override && standardMesh != NULL) {
+		mesh = standardMesh;
+		return;
+	}
+
+	int stacks = 20; // TODO: need a way to make these dynamic
 	int slices = 20;
 
 	vector<Vertex> vertices;
@@ -67,11 +82,11 @@ void Sphere::construct() {
 
 			int nextSlice = (j+1)%(slices+1);
 			double colatitude = PI * j / slices;
-			double x = dyn.pos[0] + params[0] * cos(longitude) * sin(colatitude);
-			double y = dyn.pos[1] + params[0] * sin(longitude) * sin(colatitude);
-			double z = dyn.pos[2] + params[0] * cos(colatitude);
+			double x = cos(longitude) * sin(colatitude);
+			double y = sin(longitude) * sin(colatitude);
+			double z = cos(colatitude);
 			vertex.Position = vec3(x, y, z);
-			vertex.Normal = vertex.Position - dyn.pos;
+			vertex.Normal = glm::normalize(vertex.Position);
 			vertices.push_back(vertex);
 
 			indices.push_back(j + i*slices);
@@ -84,5 +99,12 @@ void Sphere::construct() {
 		}
 	}
 
-	mesh = new Mesh(vertices, indices);
+	if (override) {
+		standardMesh->vertices = vertices;
+		standardMesh->indices = indices;
+	}
+	else {
+		standardMesh = new Mesh(vertices, indices);
+		mesh = standardMesh;
+	}
 }

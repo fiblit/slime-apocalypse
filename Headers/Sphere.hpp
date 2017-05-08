@@ -8,14 +8,17 @@ const GLdouble PI = 4.0*atan(1.0);
 class Sphere : public Object {
 public:
 	Sphere();
-	Sphere(float x, float y);
-	Sphere(float x, float y, float r);
-	Sphere(float x, float y, float z, float r);
+	Sphere(float r, float x, float y, float z);
 	Sphere(float r);
-	Sphere(glm::vec3 p, float r);
+	Sphere(float r, glm::vec3 p);
 	virtual ~Sphere();
 
-	void construct();
+	void constructStandardMesh(bool override = false);
+	void useStandardMesh();
+	void useCustomMesh();
+
+	static Mesh * standardMesh;
+	bool usingStandardMesh = true;
 
 	// params[0] is radius
 };

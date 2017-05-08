@@ -2,7 +2,9 @@
 
 /* Taken from https://learnopengl.com/#!Model-Loading/Mesh */
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices)
+using std::vector;
+
+Mesh::Mesh(vector<Vertex> vertices, vector<GLuint> indices)
 {
 	this->vertices = vertices;
 	this->indices = indices;
@@ -10,7 +12,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices)
 	this->setupMesh();
 }
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures)
+Mesh::Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures)
 {
 	this->vertices = vertices;
 	this->indices = indices;
@@ -45,6 +47,20 @@ void Mesh::draw(Shader * shader) {
 	glBindVertexArray(this->VAO);
 	glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+}
+
+Mesh * Mesh::copy() {
+	Mesh * copy = new Mesh(this->vertices, this->indices); // TODO: add textures sometime too
+	copy->setupMesh();
+	return copy;
+}
+
+// Careful when using on Mesh that is shared by multiple Objects!
+void Mesh::updateVertices(vector<Vertex> vertices) {
+	this->vertices = vertices;
+
+	glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+	glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_DYNAMIC_DRAW);
 }
 
 void Mesh::setupMesh() {

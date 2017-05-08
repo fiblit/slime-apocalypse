@@ -16,11 +16,16 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
     if (action == GLFW_PRESS) {
+		if (key < 0) {
+			D(std::cout << "Invalid Key Press!" << std::endl);
+			return;
+		}
         D(std::cout << "Key Pressed: " << /*glfwGetKeyName(key, key)*/ key << std::endl);
         UI::keys[key] = true;
     }
     else if (action == GLFW_RELEASE) {
-        UI::keys[key] = false;
+		if (key >= 0)
+			UI::keys[key] = false;
     }
 }
 

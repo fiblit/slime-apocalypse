@@ -38,15 +38,15 @@ Scene::~Scene() {
 #include "debug.hpp"
 void Scene::addEnemyObject(float r, float x, float y, float z) {
 	// Instantiate an enemy object
-	Sphere * enemy = new Sphere(x, y, z, r);
+	Sphere * enemy = new Sphere(r, x, y, z);
 
 	// Add instantiated object to enemyObjects vector
 	enemyObjects.push_back(enemy);
 }
 
-void Scene::addWall(float h, float x1, float y1, float x2, float y2) {
+void Scene::addWall(float h, float x1, float x2, float z1, float z2) {
 	// Instantiate a wall object
-	Cube * wall = new Cube((x1+x2)/2, (y1+y2)/2, abs(x1-x2), abs(y1-y2), h);
+	Cube * wall = new Cube(abs(x1-x2), abs(z1-z2), h, (x1+x2)/2, 0.0, (z1+z2)/2);
 
 	// Add instantiated object to staticObjects vector
 	staticObjects.push_back(wall);
@@ -250,17 +250,23 @@ void Scene::enableTestShader() {
 
 void Scene::setupTestingObjects() {
 	// walls
-	addWall(2, -5, -6, 5, -8);
+	/*addWall(2, -5, -6, 5, -8);
 	addWall(3, 3, -8, 5, 8);
 	addWall(1, -5, 6, 3, 8);
-	addWall(3, -3, -3, -1, 3);
+	addWall(3, -3, -3, -1, 3);*/
 
 	// enemies
-	addEnemyObject(1, 0, 0, 0);
-	addEnemyObject(1, 2, -2, 0);
-	addEnemyObject(2, -1, 3, 0);
+	addEnemyObject(1, -10, 0, 0);
+	addEnemyObject(1, 0, 0, -10);
+	addEnemyObject(1, 10, 0, 0);
+	addEnemyObject(1, 0, 0, 10);
 
-	playerObject = new Sphere(0, -7, 6, 1);
+	addWall(2, -7, 7, -7, -5);
+	addWall(2, 5, 7, -7, 7);
+	addWall(2, -7, 7, 5, 7);
+	addWall(2, -7, -5, -7, 7);
+
+	playerObject = new Sphere(1, 0, 0, 0);
 }
 
 void Scene::toggle_flashlight() {

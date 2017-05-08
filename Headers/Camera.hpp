@@ -25,7 +25,7 @@ namespace G {
 		// Default camera values
 		const GLfloat YAW = -90.0f;
 		const GLfloat PITCH = -75.0f;
-		const GLfloat SPEED = 3.0f;
+		const GLfloat SPEED = 6.0f;
 		const GLfloat SENSITIVTY = 0.1f;
 		const GLfloat FOV = 45.0f;
 	}
@@ -47,6 +47,7 @@ public:
 	GLfloat pitch;
 	// Camera options
 	GLfloat speed;
+	GLfloat sprint;
 	GLfloat sensitivity;
 	GLfloat fov;
 
@@ -58,6 +59,7 @@ public:
 			GLfloat pitch = G::CAMERA::PITCH):
 		dir(glm::vec3(0.0f, 0.0f, -1.0f)),
 		speed(G::CAMERA::SPEED),
+		sprint(1),
 		sensitivity(G::CAMERA::SENSITIVTY),
 		fov(G::CAMERA::FOV) {
 		this->pos = pos;
@@ -74,6 +76,7 @@ public:
 			GLfloat pitch = G::CAMERA::PITCH):
 		dir(glm::vec3(0.0f, 0.0f, -1.0f)),
 		speed(G::CAMERA::SPEED),
+		sprint(1),
 		sensitivity(G::CAMERA::SENSITIVTY),
 		fov(G::CAMERA::FOV) {
 		this->pos = glm::vec3(posX, posY, posZ);
@@ -91,7 +94,7 @@ public:
 	// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
 	void translate_camera(G::CAMERA::Movement direction, GLfloat deltaTime) {
 		// frame speed
-		GLfloat fspeed = this->speed * deltaTime;
+		GLfloat fspeed = this->speed * this->sprint * deltaTime;
 		if (direction == G::CAMERA::FORWARD)
 			this->pos += this->dir * fspeed;
 		if (direction == G::CAMERA::BACKWARD)
