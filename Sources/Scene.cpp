@@ -248,7 +248,7 @@ void Scene::generateMoreMaze(){
                 float xPos = (i - (mazeInfo.width / 2)) * mazeInfo.cellSize;
                 float yPos = (j - (mazeInfo.height / 2)) * mazeInfo.cellSize;
                 vec3 pos = mazeInfo.center - vec3(xPos, yPos, 0);
-                staticObjects.push_back(new Cube(pos, mazeInfo.cellSize, mazeInfo.cellSize, mazeInfo.cellSize));
+                addRect(2, mazeInfo.width, mazeInfo.height, pos);
             }
             maze[i][j].active = 0;
         }
@@ -271,14 +271,25 @@ void Scene::addEnemyObject(float r, float x, float y, float z) {
 }
 
 void Scene::addRect(float h, float x1, float y1, float x2, float y2) {
-	// Instantiate a wall object
-	Cube * wall = new Cube((x1+x2)/2, (y1+y2)/2, abs(x1-x2), abs(y1-y2), h);
+    // Instantiate a wall object
+    Cube * wall = new Cube((x1 + x2) / 2, (y1 + y2) / 2, abs(x1 - x2), abs(y1 - y2), h);
 
-	// Add instantiated object to staticObjects vector
-	staticObjects.push_back(wall);
+    // Add instantiated object to staticObjects vector
+    staticObjects.push_back(wall);
 
-	// Modify and/or rebuild PRM
-	// ???
+    // Modify and/or rebuild PRM
+    // ???
+}
+
+void Scene::addRect(float h, float w, float l, vec3 center) {
+    // Instantiate a wall object
+    Cube * wall = new Cube(center, w, l, h);
+
+    // Add instantiated object to staticObjects vector
+    staticObjects.push_back(wall);
+
+    // Modify and/or rebuild PRM
+    // ???
 }
 
 void Scene::addCylinder(float h, float r, float x, float y){

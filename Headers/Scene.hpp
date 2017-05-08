@@ -34,7 +34,8 @@ public:
 	virtual ~Scene();
 
 	void addEnemyObject(float r, float x, float y, float z);
-	void addRect(float h, float x1, float y1, float x2, float y2);
+	void addRect(float h, float x1, float y1, float x2, float y2); 
+    void addRect(float h, float w, float l, glm::vec3 center);
 	void addCylinder(float h, float r, float x, float y);
 	void setPlayerColor(float r, float g, float b);
 	void setPlayerColor(glm::vec3 rgb);
