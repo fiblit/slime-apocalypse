@@ -62,6 +62,7 @@ public:
 	std::vector<Object *> staticObjects;
 	//PRM prm;
 
+    //wouldn't it be better to attach a shader to each object?
 	Shader * curShader;
 	std::unordered_map<shaderNames, Shader *> shaders;
 
