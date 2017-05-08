@@ -40,7 +40,7 @@ public:
 
 	virtual void construct() = 0;
 
-	void draw(Shader * shader);
+	void draw(Shader * shader, glm::mat4 view);
 
 	// Member variables
     BoundingVolume * bv;

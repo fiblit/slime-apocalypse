@@ -19,7 +19,7 @@ out vec4 color;
 void main() {
 	vec3 norm = normalize(Normal);
 	vec3 viewDir = normalize(-FragPos);
-	vec3 light = vec3(-1, 0, 0);
+	vec3 light = mat3(view) * normalize(-vec3(1, 0, 0));
 	vec3 H = normalize(light + viewDir);
 	float s = pow(max(0.0, dot(norm, H)), material.shine);
 

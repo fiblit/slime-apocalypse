@@ -62,6 +62,7 @@ public:
 	std::vector<Object *> staticObjects;
 	//PRM prm;
 
+	Shader * curShader;
 	std::unordered_map<shaderNames, Shader *> shaders;
 
 	Camera * camera;

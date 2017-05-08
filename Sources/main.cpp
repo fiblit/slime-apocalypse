@@ -88,7 +88,7 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// currently must enable shader every frame to update view matrix; easily fixed
-		scene->enableFlatShader();
+		scene->enableTestShader();
         
 		scene->render();
 
@@ -161,7 +161,10 @@ GLFWwindow * init_window_context() {
 
 void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
     handle_scene->camera->mouse_rotate_camera(UI::cursor_edx, UI::cursor_edy);
+	UI::cursor_edx = 0;
+	UI::cursor_edy = 0;
     handle_scene->camera->scroll_zoom_camera(UI::d_scroll);
+	UI::d_scroll = 0;
 
     if (UI::keys[GLFW_KEY_W])
         handle_scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta());
@@ -171,6 +174,10 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
         handle_scene->camera->translate_camera(G::CAMERA::LEFT, clock->delta());
     if (UI::keys[GLFW_KEY_D])
         handle_scene->camera->translate_camera(G::CAMERA::RIGHT, clock->delta());
+	if (UI::keys[GLFW_KEY_E])
+		handle_scene->camera->translate_camera(G::CAMERA::UPWARD, clock->delta());
+	if (UI::keys[GLFW_KEY_Q])
+		handle_scene->camera->translate_camera(G::CAMERA::DOWNWARD, clock->delta());
 
     if (UI::keys[GLFW_KEY_P]) {
         UI::keys[GLFW_KEY_P] = false;

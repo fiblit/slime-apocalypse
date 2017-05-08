@@ -97,14 +97,14 @@ void Object::moveTo(vec3 position) {
 	}*/
 }
 
-void Object::draw(Shader * shader) {
+void Object::draw(Shader * shader, glm::mat4 view) {
 	mat4 model;
 	model = mat4();
 	model = glm::translate(model, dyn.pos);
 	model = glm::scale(model, params);
 	glUniformMatrix4fv(shader->uniform("model"), 1, GL_FALSE, glm::value_ptr(mat4()));
 
-	//glUniformMatrix4fv(shader->uniform("normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
+	glUniformMatrix4fv(shader->uniform("normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
 
 	mesh->draw(shader);
 }

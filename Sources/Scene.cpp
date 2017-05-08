@@ -113,15 +113,15 @@ void Scene::simulate(GLfloat dt) {
 
 void Scene::render() {
 	// Render the player object
-    this->playerObject->draw(shaders[FLAT]);
+    this->playerObject->draw(curShader, camera->getView());
 
 	// Render each enemy object
     for (Object * o : enemyObjects)
-        o->draw(shaders[FLAT]);
+        o->draw(curShader, camera->getView());
 
 	// Render each static object
 	for (Object * o : staticObjects)
-		o->draw(shaders[FLAT]);
+		o->draw(curShader, camera->getView());
 
 	// Render the UI (if we have one)
 	// maybe if I (dalton) add on dear-imgui later
@@ -133,6 +133,7 @@ void Scene::enableTextureShader() {
 	glm::mat4 model;
 
 	shaders[TEXTURE]->enable();
+	curShader = shaders[TEXTURE];
 
 	/*glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tex_container);
@@ -180,6 +181,7 @@ void Scene::enableFlatShader() {
 	glm::mat4 view = camera->getView();
 
 	shaders[FLAT]->enable();
+	curShader = shaders[FLAT];
 
 	//glUniform3f(shaders[FLAT]->uniform("material.ambient"), 1.0f, 0.5f, 0.31f);
 	glUniform1f(shaders[FLAT]->uniform("material.shine"), 32.0f);
@@ -223,6 +225,7 @@ void Scene::enableLightShader() {
 	glm::mat4 view = camera->getView();
 
 	shaders[LIGHT]->enable();
+	curShader = shaders[LIGHT];
 
 	glUniformMatrix4fv(shaders[LIGHT]->uniform("proj"), 1, GL_FALSE, glm::value_ptr(proj));
 	glUniformMatrix4fv(shaders[LIGHT]->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -235,6 +238,7 @@ void Scene::enableTestShader() {
 	glm::mat4 view = camera->getView();
 
 	shaders[TEST]->enable();
+	curShader = shaders[TEST];
 
 	glUniformMatrix4fv(shaders[TEST]->uniform("proj"), 1, GL_FALSE, glm::value_ptr(proj));
 	glUniformMatrix4fv(shaders[TEST]->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
