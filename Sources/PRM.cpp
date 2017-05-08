@@ -1,55 +1,33 @@
 #include "PRM.hpp"
 #include "Scenario.hpp"
 
-/* uniformly samples the configuration space to generate nodes for the PRM;
+/* uniformly bin_samps the configuration space to generate nodes for the PRM;
    All sampled points will be non-colliding with the static environment 
 */
-VecPoint * PRM::sample_nodes(Cspace_2D * cSpace_) {
+VecPoint * PRM::sample_nodes(Cspace2D * cSpace_, float perturb, float bin_dim, int bin_samps, std::pair<float, float> bounds) {
 	typedef std::chrono::high_resolution_clock hrclock;
 	hrclock::time_point first = hrclock::now();
 
 	std::default_random_engine gen;
 	std::uniform_real_distribution<float> std(-0.5f, 0.5f);
 
-    int sample_count;
-    float b;
-    switch (G::SCENARIO) {
-    case G::SCENE::WALL:
-    case G::SCENE::DEADEND:
-        sample_count = 4;
-        b = 2.8f;
-        break;
-    case G::SCENE::MAZE:
-        sample_count = 5;
-        b = 2.8f;
-        break;
-    case G::SCENE::DEFAULT:
-    case G::SCENE::NO_BOID:
-    default:
-        sample_count = 1;//this does not work on all maps
-        b = 2.8f;
-        break;
-    }
-
 	VecPoint * sample = new VecPoint();
-	for (int i = 0; i < sample_count; i++) {
-		for (float x = -10+b/2; x < 10-b/2; x+=b) {
+	for (int i = 0; i < bin_samps; i++) {
+		for (float x = bounds.first+bin_dim/2; x < bounds.second-bin_dim/2; x+=bin_dim) {
             hrclock::duration seed = hrclock::now() - first;
             gen.seed(static_cast<unsigned int>(seed.count()));
-			for (float y = -10+b/2; y < 10-b/2; y+=b) {
+			for (float y = bounds.first+bin_dim/2; y < bounds.second-bin_dim/2; y+=bin_dim) {
 				glm::vec2 p(
-                    std(gen)*b + x,
-                    std(gen)*b + y
+                    std(gen)*bin_dim + x,
+                    std(gen)*bin_dim + y
                 );
 				do {
-					p.x += std(gen)/5;
-					p.y += std(gen)/5;
-					p.x = std::min(std::max(p.x, -10.f), 10.f);
-					p.y = std::min(std::max(p.y, -10.f), 10.f);
+					p.x += std(gen) * 2 * perturb;
+					p.y += std(gen) * 2 * perturb;
+					p.x = std::min(std::max(p.x, bounds.first), bounds.second);
+					p.y = std::min(std::max(p.y, bounds.first), bounds.second);
 				} while (cSpace_->is_collision(p));
                 sample->push_back(new Node<glm::vec2> (p, new VecPoint()));
-				//else
-				//	i--;
 			}
 		}
 	}
@@ -91,9 +69,9 @@ VecPoint * PRM::find_nearest_neighbours(VecPoint * nodes, int targetIdx) {
 
 /* connects nearby of each node by Graph edges */
 Graph<glm::vec2> * PRM::connect_roadmap(VecPoint * nodes) {
-	Graph<glm::vec2> * roadmap = new Graph<glm::vec2>();
+	Graph<glm::vec2> * rm = new Graph<glm::vec2>();
 	for (int i = 0; i < static_cast<int>(nodes->size()); i++)
-		roadmap->add_vertex((*nodes)[i]);
+		rm->add_vertex((*nodes)[i]);
 
 	for (int i = 0; i < static_cast<int>(nodes->size()); i++) {
 		VecPoint * nearby = find_nearest_neighbours(nodes, i);
@@ -101,55 +79,53 @@ Graph<glm::vec2> * PRM::connect_roadmap(VecPoint * nodes) {
 			if (this->c_space->line_of_sight((*nearby)[n]->data, (*nodes)[i]->data)) {
 				// we want directed because we'll be passing over the other side during
 				// the course of the outer loop
-				roadmap->add_directed_edge((*nearby)[n], (*nodes)[i]);
+				rm->add_directed_edge((*nearby)[n], (*nodes)[i]);
 			}
 		}
 	}
 
-	return roadmap;
+	return rm;
 }
 
-/* samples and connects a Pobabilistic Road Map */
-PRM::PRM(glm::vec2 start, glm::vec2 goal, Cspace_2D * c_space) {
+/* bin_samps and connects a Pobabilistic Road Map */
+PRM::PRM(Cspace2D * c_space) {
     this->c_space = c_space;
 
-    Node<glm::vec2> * start_node = new Node<glm::vec2>(start, new VecPoint());
-    Node<glm::vec2> * goal_node = new Node<glm::vec2>(goal, new VecPoint());
+    //Node<glm::vec2> * start_node = new Node<glm::vec2>(start, new VecPoint());
+    //Node<glm::vec2> * goal_node = new Node<glm::vec2>(goal, new VecPoint());
 
-    VecPoint * sample = sample_nodes(this->c_space);
-    sample->insert(sample->begin(), goal_node);
-    sample->insert(sample->begin(), start_node);
+    VecPoint * sample = sample_nodes(this->c_space, .1f, 2.8f, 1, std::make_pair(-10.f, 10.f));
 
     this->roadmap = connect_roadmap(sample);
 }
 
 /* generates a configuartion space given a list of obstacles and agent */
-Cspace_2D::Cspace_2D(std::vector<BoundingVolume *> obs, BoundingVolume * agent) {
-    this->bv_obs = std::vector<BoundingVolume *>();
+Cspace2D::Cspace2D(std::vector<BoundingVolume *> obs, BoundingVolume * agent) {
+    this->c_obs = std::vector<BoundingVolume *>();
 
     for (BoundingVolume * o : obs) {
         std::vector<BoundingVolume *> ms = agent->minkowskiSum(o);
-        this->bv_obs.insert(bv_obs.end(), ms.begin(), ms.end());
+        this->c_obs.insert(c_obs.end(), ms.begin(), ms.end());
     }
 }
 
 /* detects if a point collides with anything in the configuration space */
-bool Cspace_2D::is_collision(glm::vec2 p) {
-    for (BoundingVolume * bv : this->bv_obs)
+bool Cspace2D::is_collision(glm::vec2 p) {
+    for (BoundingVolume * bv : this->c_obs)
         if (bv->is_collision(p))
             return true;//HIT
     return false;//MISS
 }
 
-/* detects if a line segment between glm::vec2 a and glm::vec2 b collides with the C-space 
+/* detects if a line segment between glm::vec2 a and glm::vec2 bin_dim collides with the C-space 
  */
-bool Cspace_2D::line_of_sight(glm::vec2 a, glm::vec2 b) {
+bool Cspace2D::line_of_sight(glm::vec2 a, glm::vec2 b) {
 	glm::vec2 Lab;
 	Lab.x = b.x - a.x;
 	Lab.y = b.y - a.y;
 	float len2 = glm::dot(Lab, Lab);
 
-	for (BoundingVolume * bv : this->bv_obs)
+	for (BoundingVolume * bv : this->c_obs)
         if (!bv->line_of_sight(a, b, Lab, len2))
             return false;//HIT
     return true;//MISS

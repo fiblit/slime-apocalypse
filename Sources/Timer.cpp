@@ -1,18 +1,18 @@
 /*** LOCALS ***/
 #include "Timer.hpp"
 
-using namespace G::time;
+using namespace Gtime;
 using namespace std;
 
-vector<Timer> G::time::stack;
+vector<Timer> Gtime::stack;
 
-void G::time::init_stack(GLuint layers) {
+void Gtime::init_stack(GLuint layers) {
     stack = vector<Timer>(layers);
 }
-void G::time::add_now() {
+void Gtime::add_now() {
     stack.push_back(Timer());
 }
-GLfloat G::time::del_top() {
+GLfloat Gtime::del_top() {
     GLfloat elapsed = stack.back().frame();
     stack.pop_back();
     return elapsed;

@@ -1,24 +1,26 @@
 #include "BoundingVolume.hpp"
-Rect::Rect() {}
+Rect::Rect() { this->vt = volume_type::RECT; }
 Rect::Rect(glm::vec2 o, float w, float h) {
+    this->vt = volume_type::RECT;
     this->o = o; this->w = w; this->h = h;
 }
 
-Circ::Circ() {}
+Circ::Circ() { this->vt = volume_type::CIRC; }
 Circ::Circ(glm::vec2 o, float r) {
+    this->vt = volume_type::CIRC;
     this->o = o; this->r = r;
 }
 
 std::vector<BoundingVolume *> Circ::minkowskiSum(BoundingVolume * bv) {
     //I wish there was a way I didn't have to check the types..
-    Circ* c = dynamic_cast<Circ*>(bv);
-    if (c != nullptr) {
-        return minkowskiSum_(c);
+    Circ* circ = dynamic_cast<Circ*>(bv);
+    if (circ != nullptr) {
+        return minkowskiSum_(circ);
     }
     
-    Rect * r = dynamic_cast<Rect*>(bv);
-    if (r != nullptr) {
-        return minkowskiSum_(r);
+    Rect * rect = dynamic_cast<Rect*>(bv);
+    if (rect != nullptr) {
+        return minkowskiSum_(rect);
     }
 
     return std::vector<BoundingVolume *>();
@@ -70,7 +72,6 @@ std::vector<BoundingVolume *> Rect::minkowskiSum_(Circ * b) {
     return bv;
 }
 
-
 bool Circ::is_collision(glm::vec2 p) {
     glm::vec2 diff = p - this->o;
     return glm::dot(diff, diff) <= this->r * this->r;
@@ -100,12 +101,36 @@ bool Circ::line_of_sight(glm::vec2 a, glm::vec2 b, glm::vec2 Lab, float len2) {
     return true; // else MISS
 }
 
+float Circ::intersect(glm::vec2 bo, glm::vec2 v) {
+    //min t = - (u.v) +- sqrt((u.v)^. - (v.v) (u.u - r^))/(v.v)
+    glm::vec2 u = bo - this->o;
+    float c = glm::dot(u, u) - this->r * this->r;
+    if (c < 0)//inside 
+        return 0;
+
+    float b = glm::dot(u, v);
+    float a = glm::dot(v, v);
+
+    float d = b*b - a*c;
+    if (d <= 0)//no intersect, forward or backwards
+        return std::numeric_limits<float>::max();
+
+    float t = (- b - sqrt(d)) / a;
+    if (t < 0)//intersction is behind ray
+        return std::numeric_limits<float>::max();
+
+    return t;
+}
+
 bool Rect::is_collision(glm::vec2 p) {
     return abs(p.x - this->o.x) <= this->w / 2
         && abs(p.y - this->o.y) <= this->h / 2;
 }
 
-bool Rect::line_of_sight(glm::vec2 a, glm::vec2 b, glm::vec2, float) {
+bool Rect::line_of_sight(glm::vec2, glm::vec2 b, glm::vec2 Lab, float len2) {
+    float t = intersect(b, Lab);//the intersect for axis aligned is actually pretty fast
+    return !(t*t < len2);
+    /*
     float left = this->o.x - this->w / 2;
     float right = this->o.x + this->w / 2;
     float top = this->o.y + this->h / 2;
@@ -115,9 +140,11 @@ bool Rect::line_of_sight(glm::vec2 a, glm::vec2 b, glm::vec2, float) {
         || axialLineSegLineSegCollision(a, b, right, 0, bottom, top)
         || axialLineSegLineSegCollision(a, b, bottom, 1, left, right)
         || axialLineSegLineSegCollision(a, b, top, 1, left, right));
+        */
 }
 
 //TODO: fix, so I can rotate rects
+//deprecated
 bool Rect::lineSegCollision(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, glm::vec2 p4) {
     glm::vec2 pp[4] = { p1, p2, p3, p4 };
     glm::vec3 l[2], p[4], x;
@@ -147,10 +174,10 @@ bool Rect::lineSegCollision(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, glm::vec2 
 
     return true;//must have hit
 }
-
+//deprecated
 bool Rect::axialLineSegLineSegCollision(glm::vec2 pp1, glm::vec2 pp2, float val, int axis, float oValLo, float oValHi) {
     glm::vec3 l = glm::cross(glm::vec3(pp1, 1), glm::vec3(pp2, 1));
-    //ax+by+c = 0
+    //ax+by+circ = 0
 
     //vertical
     if (axis == 0) {// (1/val)*x + 0*y - 1 = 0 // x = val
@@ -163,5 +190,30 @@ bool Rect::axialLineSegLineSegCollision(glm::vec2 pp1, glm::vec2 pp2, float val,
         float xint = (-l[1] * val - l[2]) / l[0];
         return ((pp1.y <= val && val <= pp2.y) || (pp2.y <= val && val <= pp1.y))//axis line hits lineseg
             && (oValLo <= xint && xint <= oValHi); //intersection on axial segment
+    }
+}
+
+//assumes axis alignment
+float Rect::intersect(glm::vec2 bo, glm::vec2 v) {
+    glm::vec2 d_o = bo - this->o;
+
+    float t_x_hi = (this->w - d_o.x) / v.x;
+    float t_y_hi = (this->h - d_o.y) / v.y;
+
+    float t_x_lo = (-this->w - d_o.x) / v.x;
+    float t_y_lo = (-this->h - d_o.y) / v.y;
+
+    //no intersection forward or back
+    if (t_x_hi < t_y_lo || t_x_lo > t_y_hi)
+        return std::numeric_limits<float>::max();
+    else {
+        float t_lo = (t_x_lo > t_y_lo ? t_x_lo : t_y_lo);
+        float t_hi = (t_x_hi > t_y_hi ? t_x_hi : t_y_hi);
+        if (t_hi < 0)//intersection before ray
+            return std::numeric_limits<float>::max();
+        else if (t_lo < 0)
+            return 0; //intersection current
+        else
+            return t_lo;
     }
 }
