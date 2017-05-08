@@ -4,6 +4,7 @@
 #include "Object.hpp"
 #include "PRM.hpp"
 #include "BoundingVolume.hpp"
+#include "GlobalMotionPlanner.hpp"
 #include "LocalMotionPlanner.hpp"
 
 namespace ai {
