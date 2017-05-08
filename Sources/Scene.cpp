@@ -89,6 +89,8 @@ void Scene::initMaze() {
             c.active = 1;
             float randNum = ((float)rand()) / RAND_MAX;
             c.filled = (randNum > mazeInfo.chanceGennedAlive) ? 1 : 0;
+            Cube * cube = new Cube(vec3(0, 0, 0), 0, 0, 0);
+            staticObjects.push_back(cube);
             row.push_back(c);
         }
         maze.push_back(row);
@@ -235,13 +237,20 @@ void Scene::generateMoreMaze(){
     cout << "End Maze" << endl;
     //run the simulation with the new active cells
     automatonSimulate();
-
     //add the Objects 
+    for (int i = 0; i < staticObjects.size(); i++) {
+        delete staticObjects[i];
+    }
+    staticObjects.clear();
     for (size_t i = 0; i < maze.size(); i++) {
         for (size_t j = 0; j < maze[i].size(); j++) {
             if (maze[i][j].filled) {
-                //add to staticObjects list
+                float xPos = (i - (mazeInfo.width / 2)) * mazeInfo.cellSize;
+                float yPos = (j - (mazeInfo.height / 2)) * mazeInfo.cellSize;
+                vec3 pos = mazeInfo.center - vec3(xPos, yPos, 0);
+                staticObjects.push_back(new Cube(pos, mazeInfo.cellSize, mazeInfo.cellSize, mazeInfo.cellSize));
             }
+            maze[i][j].active = 0;
         }
     }
 
