@@ -69,10 +69,21 @@ int main() {
 	scene->setupTestingObjects();
 
     /* Game Loop */
+	GLfloat fpsTimer = 0;
+	int frameCounter = 0;
+	std::string title = "Slime Apocalypse - FPS: ";
     game_loop_clock->frame();
 	D(std::cout << std::endl << "Entering Game Loop..." << std::endl << std::endl);	
 	while (!glfwWindowShouldClose(window)) {
+		// Timer
         game_loop_clock->frame();
+		frameCounter++;
+		fpsTimer += game_loop_clock->delta();
+		if (fpsTimer >= 1) {
+			glfwSetWindowTitle(window, (title + std::to_string(frameCounter)).c_str());
+			frameCounter = 0;
+			fpsTimer -= 1;
+		}
 
         // Callbacks 
         glfwPollEvents();
@@ -87,7 +98,7 @@ int main() {
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// currently must enable shader every frame to update view matrix; easily fixed
+		// TODO: currently must enable shader every frame to update view matrix; easily fixed
 		scene->enableTestShader();
         
 		scene->render();
@@ -121,7 +132,7 @@ GLFWwindow * init_window_context() {
     if (G::WIN_FULLSCREEN)
         monitor = glfwGetPrimaryMonitor();
     //Make a window
-    std::string title = "Slime Apocalypse";
+    std::string title = "Slime Apocalypse - FPS: 0";
     GLFWwindow* window = glfwCreateWindow(G::WIN_WIDTH, G::WIN_HEIGHT, title.c_str(), monitor, nullptr);
     if (window == nullptr) {
         std::cerr << "Failed to create OpenGL Context" << std::endl;
