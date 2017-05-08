@@ -113,15 +113,15 @@ void Scene::simulate(GLfloat dt) {
 
 void Scene::render() {
 	// Render the player object
-    this->playerObject->render(this->bc);
+    this->playerObject->mesh->draw(shaders[FLAT]);
 
 	// Render each enemy object
     for (Object * o : enemyObjects)
-        o->render(this->bc);
+        o->mesh->draw(shaders[FLAT]);
 
 	// Render each static object
 	for (Object * o : staticObjects)
-		o->render(this->bc);
+		o->mesh->draw(shaders[FLAT]);
 
 	// Render the UI (if we have one)
 	// maybe if I (dalton) add on dear-imgui later

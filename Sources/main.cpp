@@ -1,7 +1,5 @@
 #include "main.hpp"
 
-using namespace mcl;
-
 int main() {
     GLFWwindow * window = init_window_context();
     if (window == nullptr)
@@ -30,21 +28,6 @@ int main() {
     lamp_shader->init_from_files(
         ((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.vert").c_str(),
         ((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.frag").c_str());
-
-
-	/* Objects */
-	glGenVertexArrays(1, &scene->bc.scene_vao);
-
-    glGenBuffers(1, &scene->bc.position_vbo);
-	glGenBuffers(1, &scene->bc.colors_vbo);
-	glGenBuffers(1, &scene->bc.normals_vbo);
-	glGenBuffers(1, &scene->bc.faces_ibo);
-	glGenBuffers(1, &scene->bc.edges_ibo);
-
-    glBindVertexArray(scene->bc.scene_vao);
-    //vertexAttribs go here?
-    glBindVertexArray(0);
-
 
 	/* Load textures */
 	/*GLenum tex_format;
@@ -101,24 +84,13 @@ int main() {
 
         scene->enableLightShader();
         //it might be a real pain to get specific textures to objects via this singular VAO method
-		glBindVertexArray(scene->bc.scene_vao);
 		scene->render();
-        glBindVertexArray(0);
 
 		// Swap the Double Buffer
 		glfwSwapBuffers(window);
     }
 	
 	D(std::cout << std::endl << "Exiting Game Loop..." << std::endl << std::endl);
-	
-
-	// Properly de-allocate all resources once they've outlived their purpose
-	glDeleteVertexArrays(1, const_cast<GLuint *>(&scene->bc.scene_vao));
-	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.position_vbo));
-	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.colors_vbo));
-	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.normals_vbo));
-	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.faces_ibo));
-	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.edges_ibo));
 
 	/* Exit */
     return kill_app(EXIT_SUCCESS);

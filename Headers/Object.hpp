@@ -5,6 +5,7 @@
 #include <algorithm> // min, max
 #include "Structs.hpp"
 #include "BoundingVolume.hpp"
+#include "Mesh.hpp"
 
 #pragma warning(push, 0)
 #pragma warning(disable: 4055)
@@ -37,9 +38,6 @@ public:
 
 	virtual void construct() = 0;
 
-    //TODO; use a Mesh
-	void render(bufferContainer bc);
-
 	// Member variables
     BoundingVolume * bv;
     ai_comp ai;
@@ -50,10 +48,7 @@ public:
 	bool sphere; //this seems... not right
 
 	// Rendering variables
-	std::vector<glm::vec3> vertices;
-	std::vector<glm::vec3> colors;
-	std::vector<glm::vec3> normals;
-	std::vector<GLuint> faces;
+	Mesh * mesh;
 };
 
 #endif // OBJECT_H_GUARD

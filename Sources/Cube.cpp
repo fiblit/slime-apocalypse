@@ -66,76 +66,81 @@ Cube::~Cube() {}
 void Cube::construct() {
     this->bv = new Rect(glm::vec2(dyn.pos[0], dyn.pos[1]), params[0], params[1]);
 
-	vertices.clear();
-	colors.clear();
-	normals.clear();
-	faces.clear();
-
-	// Front face
-	vertices.push_back(dyn.pos + vec3(params[0]/2, -params[1]/2, dyn.pos[2] + params[2]));
-	vertices.push_back(dyn.pos + vec3(-params[0]/2, -params[1]/2, dyn.pos[2] + params[2]));
-	vertices.push_back(dyn.pos + vec3(params[0]/2, params[1]/2, dyn.pos[2] + params[2]));
-	vertices.push_back(dyn.pos + vec3(-params[0]/2, params[1]/2, dyn.pos[2] + params[2]));
-
-	for (int i = 0; i < 4; i++)
-		normals.push_back(vec3(0, 0, 1));
-
-	// Left face
-	vertices.push_back(dyn.pos + vec3(-params[0]/2, -params[1]/2, dyn.pos[2] + params[2]));
-	vertices.push_back(dyn.pos + vec3(-params[0]/2, -params[1]/2, dyn.pos[2] - params[2]));
-	vertices.push_back(dyn.pos + vec3(-params[0]/2, params[1]/2, dyn.pos[2] + params[2]));
-	vertices.push_back(dyn.pos + vec3(-params[0]/2, params[1]/2, dyn.pos[2] - params[2]));
-
-	for (int i = 0; i < 4; i++)
-		normals.push_back(vec3(-1, 0, 0));
-
-	// Back face
-	vertices.push_back(dyn.pos + vec3(-params[0]/2, -params[1]/2, dyn.pos[2] - params[2]));
-	vertices.push_back(dyn.pos + vec3(params[0]/2, -params[1]/2, dyn.pos[2] - params[2]));
-	vertices.push_back(dyn.pos + vec3(-params[0]/2, params[1]/2, dyn.pos[2] - params[2]));
-	vertices.push_back(dyn.pos + vec3(params[0]/2, params[1]/2, dyn.pos[2] - params[2]));
-
-	for (int i = 0; i < 4; i++)
-		normals.push_back(vec3(0, 0, -1));
-
-	// Right face
-	vertices.push_back(dyn.pos + vec3(params[0]/2, -params[1]/2, dyn.pos[2] - params[2]));
-	vertices.push_back(dyn.pos + vec3(params[0]/2, -params[1]/2, dyn.pos[2] + params[2]));
-	vertices.push_back(dyn.pos + vec3(params[0]/2, params[1]/2, dyn.pos[2] - params[2]));
-	vertices.push_back(dyn.pos + vec3(params[0]/2, params[1]/2, dyn.pos[2] + params[2]));
-
-	for (int i = 0; i < 4; i++)
-		normals.push_back(vec3(1, 0, 0));
-
-	// Top face
-	vertices.push_back(dyn.pos + vec3(params[0]/2, params[1]/2, dyn.pos[2] + params[2]));
-	vertices.push_back(dyn.pos + vec3(-params[0]/2, params[1]/2, dyn.pos[2] + params[2]));
-	vertices.push_back(dyn.pos + vec3(params[0]/2, params[1]/2, dyn.pos[2] - params[2]));
-	vertices.push_back(dyn.pos + vec3(-params[0]/2, params[1]/2, dyn.pos[2] - params[2]));
-
-	for (int i = 0; i < 4; i++)
-		normals.push_back(vec3(0, 1, 0));
-
-	// Bottom face
-	vertices.push_back(dyn.pos + vec3(params[0]/2, -params[1]/2, dyn.pos[2] - params[2]));
-	vertices.push_back(dyn.pos + vec3(-params[0]/2, -params[1]/2, dyn.pos[2] - params[2]));
-	vertices.push_back(dyn.pos + vec3(params[0]/2, -params[1]/2, dyn.pos[2] + params[2]));
-	vertices.push_back(dyn.pos + vec3(-params[0]/2, -params[1]/2, dyn.pos[2] + params[2]));
-
-	for (int i = 0; i < 4; i++)
-		normals.push_back(vec3(0, -1, 0));
-
-
-	for (int i = 0; i < 24; i++)
-		colors.push_back(color);
-
-	for (int i = 0; i < 6; i++) {
-		faces.push_back(i*4);
-		faces.push_back(i*4 + 2);
-		faces.push_back(i*4 + 3);
-
-		faces.push_back(i*4);
-		faces.push_back(i*4 + 3);
-		faces.push_back(i*4 + 1);
+	vector<Vertex> vertices;
+	for (int i = 0; i < 24; i++) {
+		vertices.push_back(Vertex());
 	}
+
+	int m = 0;
+	// Front face
+	vertices[m*4 + 0].Position = dyn.pos + vec3(params[0]/2, -params[1]/2, dyn.pos[2] + params[2]);
+	vertices[m*4 + 1].Position = dyn.pos + vec3(-params[0]/2, -params[1]/2, dyn.pos[2] + params[2]);
+	vertices[m*4 + 2].Position = dyn.pos + vec3(params[0]/2, params[1]/2, dyn.pos[2] + params[2]);
+	vertices[m*4 + 3].Position = dyn.pos + vec3(-params[0]/2, params[1]/2, dyn.pos[2] + params[2]);
+
+	for (int i = 0; i < 4; i++)
+		vertices[m*4 + i].Normal = vec3(0, 0, 1);
+
+	m = 1;
+	// Left face
+	vertices[m*4 + 0].Position = dyn.pos + vec3(-params[0]/2, -params[1]/2, dyn.pos[2] + params[2]);
+	vertices[m*4 + 1].Position = dyn.pos + vec3(-params[0]/2, -params[1]/2, dyn.pos[2] - params[2]);
+	vertices[m*4 + 2].Position = dyn.pos + vec3(-params[0]/2, params[1]/2, dyn.pos[2] + params[2]);
+	vertices[m*4 + 3].Position = dyn.pos + vec3(-params[0]/2, params[1]/2, dyn.pos[2] - params[2]);
+
+	for (int i = 0; i < 4; i++)
+		vertices[m*4 + i].Normal = vec3(-1, 0, 0);
+
+	m = 2;
+	// Back face
+	vertices[m*4 + 0].Position = dyn.pos + vec3(-params[0]/2, -params[1]/2, dyn.pos[2] - params[2]);
+	vertices[m*4 + 1].Position = dyn.pos + vec3(params[0]/2, -params[1]/2, dyn.pos[2] - params[2]);
+	vertices[m*4 + 2].Position = dyn.pos + vec3(-params[0]/2, params[1]/2, dyn.pos[2] - params[2]);
+	vertices[m*4 + 3].Position = dyn.pos + vec3(params[0]/2, params[1]/2, dyn.pos[2] - params[2]);
+
+	for (int i = 0; i < 4; i++)
+		vertices[m*4 + i].Normal = vec3(0, 0, -1);
+
+	m = 3;
+	// Right face
+	vertices[m*4 + 0].Position = dyn.pos + vec3(params[0]/2, -params[1]/2, dyn.pos[2] - params[2]);
+	vertices[m*4 + 1].Position = dyn.pos + vec3(params[0]/2, -params[1]/2, dyn.pos[2] + params[2]);
+	vertices[m*4 + 2].Position = dyn.pos + vec3(params[0]/2, params[1]/2, dyn.pos[2] - params[2]);
+	vertices[m*4 + 3].Position = dyn.pos + vec3(params[0]/2, params[1]/2, dyn.pos[2] + params[2]);
+
+	for (int i = 0; i < 4; i++)
+		vertices[m*4 + i].Normal = vec3(1, 0, 0);
+
+	m = 4;
+	// Top face
+	vertices[m*4 + 0].Position = dyn.pos + vec3(params[0]/2, params[1]/2, dyn.pos[2] + params[2]);
+	vertices[m*4 + 1].Position = dyn.pos + vec3(-params[0]/2, params[1]/2, dyn.pos[2] + params[2]);
+	vertices[m*4 + 2].Position = dyn.pos + vec3(params[0]/2, params[1]/2, dyn.pos[2] - params[2]);
+	vertices[m*4 + 3].Position = dyn.pos + vec3(-params[0]/2, params[1]/2, dyn.pos[2] - params[2]);
+
+	for (int i = 0; i < 4; i++)
+		vertices[m*4 + i].Normal = vec3(0, 1, 0);
+
+	m = 5;
+	// Top face
+	vertices[m*4 + 0].Position = dyn.pos + vec3(params[0]/2, -params[1]/2, dyn.pos[2] - params[2]);
+	vertices[m*4 + 1].Position = dyn.pos + vec3(-params[0]/2, -params[1]/2, dyn.pos[2] - params[2]);
+	vertices[m*4 + 2].Position = dyn.pos + vec3(params[0]/2, -params[1]/2, dyn.pos[2] + params[2]);
+	vertices[m*4 + 3].Position = dyn.pos + vec3(-params[0]/2, -params[1]/2, dyn.pos[2] + params[2]);
+
+	for (int i = 0; i < 4; i++)
+		vertices[m*4 + i].Normal = vec3(0, -1, 0);
+
+	vector<GLuint> indices;
+	for (int i = 0; i < 6; i++) {
+		indices.push_back(i*4);
+		indices.push_back(i*4 + 2);
+		indices.push_back(i*4 + 3);
+
+		indices.push_back(i*4);
+		indices.push_back(i*4 + 3);
+		indices.push_back(i*4 + 1);
+	}
+
+	mesh = new Mesh(vertices, indices);
 }

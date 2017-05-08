@@ -20,20 +20,6 @@ namespace G {
 	const GLboolean WIN_FULLSCREEN = GL_FALSE;
 }
 
-struct vertex {
-
-};
-
-//replace with Meshes and vector of vertexes
-struct bufferContainer {
-	GLuint scene_vao;
-	GLuint position_vbo;
-	GLuint colors_vbo;
-	GLuint faces_ibo;
-	GLuint edges_ibo;
-	GLuint normals_vbo;
-};
-
 //used by any dynamics module (physics & some local motion planning)
 struct dynamics_comp {
     glm::vec3 pos;
