@@ -5,7 +5,7 @@
 //TODO: properly polymorph for all BoundingVolumes
 float LMP::ttc(BoundingVolume * i, glm::vec2 iv, BoundingVolume * j, glm::vec2 jv) {
     //I wish there was a way I didn't have to check the types..
-    /*Circ* c = dynamic_cast<Circ*>(i);
+    Circ* c = dynamic_cast<Circ*>(i);
     if (c != nullptr) {
         Circ * c2 = dynamic_cast<Circ *>(j);
         if (c2 != nullptr)
@@ -20,16 +20,14 @@ float LMP::ttc(BoundingVolume * i, glm::vec2 iv, BoundingVolume * j, glm::vec2 j
         if (r != nullptr) {
             Rect * r2 = dynamic_cast<Rect *>(j);
             if (r2 != nullptr)
-                return ttc_(r, iv, r2, jv);
+                return LMP::ttc_(r, iv, r2, jv);
 
             Circ * c = dynamic_cast<Circ *>(j);
             if (c != nullptr)
-                return ttc_(c, iv, r, jv);
+                return LMP::ttc_(c, iv, r, jv);
         }
     }
-    */
-
-    return LMP::ttc_(static_cast<Circ *>(i), iv, static_cast<Circ *>(j), jv);
+    return std::numeric_limits<float>::max();
 }
 
 float LMP::ttc_(Circ * i, glm::vec2 iv, Circ * j, glm::vec2 jv) {
@@ -38,41 +36,58 @@ float LMP::ttc_(Circ * i, glm::vec2 iv, Circ * j, glm::vec2 jv) {
     float w2 = glm::dot(w, w);
     float c = w2 - r * r;
     if (c < 0) {// agents are colliding
-        //return 0;
-        float smaller = (i->r > j->r ? j->r : i->r);
+        //return 0; //original
+
         //as per Stephen Guy's suggestion; halve the radii when colliding
-        //as per Caleb Biasco's suggestionl; use the smallest radii, not both
+        //as per Caleb Biasco's suggestion; use the smallest radii, not both
+        float smaller = (i->r > j->r ? j->r : i->r);
         r -= smaller;
         c = w2 - r * r;
     }
 
     glm::vec2 v = iv - jv;
     float a = glm::dot(v, v);
-    float b = glm::dot(w, v);
+    float b = - glm::dot(w, v);
     float d = b*b - a*c;
-    if (d <= 0)
+    if (d <= 0)//improper solution
         return std::numeric_limits<float>::max();
 
     float tau = (b - sqrt(d)) / a;
-    if (tau < 0)
+    if (tau < 0)//ttc is in the past
         return std::numeric_limits<float>::max();
 
     return tau;
 }
 
-//TODO dalton
-float LMP::ttc_(Rect * /*i*/, glm::vec2 /*iv*/, Rect * /*j*/, glm::vec2 /*jv*/) {
-    //glm::vec2 o = j->o - i->o;
-    //glm::vec2 v = iv - jv;
-    //float w = i->w / 2 + j->w / 2;
-    //float h = i->h / 2 + j->h / 2;
+//finds the ttc via a component analysis of the velocity vectors
+float LMP::ttc_(Rect * i, glm::vec2 iv, Rect * j, glm::vec2 jv) {
+    float dim_x = i->w + j->w;
+    float dim_y = i->h + j->h;
+    
+    float dv_x = jv.x - iv.x;
+    float dv_y = jv.y - iv.y;
+    
+    float do_x = j->o.x - i->o.x;
+    float do_y = j->o.y - i->o.y;
+    
+    float t_x_hi = (dim_x - do_x) / dv_x;
+    float t_y_hi = (dim_y - do_y) / dv_y;
 
-    //[top; bot] ~ tau
-    //float top = (w - o.x) / v.x;
-    //float bot = (h - o.y) / v.y;
+    float t_x_lo = (-dim_x - do_x) / dv_x;
+    float t_y_lo = (-dim_y - do_y) / dv_y;
 
-    //if ()
-    return 0;
+    if (t_x_hi < t_y_lo || t_x_lo > t_y_hi)//no collision past or present
+        return std::numeric_limits<float>::max();
+    else {
+        float t_lo = (t_x_lo > t_y_lo ? t_x_lo : t_y_lo);
+        float t_hi = (t_x_hi > t_y_hi ? t_x_hi : t_y_hi);
+        if (t_hi < 0)//ttc in the past
+            return std::numeric_limits<float>::max();
+        else if (t_lo < 0)
+            return 0; //collision is current
+        else
+            return t_lo;
+    }
 }
 
 //TODO dalton
@@ -199,12 +214,12 @@ glm::vec2 boid_force(Object * a, std::vector<Object *> near_boids) {
     return boid_force;
 }
 
-//needs to be refactored; hopefully I can decouple it from physics
+//TODO: replace NN with spatial search callback
 glm::vec2 LMP::calc_sum_force(Object * a, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic) {
     float speed = 1.0f; // x m/s
     glm::vec2 goal_vel;
 
-    //if there is a plan
+    //if there is a plan, follow it
     if (a->ai.has_plan()) {
         a->ai.goal = LMP::lookahead(a, a->ai.goal);
         goal_vel = (a->ai.goal - a->bv->o) / glm::distance(a->ai.goal, a->bv->o) * (speed /* * dt */);
@@ -247,9 +262,5 @@ glm::vec2 LMP::calc_sum_force(Object * a, std::vector<Object *> NNai, std::vecto
     if (a->ai.has_boid_f())
         boid_F += boid_force(a, NNboids);
 
-    /* TODO dalton: decouple physics integration.
-    apply only the forces to the agents, and don't integrate*/
     return goal_F + ttc_F + boid_F;
 }
-
-
