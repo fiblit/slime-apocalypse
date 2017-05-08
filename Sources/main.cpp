@@ -145,7 +145,6 @@ int main() {
         // Callbacks 
         glfwPollEvents();
         handle_input(game_loop_clock, scene);
-
         //reintegrate
 		//ai::update_agents(ai::std_NNai);
 
@@ -238,7 +237,8 @@ GLFWwindow * init_window_context() {
 void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
     handle_scene->camera->mouse_rotate_camera(UI::cursor_edx, UI::cursor_edy);
     handle_scene->camera->scroll_zoom_camera(UI::d_scroll);
-
+    if (UI::keys[GLFW_KEY_M])
+        scene->generateMoreMaze();
     if (UI::keys[GLFW_KEY_W])
         handle_scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta());
     if (UI::keys[GLFW_KEY_S])

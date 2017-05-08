@@ -9,8 +9,8 @@ Scene::Scene() {
 	// Generate player object
 	playerObject = new  Sphere(0.0, 0.0, 1.0);
 	// Generate static objects (walls, floors, etc.)
-    mazeInfo.height = 30;
-    mazeInfo.width = 30;
+    mazeInfo.height = 10;
+    mazeInfo.width = 10;
     mazeInfo.chanceGennedAlive = .5;
     mazeInfo.cellSize = 10;
     mazeInfo.center = vec3(0, 0, 0);
@@ -70,6 +70,11 @@ void Scene::automatonSimulate() {
         }
         maze = mazeBuffer;
     }
+    for (int i = 0; i < mazeInfo.width; i++) {
+        for (int j = 0; j < mazeInfo.height; j++) {
+            maze[i][j].active = 0;
+        }
+    }
     return;
 }
 
@@ -89,10 +94,10 @@ void Scene::initMaze() {
         maze.push_back(row);
     }
     //player stays at center. should ALWAYS be empty;
-    maze[14][14].filled = 0;
+    maze[(mazeInfo.width/2)][(mazeInfo.height/2)].filled = 0;
     //iterate through Conways game of life a fixed number of times.
     automatonSimulate();
-    maze[14][14].filled = 0;
+    maze[mazeInfo.width/2][mazeInfo.height/2].filled = 0;
     //put the nearby cells that have objects in to the staticObjects vector
     return;
 }
@@ -113,8 +118,32 @@ vec3 Scene::snapToGrid(vec3 pos) {
 //Take the player position and generate maze cells for any cells in the X by X grid surrounding the player that don't
 //have cells generated.
 //TODO: Possibly have it hold on to pre-generated cells, only load static objects associated with cells in nearby area.
+static int test = 0;
 void Scene::generateMoreMaze(){
     vec3 newCenter = snapToGrid(playerObject->dyn.pos);
+    cout << newCenter[0] << ", " << newCenter[1]  << endl;
+    switch (test) {
+        case 0:
+            newCenter[0] += mazeInfo.cellSize * 5;
+            test++;
+            cout << "Move Right" << endl;
+            break;
+        case 1:
+            newCenter[0] -= mazeInfo.cellSize * 5;
+            test++;
+            cout << "Move Left" << endl;
+            break;
+        case 2:
+            newCenter[1] += mazeInfo.cellSize * 5;
+            test++;
+            cout << "Move Up" << endl;
+            break;
+        case 3:
+            newCenter[1] -= mazeInfo.cellSize * 5;
+            cout << "Move Down" << endl;
+            test = 0;
+            break;
+    }
     //Determine how many cells the player has moved and shift the cells in the maze to match. Toss out any on the edge and generate new ones on the opposite edge
     //Convert from world coordinates to estimates
 
@@ -127,7 +156,7 @@ void Scene::generateMoreMaze(){
         vec3 gridEnemyPos = snapToGrid(enemyObjects[idx]->dyn.pos);
         float xDist = abs(newCenter[0] - gridEnemyPos[0]);
         float yDist = abs(newCenter[1] - gridEnemyPos[1]);
-        if (xDist > 15 || yDist > 15) {
+        if (xDist > mazeInfo.width/2 || yDist > mazeInfo.height / 2) {
             enemyObjects.erase(enemyObjects.begin() + idx);
             enemyObjectCount--;
             //TODO: Generate New Enemy Object
@@ -139,51 +168,71 @@ void Scene::generateMoreMaze(){
 
     //shift the cells to match the new player center
     if (gridMoves[0] < 0) {
-        for (size_t i = maze.size() - 1 + gridMoves[0]; i >= 0; i--) {
-            maze[i] = maze[i - gridMoves[0]];
+        int rightShift = -1 * gridMoves[0];
+        for (int i = (maze.size() - rightShift - 1); i >= 0; i--) {
+            maze[i - gridMoves[0]] = maze[i];
         }
     }
     else if (gridMoves[0] > 0){
-        size_t shiftUpTo = maze.size() - gridMoves[0];
-        for (size_t i = 0; i < shiftUpTo; i++) {
+        for (size_t i = 0; i < maze.size() - gridMoves[0]; i++) {
             maze[i] = maze[i + gridMoves[0]];
         }
     }
     if (gridMoves[1] < 0) {
         for (size_t i = 0; i < maze.size(); i++) {
-            for (size_t j = maze[i].size() - 1 + gridMoves[1]; j >= 0; j--) {
-                maze[i][j] = maze[i][j - gridMoves[1]];
+            for (int j = (maze[i].size() + gridMoves[1] - 1); j >= 0; j--) {
+                maze[i][j - gridMoves[0]] = maze[i][j];
             }
         }
     }
     else if (gridMoves[1] > 0){
         for (size_t i = 0; i < maze.size(); i++) {
             for (size_t j = 0; j < maze[i].size() - gridMoves[1]; j++) {
-                maze[i][j] = maze[i][j + gridMoves[1]];
+                maze[i][j] = maze[i][j + +gridMoves[1]];
             }
         }
     }
+
+
     //generate new columns and rows.
-    size_t xIterator = gridMoves[0] / abs(gridMoves[0]);
-    size_t yIterator = gridMoves[1] / abs(gridMoves[1]);
-    size_t xIdx = (maze.size() + gridMoves[0]) % maze.size() - 1;
-    size_t yIdx = (maze[0].size() + gridMoves[1]) % maze[0].size() - 1;
-    //update horizontal rows with newly generated cells
-    while (xIdx >= 0 && xIdx < maze.size()) {
-        for (size_t y = 0; y < maze[xIdx].size(); y++) {
-            maze[xIdx][y].active = 1;
-            maze[xIdx][y].filled = (((float)rand()) > mazeInfo.chanceGennedAlive) ? 1 : 0;
+    int xIterator = 0; 
+    int yIterator = 0;
+    if (gridMoves[0] != 0) {
+        xIterator = gridMoves[0] / abs(gridMoves[0]);
+        size_t xIdx = (maze.size() - gridMoves[0]) % maze.size();
+        if (xIterator < 0) xIdx += xIterator;
+        cout << xIdx << " " << xIterator << endl;
+        //update horizontal rows with newly generated cells
+        while (xIdx >= 0 && xIdx < maze.size()) {
+            for (size_t y = 0; y < maze[xIdx].size(); y++) {
+                maze[xIdx][y].active = 1;
+                maze[xIdx][y].filled = (((float)rand())/RAND_MAX > mazeInfo.chanceGennedAlive) ? 1 : 0;
+            }
+            xIdx += xIterator;
         }
-        xIdx += xIterator;
     }
-    //update vertical rows 
-    while (yIdx >= 0 && yIdx < maze[0].size()) {
-        for (size_t x = 0; x < maze.size(); x++) {
-            maze[x][yIdx].active = 1;
-            maze[x][yIdx].filled = (((float)rand()) > mazeInfo.chanceGennedAlive) ? 1 : 0;
+    if (gridMoves[1] != 0) {
+        yIterator = gridMoves[1] / abs(gridMoves[1]);
+        size_t yIdx = (maze[0].size() - gridMoves[1]) % maze[0].size();
+        if (yIterator < 0) yIdx += yIterator;
+        cout << yIdx << " " << yIterator << endl;
+        //update vertical rows 
+        while (yIdx >= 0 && yIdx < maze[0].size()) {
+            for (size_t x = 0; x < maze.size(); x++) {
+                maze[x][yIdx].active = 1;
+                maze[x][yIdx].filled = (((float)rand())/RAND_MAX > mazeInfo.chanceGennedAlive) ? 1 : 0;
+            }
+            yIdx += yIterator;
         }
-        yIdx += yIterator;
     }
+    cout << "Maze active:" << endl;
+    for (int i = mazeInfo.height - 1; i >= 0; i--) {
+        for (int j = 0; j < mazeInfo.width; j++) {
+            cout << maze[j][i].filled << ",";
+        }
+        cout << endl;
+    }
+    cout << "End Maze" << endl;
     //run the simulation with the new active cells
     automatonSimulate();
 
