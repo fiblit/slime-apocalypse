@@ -17,7 +17,9 @@ namespace G {
 			FORWARD,
 			BACKWARD,
 			LEFT,
-			RIGHT
+			RIGHT,
+			UPWARD,
+			DOWNWARD
 		};
 
 		// Default camera values
@@ -98,6 +100,10 @@ public:
 			this->pos -= this->right * fspeed;
 		if (direction == G::CAMERA::RIGHT)
 			this->pos += this->right * fspeed;
+		if (direction == G::CAMERA::UPWARD)
+			this->pos += this->up * fspeed;
+		if (direction == G::CAMERA::DOWNWARD)
+			this->pos -= this->up *fspeed;
 	}
 
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.

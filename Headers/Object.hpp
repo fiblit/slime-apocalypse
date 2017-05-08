@@ -5,12 +5,15 @@
 #include <algorithm> // min, max
 #include "Structs.hpp"
 #include "BoundingVolume.hpp"
+#include "Mesh.hpp"
 
 #pragma warning(push, 0)
 #pragma warning(disable: 4055)
 #include <glad/glad.h>
 #pragma warning(disable: 4201)
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #pragma warning(pop)
 
 class Object {
@@ -37,8 +40,7 @@ public:
 
 	virtual void construct() = 0;
 
-    //TODO; use a Mesh
-	void render(bufferContainer bc);
+	void draw(Shader * shader);
 
 	// Member variables
     BoundingVolume * bv;
@@ -47,13 +49,9 @@ public:
 
 	glm::vec3 params;
 	glm::vec3 color = glm::vec3(0, 0, 1);
-	bool sphere; //this seems... not right
 
 	// Rendering variables
-	std::vector<glm::vec3> vertices;
-	std::vector<glm::vec3> colors;
-	std::vector<glm::vec3> normals;
-	std::vector<GLuint> faces;
+	Mesh * mesh;
 };
 
 #endif // OBJECT_H_GUARD

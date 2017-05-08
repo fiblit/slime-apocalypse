@@ -25,7 +25,8 @@
 enum shaderNames {
 	TEXTURE,
 	FLAT,
-	LIGHT
+	LIGHT,
+	TEST
 };
 
 class Scene {
@@ -52,6 +53,7 @@ public:
 	void enableTextureShader();
 	void enableFlatShader();
 	void enableLightShader();
+	void enableTestShader();
 
     void toggle_flashlight();
 
@@ -60,10 +62,8 @@ public:
 	std::vector<Object *> staticObjects;
 	//PRM prm;
 
-    //TODO remove when mesh is added
-	bufferContainer bc;
-
-	std::unordered_map<shaderNames, mcl::Shader *> shaders;
+	Shader * curShader;
+	std::unordered_map<shaderNames, Shader *> shaders;
 
 	Camera * camera;
 

@@ -1,7 +1,5 @@
 #include "main.hpp"
 
-using namespace mcl;
-
 int main() {
     GLFWwindow * window = init_window_context();
     if (window == nullptr)
@@ -30,21 +28,11 @@ int main() {
     lamp_shader->init_from_files(
         ((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.vert").c_str(),
         ((std::string)PROJECT_SOURCE_DIR + "/Shaders/lamp.frag").c_str());
-
-
-	/* Objects */
-	glGenVertexArrays(1, &scene->bc.scene_vao);
-
-    glGenBuffers(1, &scene->bc.position_vbo);
-	glGenBuffers(1, &scene->bc.colors_vbo);
-	glGenBuffers(1, &scene->bc.normals_vbo);
-	glGenBuffers(1, &scene->bc.faces_ibo);
-	glGenBuffers(1, &scene->bc.edges_ibo);
-
-    glBindVertexArray(scene->bc.scene_vao);
-    //vertexAttribs go here?
-    glBindVertexArray(0);
-
+	Shader * test_shader = new Shader();
+	scene->shaders[TEST] = test_shader;
+	test_shader->init_from_files(
+		((std::string)PROJECT_SOURCE_DIR + "/Shaders/test.vert").c_str(),
+		((std::string)PROJECT_SOURCE_DIR + "/Shaders/test.frag").c_str());
 
 	/* Load textures */
 	/*GLenum tex_format;
@@ -99,26 +87,16 @@ int main() {
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        scene->enableLightShader();
-        //it might be a real pain to get specific textures to objects via this singular VAO method
-		glBindVertexArray(scene->bc.scene_vao);
+		// currently must enable shader every frame to update view matrix; easily fixed
+		scene->enableTestShader();
+        
 		scene->render();
-        glBindVertexArray(0);
 
 		// Swap the Double Buffer
 		glfwSwapBuffers(window);
     }
 	
 	D(std::cout << std::endl << "Exiting Game Loop..." << std::endl << std::endl);
-	
-
-	// Properly de-allocate all resources once they've outlived their purpose
-	glDeleteVertexArrays(1, const_cast<GLuint *>(&scene->bc.scene_vao));
-	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.position_vbo));
-	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.colors_vbo));
-	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.normals_vbo));
-	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.faces_ibo));
-	glDeleteBuffers(1, const_cast<GLuint *>(&scene->bc.edges_ibo));
 
 	/* Exit */
     return kill_app(EXIT_SUCCESS);
@@ -183,7 +161,10 @@ GLFWwindow * init_window_context() {
 
 void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
     handle_scene->camera->mouse_rotate_camera(UI::cursor_edx, UI::cursor_edy);
+	UI::cursor_edx = 0;
+	UI::cursor_edy = 0;
     handle_scene->camera->scroll_zoom_camera(UI::d_scroll);
+	UI::d_scroll = 0;
 
     if (UI::keys[GLFW_KEY_W])
         handle_scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta());
@@ -193,6 +174,10 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
         handle_scene->camera->translate_camera(G::CAMERA::LEFT, clock->delta());
     if (UI::keys[GLFW_KEY_D])
         handle_scene->camera->translate_camera(G::CAMERA::RIGHT, clock->delta());
+	if (UI::keys[GLFW_KEY_E])
+		handle_scene->camera->translate_camera(G::CAMERA::UPWARD, clock->delta());
+	if (UI::keys[GLFW_KEY_Q])
+		handle_scene->camera->translate_camera(G::CAMERA::DOWNWARD, clock->delta());
 
     if (UI::keys[GLFW_KEY_P]) {
         UI::keys[GLFW_KEY_P] = false;
@@ -208,7 +193,7 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
 int kill_app(int retVal) {
     glfwTerminate();
     std::cout << std::endl << "Application Terminated. With exit value: " << retVal << std::endl;
-    D(slow_print(50, 300, "\n\nGoodbye..."));
-    D(slow_print(150, 500, "OK"));
+    //D(slow_print(50, 300, "\n\nGoodbye..."));
+    //D(slow_print(150, 500, "OK"));
     return retVal;
 }
