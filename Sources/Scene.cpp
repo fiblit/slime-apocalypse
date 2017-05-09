@@ -94,7 +94,6 @@ void Scene::fillStaticObjVector() {
             maze[i][j].active = 0;
         }
     }
-
 }
 //use a cellular Automaton algorithm to initialize the maze.
 //generate a randomly initialized grid and run through a fixed number of interations of the automaton algorithm
@@ -129,10 +128,16 @@ vec3 Scene::snapToGrid(vec3 pos) {
     float yLow = (int)(pos[1] / mazeInfo.cellSize) * mazeInfo.cellSize;
     if (yLow < 0) yLow = yLow - mazeInfo.cellSize;
     float yHigh = yLow + mazeInfo.cellSize;
+    
+    float zLow = (int)(pos[2] / mazeInfo.cellSize) * mazeInfo.cellSize;
+    if (zLow < 0) zLow = zLow - mazeInfo.cellSize;
+    float zHigh = zLow + mazeInfo.cellSize;
+
     float xSnap = (abs(xLow - pos[0]) < abs(xHigh - pos[0])) ? xLow : xHigh;
     float ySnap = (abs(yLow - pos[1]) < abs(yHigh - pos[1])) ? yLow : yHigh;
+    float zSnap = (abs(zLow - pos[2]) < abs(zHigh - pos[2])) ? zLow : zHigh;
 
-    return vec3(xSnap, ySnap, 0);
+    return vec3(xSnap, ySnap, zSnap);
 }
 
 //Take the player position and generate maze cells for any cells in the X by X grid surrounding the player that don't
@@ -144,13 +149,16 @@ void Scene::generateMoreMaze() {
     if (test == 3) {
         test = 0;
     }
-    playerObject->dyn.pos += vec3(1, 0, 0);
+    playerObject->dyn.pos -= vec3(0, 0, -1);
     vec3 newCenter = snapToGrid(playerObject->dyn.pos);
     //Determine how many cells the player has moved and shift the cells in the maze to match. Toss out any on the edge and generate new ones on the opposite edge
     //Convert from world coordinates to estimates
 
     //trying to convert from worldspace to gridspace. Not sure if float -> int conversion works this way
     glm::ivec3 gridMoves = (newCenter - mazeInfo.center) / mazeInfo.cellSize;
+    cout << gridMoves[0] << "," << gridMoves[1] << ", " << gridMoves[2] << endl;
+    cout << newCenter[0] << "," << newCenter[1] << ", " << newCenter[2] << endl;
+    cout << mazeInfo.center[0] << "," << mazeInfo.center[1] << ", " << mazeInfo.center[2] << endl;
     mazeInfo.center = newCenter;
     //unload enemies that are outside of X by X grid & generate new ones
     int enemyObjectCount = enemyObjects.size();
@@ -158,7 +166,7 @@ void Scene::generateMoreMaze() {
     while (idx < enemyObjectCount) {
         vec3 gridEnemyPos = snapToGrid(enemyObjects[idx]->dyn.pos);
         float xDist = abs(newCenter[0] - gridEnemyPos[0]);
-        float yDist = abs(newCenter[1] - gridEnemyPos[1]);
+        float yDist = abs(newCenter[2] - gridEnemyPos[2]);
         if (xDist > mazeInfo.width / 2 || yDist > mazeInfo.height / 2) {
             enemyObjects.erase(enemyObjects.begin() + idx);
             enemyObjectCount--;
@@ -181,17 +189,18 @@ void Scene::generateMoreMaze() {
             maze[i] = maze[i + gridMoves[0]];
         }
     }
-    if (gridMoves[1] < 0) {
-        for (size_t i = 0; i < maze.size(); i++) {
-            for (int j = (maze[i].size() + gridMoves[1] - 1); j >= 0; j--) {
-                maze[i][j - gridMoves[0]] = maze[i][j];
+    if (gridMoves[2] < 0) {
+        int downShift = -1 * gridMoves[2];
+        for (int i = 0; i < maze.size(); i++) {
+            for (int j = (maze[i].size() - downShift - 1); j >= 0; j--) {
+                maze[i][j - gridMoves[2]] = maze[i][j];
             }
         }
     }
-    else if (gridMoves[1] > 0){
+    else if (gridMoves[2] > 0){
         for (size_t i = 0; i < maze.size(); i++) {
-            for (size_t j = 0; j < maze[i].size() - gridMoves[1]; j++) {
-                maze[i][j] = maze[i][j + +gridMoves[1]];
+            for (size_t j = 0; j < maze[i].size() - gridMoves[2]; j++) {
+                maze[i][j] = maze[i][j + gridMoves[2]];
             }
         }
     }
@@ -212,9 +221,9 @@ void Scene::generateMoreMaze() {
             xIdx += xIterator;
         }
     }
-    if (gridMoves[1] != 0) {
-        yIterator = gridMoves[1] / abs(gridMoves[1]);
-        size_t yIdx = (maze[0].size() - gridMoves[1]) % maze[0].size();
+    if (gridMoves[2] != 0) {
+        yIterator = gridMoves[2] / abs(gridMoves[2]);
+        size_t yIdx = (maze[0].size() - gridMoves[2]) % maze[0].size();
         if (yIterator < 0) yIdx += yIterator;
         //update vertical rows 
         while (yIdx >= 0 && yIdx < maze[0].size()) {
