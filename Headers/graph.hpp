@@ -13,6 +13,9 @@ public:
 	std::vector<Node<T> *> * edges;
     Node(T item, std::vector<Node<T> *> * edges);
     Node(T item, int n, Node<T> * edges);
+    ~Node() {
+        delete edges;
+    };
 };
 
 template <class T>
@@ -23,6 +26,11 @@ public:
 	/* TODO: change to unordered_set for fast lookup, yet easy  ---iteration--- <nope> */
 	std::vector<Node<T> *> * vertices;
     Graph();
+    ~Graph() {
+        for (size_t i = 0; i < vertices.size(); i++)
+            delete vertices[i];
+        delete vertices;
+    };
     void add_vertex(Node<T> * v);
     void add_directed_edge(Node<T> * v, Node<T> * u);
     void add_edge(Node<T> * v, Node<T> * u);
@@ -52,7 +60,6 @@ void Graph<T>::add_edge(Node<T> * v, Node<T> * u) {
     //todo: check that u and v are in vertices
     this->add_directed_edge(v, u);
     this->add_directed_edge(u, v);
-    this->all_edges->push_back(std::pair<Node<T> *, Node<T> *>(u, v));
 }
 
 

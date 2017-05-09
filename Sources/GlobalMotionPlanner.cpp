@@ -18,8 +18,8 @@ VecPoint * GMP::find_path_Astar(float e, Graph<glm::vec2> * roadmap) {
     
     //init start/goal
     VecPoint verts = *(roadmap->vertices);
-    Vert start = verts[0];//TODO: fix this hack IMMEDIATELY
-    Vert goal = verts[1];
+    Vert start = verts[verts.size() - 2];
+    Vert goal = verts[verts.size() - 1];
 
     //init PQ
     auto cmp = [](PQ_item l, PQ_item r) { return l.second  > r.second; }; //normally <
@@ -76,12 +76,30 @@ void GMP::replan(std::vector<Object *> agents, Gtime::Timer * clock) {
     clock->play();
 }
 
+static void connect_to_all(Graph<glm::vec2> * rm, glm::vec2 p, Cspace2D * cspace) {
+    rm->add_vertex(new Node<glm::vec2>(p, new VecPoint()));
+    for (size_t i = 0; i < rm->vertices->size(); i++) {
+        if (cspace->line_of_sight(p, (*rm->vertices)[i]->data)) {
+            rm->add_edge(rm->vertices->back(), (*rm->vertices)[i]);
+        }
+    }
+}
+
 void GMP::plan_one(Object * agent) {
     if (agent->ai.has_indy_f()) {
-        //todo temporarily add to a->ai.prm->roadmap the start/goal nodes
+        //this is to fix the one hack in A*
+        //temporarily add to a->ai.prm->roadmap the start/goal nodes
+        Graph<glm::vec2> * rm_with_goal = agent->ai.prm->roadmap;
+
         //just do an LoS over every node for both
-        //this is to fix the one hack
-        agent->ai.plan = GMP::find_path_Astar(1.f, agent->ai.prm->roadmap);
+        connect_to_all(rm_with_goal, agent->bv->o, agent->ai.cspace);
+        connect_to_all(rm_with_goal, agent->ai.goal, agent->ai.cspace);
+        
+        agent->ai.plan = GMP::find_path_Astar(1.f, rm_with_goal);
+        //remove the added stuff...
+        rm_with_goal->vertices->pop_back();
+        rm_with_goal->vertices->pop_back();
+
         agent->ai.num_done = 0;
     }
 }

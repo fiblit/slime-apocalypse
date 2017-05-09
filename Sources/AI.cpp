@@ -5,17 +5,17 @@ PRM * ai::std_prm;
 BVH * ai::static_bvh;
 BVH * ai::dynamic_bvh;
 
-//todo dalton: replace NN's with every object/the tree struct access
+//todo: figure out how to handle varying size Cspace
 void ai::init(std::vector<Object *> dynamics, std::vector<Object *> statics) {
     //try to only use circ agents(&statics) since I did not expand ttc for rects yet
+    ai::static_bvh = new BVH(statics);
+    ai::dynamic_bvh = new BVH(dynamics);
     if (dynamics.size() > static_cast<size_t>(0)) {
         std::vector<BoundingVolume *> obs_bv;
         for (Object * s : statics)
             obs_bv.push_back(s->bv);
         ai::std_cspace = dynamics[0]->ai.cspace = new Cspace2D(obs_bv, dynamics[0]->bv);
         ai::std_prm = new PRM(/*NNai[0]->bv->o, NNai[0]->bv->o,*/ai::std_cspace);
-        ai::static_bvh = new BVH(statics);
-        ai::dynamic_bvh = new BVH(dynamics);
     }
 }
 
