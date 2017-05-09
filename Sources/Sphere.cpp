@@ -98,7 +98,6 @@ void Sphere::constructStandardMesh(bool override) {
 			indices.push_back(nextSlice + i*slices);
 		}
 	}
-
 	if (override) {
 		standardMesh->vertices = vertices;
 		standardMesh->indices = indices;

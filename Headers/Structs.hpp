@@ -20,6 +20,29 @@ namespace G {
 	const GLboolean WIN_FULLSCREEN = GL_FALSE;
 }
 
+//data container Scene's maze creation algorithm.
+struct mazeData {
+    int height;
+    int width;
+    float cellSize;
+    float chanceGennedAlive;
+    glm::vec3 center;
+};
+
+struct mazeCell {
+    int filled;
+    bool active;
+};
+
+struct bufferContainer {
+	GLuint scene_vao;
+	GLuint position_vbo;
+	GLuint colors_vbo;
+	GLuint faces_ibo;
+	GLuint edges_ibo;
+	GLuint normals_vbo;
+};
+
 //used by any dynamics module (physics & some local motion planning)
 struct dynamics_comp {
     glm::vec3 pos;

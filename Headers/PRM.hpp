@@ -1,7 +1,7 @@
 #ifndef PRM_H_GUARD
 #define PRM_H_GUARD
 
-#include "graph.hpp"
+#include "Graph.hpp"
 #include "BoundingVolume.hpp"
 
 #pragma warning(push, 0)

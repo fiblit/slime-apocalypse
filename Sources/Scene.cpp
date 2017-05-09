@@ -1,41 +1,249 @@
 #include "Scene.hpp"
+#include "debug.hpp"
 
-using glm::vec3;
-using std::vector;
-using std::cout;
-using std::endl;
-using std::min;
-using std::max;
-using std::abs;
+using namespace glm;
+using namespace std;
 
 Scene::Scene() {
     this->camera = new Camera();
-
 	// Generate player object
-    // ?
+	playerObject = new  Sphere(1, 0,0,0);
 	// Generate static objects (walls, floors, etc.)
-
+    mazeInfo.height = 10;
+    mazeInfo.width = 10;
+    mazeInfo.chanceGennedAlive = .5;
+    mazeInfo.cellSize = 10;
+    mazeInfo.center = playerObject->dyn.pos;
+    initMaze();
 	// Generate enemy objects
-
+	for (int i = 0; i < maxEnemies; i++) {
+        
+	}
 	// Generate PRM per Agent's BV type
 }
-
 Scene::~Scene() {
 	if (playerObject)
 		delete playerObject;
-
 	for (size_t i = 0; i < enemyObjects.size(); i++) {
 		delete enemyObjects[i];
 	}
 	enemyObjects.clear();
-
 	for (size_t i = 0; i < staticObjects.size(); i++) {
 		delete staticObjects[i];
 	}
 	staticObjects.clear();
 }
 
-#include "debug.hpp"
+
+int Scene::mod(int num1, int num2) {
+    int r = num1 % num2;
+    return (r < 0) ? r + num2 : r;
+}
+void Scene::automatonSimulate() {
+    int numIterations = 15;
+    for (int a = 0; a < numIterations; a++) {
+        std::vector<std::vector<mazeCell>> mazeBuffer;
+        for (int i = 0; i < mazeInfo.width; i++) {
+            std::vector<mazeCell> bufferRow;
+            for (int j = 0; j < mazeInfo.height; j++) {
+                if (maze[i][j].active) {
+                    int neighbors = 0;
+                    mazeCell cBuffer = {};
+                    cBuffer.active = 1;
+                    
+                    neighbors += maze[mod((i - 1), mazeInfo.width)][mod(j - 1, mazeInfo.height)].filled;
+                    neighbors += maze[mod(i, mazeInfo.width)][mod(j - 1, mazeInfo.height)].filled;
+                    neighbors += maze[mod((i + 1), mazeInfo.width)][mod((j - 1),mazeInfo.height)].filled;
+                    neighbors += maze[mod((i - 1), mazeInfo.width)][mod((j + 1), mazeInfo.height)].filled;
+                    neighbors += maze[mod(i,mazeInfo.width)][mod((j + 1),mazeInfo.height)].filled;
+                    neighbors += maze[mod((i + 1), mazeInfo.width)][mod((j + 1), mazeInfo.height)].filled;
+                    neighbors += maze[mod((i + 1), mazeInfo.width)][mod(j, mazeInfo.height)].filled;
+                    neighbors += maze[mod((i - 1), mazeInfo.width)][mod(j, mazeInfo.height)].filled;
+                    cBuffer.filled = (neighbors <= 1 || neighbors >= 4) ? 0 : 1;
+                    bufferRow.push_back(cBuffer);
+                }
+                else {
+                    bufferRow.push_back(maze[i][j]);
+                }
+            }
+            mazeBuffer.push_back(bufferRow);
+        }
+        maze = mazeBuffer;
+    }
+    for (int i = 0; i < mazeInfo.width; i++) {
+        for (int j = 0; j < mazeInfo.height; j++) {
+            maze[i][j].active = 0;
+        }
+    }
+return;
+}
+
+void Scene::fillStaticObjVector() {
+    for (int i = 0; i < staticObjects.size(); i++) {
+        delete staticObjects[i];
+    }
+    staticObjects.clear();
+    for (size_t i = 0; i < maze.size(); i++) {
+        for (size_t j = 0; j < maze[i].size(); j++) {
+            if (maze[i][j].filled) {
+                float xPos = (i - (mazeInfo.width / 2.0)) * mazeInfo.cellSize;
+                float yPos = (j - (mazeInfo.height / 2.0)) * mazeInfo.cellSize;
+                vec3 pos = mazeInfo.center + vec3(xPos, 0, yPos);
+                addWall(10, mazeInfo.cellSize, mazeInfo.cellSize, pos);
+            }
+            maze[i][j].active = 0;
+        }
+    }
+}
+//use a cellular Automaton algorithm to initialize the maze.
+//generate a randomly initialized grid and run through a fixed number of interations of the automaton algorithm
+void Scene::initMaze() {
+    mazeInfo.center = playerObject->dyn.pos;
+    //initialize the maze
+    for (int i = 0; i < mazeInfo.width; i++) {
+        std::vector<mazeCell> row;
+        for (int j = 0; j < mazeInfo.height; j++) {
+            mazeCell c = {};
+            c.active = 1;
+            float randNum = ((float)rand()) / RAND_MAX;
+            c.filled = (randNum > mazeInfo.chanceGennedAlive) ? 1 : 0;
+            row.push_back(c);
+        }
+        maze.push_back(row);
+    }
+    //player stays at center. should ALWAYS be empty;
+    maze[(mazeInfo.width / 2)][(mazeInfo.height / 2)].filled = 0;
+    //iterate through Conways game of life a fixed number of times.
+    automatonSimulate();
+    maze[mazeInfo.width / 2][mazeInfo.height / 2].filled = 0;
+    fillStaticObjVector();
+    //put the nearby cells that have objects in to the staticObjects vector
+    return;
+}
+//helper function that takes coordinates and returns the nearest grid center coordinate.
+vec3 Scene::snapToGrid(vec3 pos) {
+    float xLow = (int)(pos[0] / mazeInfo.cellSize) * mazeInfo.cellSize;
+    if (xLow < 0) xLow = xLow - mazeInfo.cellSize;
+    float xHigh = xLow + mazeInfo.cellSize;
+    float yLow = (int)(pos[1] / mazeInfo.cellSize) * mazeInfo.cellSize;
+    if (yLow < 0) yLow = yLow - mazeInfo.cellSize;
+    float yHigh = yLow + mazeInfo.cellSize;
+    
+    float zLow = (int)(pos[2] / mazeInfo.cellSize) * mazeInfo.cellSize;
+    if (zLow < 0) zLow = zLow - mazeInfo.cellSize;
+    float zHigh = zLow + mazeInfo.cellSize;
+
+    float xSnap = (abs(xLow - pos[0]) < abs(xHigh - pos[0])) ? xLow : xHigh;
+    float ySnap = (abs(yLow - pos[1]) < abs(yHigh - pos[1])) ? yLow : yHigh;
+    float zSnap = (abs(zLow - pos[2]) < abs(zHigh - pos[2])) ? zLow : zHigh;
+
+    return vec3(xSnap, ySnap, zSnap);
+}
+
+//Take the player position and generate maze cells for any cells in the X by X grid surrounding the player that don't
+//have cells generated.
+//TODO: Possibly have it hold on to pre-generated cells, only load static objects associated with cells in nearby area.
+static int test = 0;
+void Scene::generateMoreMaze() {
+    vec3 newCenter = snapToGrid(playerObject->dyn.pos);
+    //Determine how many cells the player has moved and shift the cells in the maze to match. Toss out any on the edge and generate new ones on the opposite edge
+    //Convert from world coordinates to estimates
+
+    //trying to convert from worldspace to gridspace. Not sure if float -> int conversion works this way
+    glm::ivec3 gridMoves = (newCenter - mazeInfo.center) / mazeInfo.cellSize;
+    /*
+    cout << gridMoves[0] << "," << gridMoves[1] << ", " << gridMoves[2] << endl;
+    cout << newCenter[0] << "," << newCenter[1] << ", " << newCenter[2] << endl;
+    cout << mazeInfo.center[0] << "," << mazeInfo.center[1] << ", " << mazeInfo.center[2] << endl;
+    */
+    mazeInfo.center = newCenter;
+    //unload enemies that are outside of X by X grid & generate new ones
+    int enemyObjectCount = enemyObjects.size();
+    int idx = 0;
+    while (idx < enemyObjectCount) {
+        vec3 gridEnemyPos = snapToGrid(enemyObjects[idx]->dyn.pos);
+        float xDist = abs(newCenter[0] - gridEnemyPos[0]);
+        float yDist = abs(newCenter[2] - gridEnemyPos[2]);
+        if (xDist > mazeInfo.width / 2 || yDist > mazeInfo.height / 2) {
+            enemyObjects.erase(enemyObjects.begin() + idx);
+            enemyObjectCount--;
+            //TODO: Generate New Enemy Object
+        }
+        else {
+            idx++;
+        }
+    }
+
+    //shift the cells to match the new player center
+    if (gridMoves[0] < 0) {
+        int rightShift = -1 * gridMoves[0];
+        for (int i = (maze.size() - rightShift - 1); i >= 0; i--) {
+            maze[i - gridMoves[0]] = maze[i];
+        }
+    }
+    else if (gridMoves[0] > 0){
+        for (size_t i = 0; i < maze.size() - gridMoves[0]; i++) {
+            maze[i] = maze[i + gridMoves[0]];
+        }
+    }
+    if (gridMoves[2] < 0) {
+        int downShift = -1 * gridMoves[2];
+        for (int i = 0; i < maze.size(); i++) {
+            for (int j = (maze[i].size() - downShift - 1); j >= 0; j--) {
+                maze[i][j - gridMoves[2]] = maze[i][j];
+            }
+        }
+    }
+    else if (gridMoves[2] > 0){
+        for (size_t i = 0; i < maze.size(); i++) {
+            for (size_t j = 0; j < maze[i].size() - gridMoves[2]; j++) {
+                maze[i][j] = maze[i][j + gridMoves[2]];
+            }
+        }
+    }
+    //generate new columns and rows.
+    int xIterator = 0; 
+    int yIterator = 0;
+    if (gridMoves[0] != 0) {
+        xIterator = gridMoves[0] / abs(gridMoves[0]);
+        size_t xIdx = (maze.size() - gridMoves[0]) % maze.size();
+        if (xIterator < 0) xIdx += xIterator;
+        cout << xIdx << " " << xIterator << endl;
+        //update horizontal rows with newly generated cells
+        while (xIdx >= 0 && xIdx < maze.size()) {
+            for (size_t y = 0; y < maze[xIdx].size(); y++) {
+                maze[xIdx][y].active = 1;
+                maze[xIdx][y].filled = (((float)rand())/RAND_MAX > mazeInfo.chanceGennedAlive) ? 1 : 0;
+            }
+            xIdx += xIterator;
+        }
+    }
+    if (gridMoves[2] != 0) {
+        yIterator = gridMoves[2] / abs(gridMoves[2]);
+        size_t yIdx = (maze[0].size() - gridMoves[2]) % maze[0].size();
+        if (yIterator < 0) yIdx += yIterator;
+        //update vertical rows 
+        while (yIdx >= 0 && yIdx < maze[0].size()) {
+            for (size_t x = 0; x < maze.size(); x++) {
+                maze[x][yIdx].active = 1;
+                maze[x][yIdx].filled = (((float)rand())/RAND_MAX > mazeInfo.chanceGennedAlive) ? 1 : 0;
+            }
+            yIdx += yIterator;
+        }
+    }
+    //run the simulation with the new active cells
+    automatonSimulate();
+    //add the Objects 
+    fillStaticObjVector();
+
+    //add PRM nodes that exist in newly generated maze area
+
+    //re-run pathfinding algorithms
+    return;
+}
+
+
+
 void Scene::addEnemyObject(float r, float x, float y, float z) {
 	// Instantiate an enemy object
 	Sphere * enemy = new Sphere(r, x, y, z);
@@ -48,12 +256,31 @@ void Scene::addWall(float h, float x1, float x2, float z1, float z2) {
 	// Instantiate a wall object
 	Cube * wall = new Cube(abs(x1-x2), abs(z1-z2), h, (x1+x2)/2, 0.0, (z1+z2)/2);
 
-	// Add instantiated object to staticObjects vector
-	staticObjects.push_back(wall);
+    // Add instantiated object to staticObjects vector
+    staticObjects.push_back(wall);
 
-	// Modify and/or rebuild PRM
-	// ???
+    // Modify and/or rebuild PRM
+    // ???
 }
+
+void Scene::addWall(float h, float w, float l, vec3 center) {
+    // Instantiate a wall object
+    Cube * wall = new Cube(w, l, h, center);
+
+    // Add instantiated object to staticObjects vector
+    staticObjects.push_back(wall);
+
+    // Modify and/or rebuild PRM
+    // ???
+}
+
+void Scene::addCylinder(float h, float r, float x, float y){
+	//Instantiate Cylinder
+	
+	//Add object to staticObjects vector
+	
+}
+
 
 void Scene::setPlayerColor(float r, float g, float b) {
 	setPlayerColor(vec3(r, g, b));
@@ -256,6 +483,7 @@ void Scene::setupTestingObjects() {
 	addWall(3, -3, -3, -1, 3);*/
 
 	// enemies
+    /*
 	addEnemyObject(1, -10, 0, 0);
 	addEnemyObject(1, 0, 0, -10);
 	addEnemyObject(1, 10, 0, 0);
@@ -265,7 +493,7 @@ void Scene::setupTestingObjects() {
 	addWall(2, 5, 7, -7, 7);
 	addWall(2, -7, 7, 5, 7);
 	addWall(2, -7, -5, -7, 7);
-
+    */
 	playerObject = new Sphere(1, 0, 0, 0);
 }
 

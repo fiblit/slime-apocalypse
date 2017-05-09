@@ -88,7 +88,8 @@ int main() {
         // Callbacks 
         glfwPollEvents();
         handle_input(game_loop_clock, scene);
-
+        double xPos;
+        double yPos;
         //reintegrate
 		//ai::update_agents(ai::std_NNai);
 
@@ -142,7 +143,7 @@ GLFWwindow * init_window_context() {
     D(OK());
 
     /* Define callbacks */
-    D(std::cout << "Setting Callbacks...");
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     glfwSetKeyCallback(window, key_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -165,8 +166,6 @@ GLFWwindow * init_window_context() {
     D(OK());
 
     glEnable(GL_DEPTH_TEST);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
     return window;
 }
 
@@ -177,6 +176,22 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
     handle_scene->camera->scroll_zoom_camera(UI::d_scroll);
 	UI::d_scroll = 0;
 
+    if (UI::keys[GLFW_KEY_UP]) {
+        scene->playerObject->dyn.pos += glm::vec3(0, 0, -1);
+        scene->generateMoreMaze();
+    }
+    if (UI::keys[GLFW_KEY_DOWN]) {
+        scene->playerObject->dyn.pos += glm::vec3(0, 0, 1);
+        scene->generateMoreMaze();
+    }
+    if (UI::keys[GLFW_KEY_LEFT]) {
+        scene->playerObject->dyn.pos += glm::vec3(-1, 0, 0);
+        scene->generateMoreMaze();
+    }
+    if (UI::keys[GLFW_KEY_RIGHT]) {
+        scene->playerObject->dyn.pos += glm::vec3(1, 0, 0);
+        scene->generateMoreMaze();
+    }
     if (UI::keys[GLFW_KEY_W])
         handle_scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta());
     if (UI::keys[GLFW_KEY_S])
