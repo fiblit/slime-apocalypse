@@ -121,7 +121,7 @@ public:
 		if (constrainPitch)
 			this->pitch = glm::max(-89.0f, glm::min(89.0f, this->pitch));
 
-		// Update Front, Right and Up Vectors using the updated Eular angles
+		// Update Front, Right and Up Vectors using the updated Euler angles
 		this->updateCameraVectors();
 	}
 

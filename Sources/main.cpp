@@ -88,6 +88,8 @@ int main() {
         // Callbacks 
         glfwPollEvents();
         handle_input(game_loop_clock, scene);
+        double xPos;
+        double yPos;
         //reintegrate
 		//ai::update_agents(ai::std_NNai);
 
@@ -141,7 +143,7 @@ GLFWwindow * init_window_context() {
     D(OK());
 
     /* Define callbacks */
-    D(std::cout << "Setting Callbacks...");
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glfwSetKeyCallback(window, key_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -163,9 +165,7 @@ GLFWwindow * init_window_context() {
     glViewport(0, 0, width, height);
     D(OK());
 
-    glEnable(GL_DEPTH_TEST);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
+    glEnable(GL_DEPTH_TES
     return window;
 }
 
