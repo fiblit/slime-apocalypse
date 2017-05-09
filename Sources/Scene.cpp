@@ -9,8 +9,8 @@ Scene::Scene() {
 	// Generate player object
 	playerObject = new  Sphere(1, 0,0,0);
 	// Generate static objects (walls, floors, etc.)
-    mazeInfo.height = 30;
-    mazeInfo.width = 30;
+    mazeInfo.height = 10;
+    mazeInfo.width = 10;
     mazeInfo.chanceGennedAlive = .5;
     mazeInfo.cellSize = 10;
     mazeInfo.center = playerObject->dyn.pos;
@@ -145,11 +145,6 @@ vec3 Scene::snapToGrid(vec3 pos) {
 //TODO: Possibly have it hold on to pre-generated cells, only load static objects associated with cells in nearby area.
 static int test = 0;
 void Scene::generateMoreMaze() {
-    test++;
-    if (test == 3) {
-        test = 0;
-    }
-    playerObject->dyn.pos -= vec3(0, 0, -1);
     vec3 newCenter = snapToGrid(playerObject->dyn.pos);
     //Determine how many cells the player has moved and shift the cells in the maze to match. Toss out any on the edge and generate new ones on the opposite edge
     //Convert from world coordinates to estimates
