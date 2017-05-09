@@ -25,7 +25,8 @@
 enum shaderNames {
 	TEXTURE,
 	FLAT,
-	LIGHT
+	LIGHT,
+	TEST
 };
 
 class Scene {
@@ -34,11 +35,12 @@ public:
 	virtual ~Scene();
 
 	void addEnemyObject(float r, float x, float y, float z);
-	void addRect(float h, float x1, float y1, float x2, float y2); 
-    void addRect(float h, float w, float l, glm::vec3 center);
+	void addWall(float h, float x1, float y1, float x2, float y2); 
+    void addWall(float h, float w, float l, glm::vec3 center);
 	void addCylinder(float h, float r, float x, float y);
 	void setPlayerColor(float r, float g, float b);
 	void setPlayerColor(glm::vec3 rgb);
+    void fillStaticObjVector();
     void automatonSimulate();
     void initMaze();
     void generateMoreMaze();
@@ -55,6 +57,7 @@ public:
 	void enableTextureShader();
 	void enableFlatShader();
 	void enableLightShader();
+	void enableTestShader();
 
     void toggle_flashlight();
 
@@ -68,12 +71,14 @@ public:
 	//PRM prm;
 
 	bufferContainer bc;
-
-    std::unordered_map<shaderNames, mcl::Shader *> shaders;
-    Camera * camera;
-private:
     glm::vec3 snapToGrid(glm::vec3 position);
     int mod(int num1, int num2);
+    //wouldn't it be better to attach a shader to each object?
+	Shader * curShader;
+	std::unordered_map<shaderNames, Shader *> shaders;
+
+	Camera * camera;
+
 	/* lighting */
 	glm::vec3 light_diffuse = glm::vec3(0.5f, 0.5f, 0.5f); // Decrease the influence
 	glm::vec3 light_ambient = glm::vec3(0.05f, 0.05f, 0.05f); // Low influence

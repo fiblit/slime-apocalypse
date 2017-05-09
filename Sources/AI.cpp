@@ -26,5 +26,8 @@ void ai::update_agents(std::vector<Object *> agents) {
     for (Object * a : agents) {
         glm::vec2 f2d = LMP::calc_sum_force(a, ai::std_NNai, ai::std_NNboids, ai::std_NNstatic);
         a->dyn.force += glm::vec3(f2d.x, 0, f2d.y);
+
+        //if indy_f; check if they need to replan by themselves 
+        //GMP::replan is for replanning EVERY agent
     }
 }

@@ -7,10 +7,10 @@ using namespace std;
 Scene::Scene() {
     this->camera = new Camera();
 	// Generate player object
-	playerObject = new  Sphere(0.0, 0.0, 1.0);
+	playerObject = new  Sphere(1, 0,0,0);
 	// Generate static objects (walls, floors, etc.)
-    mazeInfo.height = 10;
-    mazeInfo.width = 10;
+    mazeInfo.height = 30;
+    mazeInfo.width = 30;
     mazeInfo.chanceGennedAlive = .5;
     mazeInfo.cellSize = 10;
     mazeInfo.center = vec3(0, 0, 0);
@@ -78,9 +78,28 @@ void Scene::automatonSimulate() {
     return;
 }
 
+void Scene::fillStaticObjVector() {
+    for (int i = 0; i < staticObjects.size(); i++) {
+        delete staticObjects[i];
+    }
+    staticObjects.clear();
+    for (size_t i = 0; i < maze.size(); i++) {
+        for (size_t j = 0; j < maze[i].size(); j++) {
+            if (maze[i][j].filled) {
+                float xPos = (i - (mazeInfo.width / 2)) * mazeInfo.cellSize;
+                float yPos = (j - (mazeInfo.height / 2)) * mazeInfo.cellSize;
+                vec3 pos = mazeInfo.center - vec3(xPos, 0, yPos);
+                addWall(2, mazeInfo.cellSize, mazeInfo.cellSize, pos);
+            }
+            maze[i][j].active = 0;
+        }
+    }
+
+}
 //use a cellular Automaton algorithm to initialize the maze.
 //generate a randomly initialized grid and run through a fixed number of interations of the automaton algorithm
 void Scene::initMaze() {
+    mazeInfo.center = playerObject->dyn.pos;
     //initialize the maze
     for (int i = 0; i < mazeInfo.width; i++) {
         std::vector<mazeCell> row;
@@ -89,8 +108,6 @@ void Scene::initMaze() {
             c.active = 1;
             float randNum = ((float)rand()) / RAND_MAX;
             c.filled = (randNum > mazeInfo.chanceGennedAlive) ? 1 : 0;
-            Cube * cube = new Cube(vec3(0, 0, 0), 0, 0, 0);
-            staticObjects.push_back(cube);
             row.push_back(c);
         }
         maze.push_back(row);
@@ -100,6 +117,7 @@ void Scene::initMaze() {
     //iterate through Conways game of life a fixed number of times.
     automatonSimulate();
     maze[mazeInfo.width/2][mazeInfo.height/2].filled = 0;
+    fillStaticObjVector();
     //put the nearby cells that have objects in to the staticObjects vector
     return;
 }
@@ -122,30 +140,18 @@ vec3 Scene::snapToGrid(vec3 pos) {
 //TODO: Possibly have it hold on to pre-generated cells, only load static objects associated with cells in nearby area.
 static int test = 0;
 void Scene::generateMoreMaze(){
+    test++;
+    if (test == 3) {
+        test = 0;
+    }
+    else {
+        cout << "skip" << endl;
+        return;
+    }
     vec3 newCenter = snapToGrid(playerObject->dyn.pos);
     cout << newCenter[0] << ", " << newCenter[1]  << endl;
-    switch (test) {
-        case 0:
-            newCenter[0] += mazeInfo.cellSize * 5;
-            test++;
-            cout << "Move Right" << endl;
-            break;
-        case 1:
-            newCenter[0] -= mazeInfo.cellSize * 5;
-            test++;
-            cout << "Move Left" << endl;
-            break;
-        case 2:
-            newCenter[1] += mazeInfo.cellSize * 5;
-            test++;
-            cout << "Move Up" << endl;
-            break;
-        case 3:
-            newCenter[1] -= mazeInfo.cellSize * 5;
-            cout << "Move Down" << endl;
-            test = 0;
-            break;
-    }
+    newCenter[0] += mazeInfo.cellSize * 1;
+    cout << "Move Right" << endl;
     //Determine how many cells the player has moved and shift the cells in the maze to match. Toss out any on the edge and generate new ones on the opposite edge
     //Convert from world coordinates to estimates
 
@@ -227,32 +233,10 @@ void Scene::generateMoreMaze(){
             yIdx += yIterator;
         }
     }
-    cout << "Maze active:" << endl;
-    for (int i = mazeInfo.height - 1; i >= 0; i--) {
-        for (int j = 0; j < mazeInfo.width; j++) {
-            cout << maze[j][i].filled << ",";
-        }
-        cout << endl;
-    }
-    cout << "End Maze" << endl;
     //run the simulation with the new active cells
     automatonSimulate();
     //add the Objects 
-    for (int i = 0; i < staticObjects.size(); i++) {
-        delete staticObjects[i];
-    }
-    staticObjects.clear();
-    for (size_t i = 0; i < maze.size(); i++) {
-        for (size_t j = 0; j < maze[i].size(); j++) {
-            if (maze[i][j].filled) {
-                float xPos = (i - (mazeInfo.width / 2)) * mazeInfo.cellSize;
-                float yPos = (j - (mazeInfo.height / 2)) * mazeInfo.cellSize;
-                vec3 pos = mazeInfo.center - vec3(xPos, yPos, 0);
-                addRect(2, mazeInfo.width, mazeInfo.height, pos);
-            }
-            maze[i][j].active = 0;
-        }
-    }
+    fillStaticObjVector();
 
     //add PRM nodes that exist in newly generated maze area
 
@@ -264,15 +248,15 @@ void Scene::generateMoreMaze(){
 
 void Scene::addEnemyObject(float r, float x, float y, float z) {
 	// Instantiate an enemy object
-	Sphere * enemy = new Sphere(x, y, z, r);
+	Sphere * enemy = new Sphere(r, x, y, z);
 
 	// Add instantiated object to enemyObjects vector
 	enemyObjects.push_back(enemy);
 }
 
-void Scene::addRect(float h, float x1, float y1, float x2, float y2) {
-    // Instantiate a wall object
-    Cube * wall = new Cube((x1 + x2) / 2, (y1 + y2) / 2, abs(x1 - x2), abs(y1 - y2), h);
+void Scene::addWall(float h, float x1, float x2, float z1, float z2) {
+	// Instantiate a wall object
+	Cube * wall = new Cube(abs(x1-x2), abs(z1-z2), h, (x1+x2)/2, 0.0, (z1+z2)/2);
 
     // Add instantiated object to staticObjects vector
     staticObjects.push_back(wall);
@@ -281,9 +265,9 @@ void Scene::addRect(float h, float x1, float y1, float x2, float y2) {
     // ???
 }
 
-void Scene::addRect(float h, float w, float l, vec3 center) {
+void Scene::addWall(float h, float w, float l, vec3 center) {
     // Instantiate a wall object
-    Cube * wall = new Cube(center, w, l, h);
+    Cube * wall = new Cube(w, l, h, center);
 
     // Add instantiated object to staticObjects vector
     staticObjects.push_back(wall);
@@ -358,15 +342,15 @@ void Scene::simulate(GLfloat dt) {
 
 void Scene::render() {
 	// Render the player object
-    this->playerObject->render(this->bc);
+    this->playerObject->draw(curShader);
 
 	// Render each enemy object
     for (Object * o : enemyObjects)
-        o->render(this->bc);
+        o->draw(curShader);
 
 	// Render each static object
 	for (Object * o : staticObjects)
-		o->render(this->bc);
+		o->draw(curShader);
 
 	// Render the UI (if we have one)
 	// maybe if I (dalton) add on dear-imgui later
@@ -378,6 +362,7 @@ void Scene::enableTextureShader() {
 	glm::mat4 model;
 
 	shaders[TEXTURE]->enable();
+	curShader = shaders[TEXTURE];
 
 	/*glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tex_container);
@@ -423,9 +408,9 @@ void Scene::enableTextureShader() {
 void Scene::enableFlatShader() {
 	glm::mat4 proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 100.0f);
 	glm::mat4 view = camera->getView();
-	glm::mat4 model;
 
 	shaders[FLAT]->enable();
+	curShader = shaders[FLAT];
 
 	//glUniform3f(shaders[FLAT]->uniform("material.ambient"), 1.0f, 0.5f, 0.31f);
 	glUniform1f(shaders[FLAT]->uniform("material.shine"), 32.0f);
@@ -457,53 +442,61 @@ void Scene::enableFlatShader() {
 	glUniform1f(shaders[FLAT]->uniform( "spotLight.linear"), 0.045f);
 	glUniform1f(shaders[FLAT]->uniform( "spotLight.quadratic"), 0.0075f);
 
-	glUniformMatrix4fv(shaders[FLAT]->uniform( "proj"), 1, GL_FALSE, glm::value_ptr(proj));
-	glUniformMatrix4fv(shaders[FLAT]->uniform( "view"), 1, GL_FALSE, glm::value_ptr(view));
+	glUniformMatrix4fv(shaders[FLAT]->uniform("proj"), 1, GL_FALSE, glm::value_ptr(proj));
+	glUniformMatrix4fv(shaders[FLAT]->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
 
 	glUniform3f(shaders[FLAT]->uniform("material.diffuse"), 1, 0, 0);
 	glUniform3f(shaders[FLAT]->uniform("material.specular"), 1, 1, 1);
-	model = glm::mat4();
-	//model = glm::translate(model, obj::cube_positions[i]);
-	//model = glm::scale(model, glm::vec3(obj::cube_scale[i]));
-	glUniformMatrix4fv(shaders[FLAT]->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
-	glUniformMatrix4fv(shaders[FLAT]->uniform( "normalMat"), 1, GL_FALSE, glm::value_ptr(glm::transpose(glm::inverse(view * model))));
 }
 
 void Scene::enableLightShader() {
 	glm::mat4 proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 100.0f);
 	glm::mat4 view = camera->getView();
-	glm::mat4 model;
 
 	shaders[LIGHT]->enable();
+	curShader = shaders[LIGHT];
 
-	glUniformMatrix4fv(shaders[LIGHT]->uniform( "proj"), 1, GL_FALSE, glm::value_ptr(proj));
+	glUniformMatrix4fv(shaders[LIGHT]->uniform("proj"), 1, GL_FALSE, glm::value_ptr(proj));
 	glUniformMatrix4fv(shaders[LIGHT]->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
 
 	glUniform3f(shaders[LIGHT]->uniform("lightColor"), light_specular.x, light_specular.y, light_specular.z);
+}
 
-	for (GLuint i = 0; i < 4; i++) {
-		model = glm::mat4();
-		model = glm::translate(model, point_light_positions[i]);
-		model = glm::scale(model, glm::vec3(0.2f));
-		glUniformMatrix4fv(shaders[LIGHT]->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
+void Scene::enableTestShader() {
+	glm::mat4 proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 100.0f);
+	glm::mat4 view = camera->getView();
 
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-	}
+	shaders[TEST]->enable();
+	curShader = shaders[TEST];
+
+	glUniformMatrix4fv(shaders[TEST]->uniform("proj"), 1, GL_FALSE, glm::value_ptr(proj));
+	glUniformMatrix4fv(shaders[TEST]->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
+
+	glUniform3f(shaders[TEST]->uniform("material.diffuse"), 1, 0, 0);
+	glUniform3f(shaders[TEST]->uniform("material.specular"), 1, 1, 1);
+	glUniform1f(shaders[TEST]->uniform("material.shine"), 32.0f);
 }
 
 void Scene::setupTestingObjects() {
 	// walls
-	addRect(2, -5, -6, 5, -8);
-    addRect(3, 3, -8, 5, 8);
-    addRect(1, -5, 6, 3, 8);
-    addRect(3, -3, -3, -1, 3);
+	/*addWall(2, -5, -6, 5, -8);
+	addWall(3, 3, -8, 5, 8);
+	addWall(1, -5, 6, 3, 8);
+	addWall(3, -3, -3, -1, 3);*/
 
 	// enemies
-	addEnemyObject(1, 0, 0, 0);
-	addEnemyObject(1, 2, -2, 0);
-	addEnemyObject(12, -1, 3, 0);
+    /*
+	addEnemyObject(1, -10, 0, 0);
+	addEnemyObject(1, 0, 0, -10);
+	addEnemyObject(1, 10, 0, 0);
+	addEnemyObject(1, 0, 0, 10);
 
-	playerObject = new Sphere(0, -7, 6);
+	addWall(2, -7, 7, -7, -5);
+	addWall(2, 5, 7, -7, 7);
+	addWall(2, -7, 7, 5, 7);
+	addWall(2, -7, -5, -7, 7);
+    */
+	playerObject = new Sphere(1, 0, 0, 0);
 }
 
 void Scene::toggle_flashlight() {
