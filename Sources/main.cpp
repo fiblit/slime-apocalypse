@@ -99,7 +99,7 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// TODO: currently must enable shader every frame to update view matrix; easily fixed
-		scene->enableTestShader();
+		scene->enableFlatShader();
         
 		scene->render();
 
