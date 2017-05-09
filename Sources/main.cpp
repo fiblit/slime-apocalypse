@@ -143,7 +143,7 @@ GLFWwindow * init_window_context() {
     D(OK());
 
     /* Define callbacks */
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     glfwSetKeyCallback(window, key_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -165,7 +165,7 @@ GLFWwindow * init_window_context() {
     glViewport(0, 0, width, height);
     D(OK());
 
-    glEnable(GL_DEPTH_TES
+    glEnable(GL_DEPTH_TEST);
     return window;
 }
 

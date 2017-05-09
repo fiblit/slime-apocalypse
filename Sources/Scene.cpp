@@ -151,9 +151,11 @@ void Scene::generateMoreMaze() {
 
     //trying to convert from worldspace to gridspace. Not sure if float -> int conversion works this way
     glm::ivec3 gridMoves = (newCenter - mazeInfo.center) / mazeInfo.cellSize;
+    /*
     cout << gridMoves[0] << "," << gridMoves[1] << ", " << gridMoves[2] << endl;
     cout << newCenter[0] << "," << newCenter[1] << ", " << newCenter[2] << endl;
     cout << mazeInfo.center[0] << "," << mazeInfo.center[1] << ", " << mazeInfo.center[2] << endl;
+    */
     mazeInfo.center = newCenter;
     //unload enemies that are outside of X by X grid & generate new ones
     int enemyObjectCount = enemyObjects.size();

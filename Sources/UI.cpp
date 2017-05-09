@@ -47,6 +47,9 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     UI::cursor_edy *= UI::cursor_sensitivity;
     last_x = (GLfloat)xpos;
     last_y = (GLfloat)ypos;
+    int height, width;
+    glfwGetWindowSize(window, &width, &height);
+    glfwSetCursorPos(window, width/2, height/2);
 }
 
 void scroll_callback(GLFWwindow * window, double xoffset, double yoffset) {
