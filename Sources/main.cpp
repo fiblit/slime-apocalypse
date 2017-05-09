@@ -191,7 +191,7 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
 		handle_scene->camera->translate_camera(G::CAMERA::DOWNWARD, clock->delta());
 
     if (UI::keys[GLFW_KEY_LEFT_SHIFT])
-        handle_scene->camera->sprint *= 1.01f;
+        handle_scene->camera->sprint *= (1.0 + .15*clock->delta());
 	else
 		handle_scene->camera->sprint = 1.0f;
 
