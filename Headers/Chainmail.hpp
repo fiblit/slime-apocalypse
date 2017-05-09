@@ -12,6 +12,21 @@
 #include <glm/glm.hpp>
 #pragma warning(pop)
 
+/* Taken from http://stackoverflow.com/a/9047696 */
+/* Allows for hashing using ivec2 */
+struct KeyFuncs
+{
+	size_t operator()(const glm::ivec2& k)const
+	{
+		return std::hash<int>()(k.x) ^ std::hash<int>()(k.y);
+	}
+
+	bool operator()(const glm::ivec2& a, const glm::ivec2& b)const
+	{
+		return a.x == b.x && a.y == b.y;
+	}
+};
+
 struct Cuboid {
 	glm::vec3 min;
 	glm::vec3 max;
@@ -48,7 +63,7 @@ public:
 	// Each region is shared between two indices, where the vec2
 	// is (minIndex, maxIndex) to avoid doubling.
 	// TODO: Check performance vs tuples
-	std::unordered_map<glm::ivec2, Cuboid> regions;
+	std::unordered_map<glm::ivec2,Cuboid,KeyFuncs,KeyFuncs> regions;
 
 	int objectDimension;
 	int spaceDimension;
