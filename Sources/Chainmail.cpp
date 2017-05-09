@@ -7,9 +7,36 @@ using glm::vec3;
 using std::min;
 using std::max;
 
-Chainmail::Chainmail() {}
+Chainmail::Chainmail(Mesh * mesh) {
+	for (Vertex v : mesh->vertices) {
+		Element e;
+		e.id = this->elements.size();
+		e.origin = v.Position;
+		e.pos = v.Position;
+		elements.push_back(e);
+	}
 
-Chainmail::~Chainmail(){}
+	for (int i = 0; i < mesh->indices.size(); i += 3) {
+		int idx1 = mesh->indices[i];
+		int idx2 = mesh->indices[i+1];
+		int idx3 = mesh->indices[i+2];
+
+		if (elements[idx1].neighbors.find(idx2) == elements[idx1].neighbors.end()) {
+			elements[idx1].neighbors.insert(idx2);
+			elements[idx2].neighbors.insert(idx1);
+		}
+		if (elements[idx2].neighbors.find(idx3) == elements[idx2].neighbors.end()) {
+			elements[idx2].neighbors.insert(idx3);
+			elements[idx3].neighbors.insert(idx2);
+		}
+		if (elements[idx1].neighbors.find(idx3) == elements[idx1].neighbors.end()) {
+			elements[idx1].neighbors.insert(idx3);
+			elements[idx3].neighbors.insert(idx1);
+		}
+	}
+}
+
+Chainmail::~Chainmail() {}
 
 // Moves an element and readies its neighbors for propogation
 void Chainmail::applyMove(int id, vec3 t) {
@@ -71,10 +98,30 @@ void Chainmail::propogate() {
 }
 
 // Brings the state closer to equilibrium
-void Chainmail::relax() {
+// NOTE: This might be wrong. It's possibly supposed to be sequential,
+// but it's currently implemented as a parallel update.
+void Chainmail::relax(float dt) {
 	// First, generate all relaxation centroids
+	vector<vec3> centroids;
+
+	for (Element e : this->elements) {
+		vector<vec3> Q;
+		for (int i : e.neighbors) {
+			Q.push_back(this->elements[i].pos +
+						 (e.origin - this->elements[i].origin));
+		}
+
+		vec3 c = vec3(0);
+		for (vec3 v : Q)
+			c += v;
+		c /= Q.size();
+		centroids.push_back(c);
+	}
 
 	// Second, push all elements toward their respective centroid
+	for (Element e : this->elements) {
+		e.pos += dt*centroids[e.id];
+	}
 }
 
 // Reverts state variables at the end of the frame
