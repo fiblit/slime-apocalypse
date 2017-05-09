@@ -190,15 +190,10 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
 	if (UI::keys[GLFW_KEY_Q])
 		handle_scene->camera->translate_camera(G::CAMERA::DOWNWARD, clock->delta());
 
-	if (UI::keys[GLFW_KEY_LEFT_SHIFT])
-		handle_scene->camera->sprint *= 1.01;
+    if (UI::keys[GLFW_KEY_LEFT_SHIFT])
+        handle_scene->camera->sprint *= 1.01f;
 	else
-		handle_scene->camera->sprint = 1.0;
-
-    if (UI::keys[GLFW_KEY_P]) {
-        UI::keys[GLFW_KEY_P] = false;
-        GMP::replan(ai::std_NNai, clock);
-    }
+		handle_scene->camera->sprint = 1.0f;
 
     if (UI::keys[GLFW_KEY_F]) {
         UI::keys[GLFW_KEY_F] = false;

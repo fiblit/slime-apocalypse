@@ -2,6 +2,7 @@
 #define LOCAL_MOTION_PLANNER_H_GUARD
 
 #include "BoundingVolume.hpp"
+#include "BVH.hpp"
 #include "Object.hpp"//TODO dalton: try to factor away
 #include "PRM.hpp"//TODO dalton: replace with CSpace2D
 
@@ -22,7 +23,7 @@ namespace LMP {
     glm::vec2 ttc_forces(Object * a, Circ * b, float ttc);
     glm::vec2 ttc_forces(Object * a, Object * b, float ttc);
 
-    glm::vec2 calc_sum_force(Object * a, std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic);
+    glm::vec2 calc_sum_force(Object * a, BVH * static_bvh, BVH * dynamic_bvh, std::vector<Object *> leaders);
 }
 
 #endif//LOCAL_MOTION_PLANNER_H_GUARD

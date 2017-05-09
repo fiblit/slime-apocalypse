@@ -18,7 +18,7 @@ VecPoint * GMP::find_path_Astar(float e, Graph<glm::vec2> * roadmap) {
     
     //init start/goal
     VecPoint verts = *(roadmap->vertices);
-    Vert start = verts[0];
+    Vert start = verts[0];//TODO: fix this hack IMMEDIATELY
     Vert goal = verts[1];
 
     //init PQ
@@ -71,10 +71,17 @@ void GMP::replan(std::vector<Object *> agents, Gtime::Timer * clock) {
     clock->pause();
     /* PATH PLANNING METHOD */
     for (Object * a : agents) {
-        if (a->ai.has_indy_f()) {
-            a->ai.plan = GMP::find_path_Astar(1.f, a->ai.prm->roadmap);
-            a->ai.num_done = 0;
-        }
+        plan_one(a);
     }
     clock->play();
+}
+
+void GMP::plan_one(Object * agent) {
+    if (agent->ai.has_indy_f()) {
+        //todo temporarily add to a->ai.prm->roadmap the start/goal nodes
+        //just do an LoS over every node for both
+        //this is to fix the one hack
+        agent->ai.plan = GMP::find_path_Astar(1.f, agent->ai.prm->roadmap);
+        agent->ai.num_done = 0;
+    }
 }

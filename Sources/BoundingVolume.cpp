@@ -11,6 +11,10 @@ Circ::Circ(glm::vec2 o, float r) {
     this->o = o; this->r = r;
 }
 
+
+//TODO: rect/circ collision could be simplified via:
+//test if point p is in rect such that p is r along the direction from circle to rect
+//note: "along the direction" is not as simple as it sounds, probably not simpler
 std::vector<BoundingVolume *> Circ::minkowskiSum(BoundingVolume * bv) {
     //I wish there was a way I didn't have to check the types..
     Circ* circ = dynamic_cast<Circ*>(bv);

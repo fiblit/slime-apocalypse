@@ -10,6 +10,7 @@ namespace GMP {
     VecPoint * find_path_UCS(Graph<glm::vec2> * roadmap);
     VecPoint * find_path_Astar(float e, Graph<glm::vec2> * roadmap);
     void replan(std::vector<Object *> agents, Gtime::Timer * clock);
+    void plan_one(Object * agent);
 };
 
 #endif//GLOBAL_MOTION_PLANNER_H_GUARD

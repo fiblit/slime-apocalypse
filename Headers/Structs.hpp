@@ -37,7 +37,7 @@ struct ai_comp {
        PACKlings attract PACKlings and BOIDlings
        BOIDlings attract BOIDlings and PACKlings
        INDIE plans independently */
-    enum class Planner {LEAD, PACK, BOID, INDY};
+    enum class Planner {LEAD, PACK, BOID, INDY, NONE};
     Planner method;
 
     //Instead of Node<glm::vec2> *>, this allows more dynamic path planning
@@ -46,11 +46,6 @@ struct ai_comp {
     int num_done;
     std::vector<Node<glm::vec2> *> * plan;
 
-    /*
-    It might be more convenient for me to have a reference to the cspace somehow (like, in the
-    dynamics or collision component). Rather than passing that in as a parameter everywhere.
-    The same would be true for the PRM, however, I'll see what I can do without that step.
-    */
     Cspace2D * cspace;
     PRM * prm;
 
@@ -62,6 +57,9 @@ struct ai_comp {
     };
     bool has_indy_f() {
         return method == ai_comp::Planner::LEAD || method == ai_comp::Planner::INDY;
+    };
+    bool is_agent() {
+        return method != ai_comp::Planner::NONE;
     };
 };
 

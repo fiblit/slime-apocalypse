@@ -6,16 +6,16 @@
 #include "BoundingVolume.hpp"
 #include "GlobalMotionPlanner.hpp"
 #include "LocalMotionPlanner.hpp"
+#include "BVH.hpp"
 
 namespace ai {
     extern Cspace2D * std_cspace;
     extern PRM * std_prm;
     //todo dalton: deprecate the following three in favor of spatial struct
-    extern std::vector<Object *> std_NNai;
-    extern std::vector<Object *> std_NNboids;
-    extern std::vector<Object *> std_NNstatic;
-    void init(std::vector<Object *> NNai, std::vector<Object *> NNboids, std::vector<Object *> NNstatic);
-    void update_agents(std::vector<Object *> agents);
+    extern BVH * static_bvh;
+    extern BVH * dynamic_bvh;
+    void init(std::vector<Object *> dynamics, std::vector<Object *> statics);
+    void update_agents(std::vector<Object *> statics, std::vector<Object *> dynamics, Gtime::Timer * clock);
 };
 
 #endif // AI_H_GUARD
