@@ -7,6 +7,9 @@
 #include <glm/glm.hpp>
 #pragma warning(pop)
 
+#include "graph.hpp"
+#include "PRM.hpp"
+
 /*
 TODO:
 I'm going to split these up into more headers, as sometimes the POD structs/components I make are better
@@ -17,6 +20,7 @@ suited with having functions
 namespace G {
 	const GLint WIN_WIDTH = 1200;
 	const GLint WIN_HEIGHT = 800;
+    //note: WIN_WIDTH and WIN_HEIGHT must match your screen res for fullscreen; else lag
 	const GLboolean WIN_FULLSCREEN = GL_FALSE;
 }
 
@@ -54,8 +58,6 @@ struct dynamics_comp {
     glm::vec3 force;
 };
 
-#include "graph.hpp"
-#include "PRM.hpp"
 //used by the motion planning module (mostly global MP)
 struct ai_comp {
     /* LEADlings attract PACKlings and plan independently
