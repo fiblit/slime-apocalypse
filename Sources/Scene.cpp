@@ -12,7 +12,7 @@ Scene::Scene() {
     mazeInfo.height = 20;
     mazeInfo.width = 20;
     mazeInfo.maxEnemies = 5;
-    mazeInfo.enemySize = 1;
+    mazeInfo.enemySize = 5;
     mazeInfo.chanceGennedAlive = .5;
     mazeInfo.cellSize = 10;
     mazeInfo.center = playerObject->dyn.pos;
@@ -28,11 +28,11 @@ void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
         //We're looking at columns [X][]
         if (colsFlag) {
             int randXGrid = (int)((float)rand()) / RAND_MAX * (start - end);
-            int randYGrid = (int)((float)rand()) / RAND_MAX * mazeInfo.height;
+            int randYGrid = (int)((float)rand()) / RAND_MAX * (mazeInfo.height-1);
             int attempts = 0;
             while (maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && mazeInfo.height / 2) && attempts < 10) {
                 randXGrid = (int)((float)rand()) / RAND_MAX * (start - end);
-                randYGrid = (int)((float)rand()) / RAND_MAX * mazeInfo.height;
+                randYGrid = (int)((float)rand()) / RAND_MAX * (mazeInfo.height-1);
                 attempts++;
             }
         }

@@ -53,7 +53,6 @@ void Chainmail::applyMove(int id, vec3 t) {
 
 // Propogates the changes from elements moving to their neighbors
 void Chainmail::propogate() {
-
 	while (!waiting.empty()) {
 		ivec2 v = waiting.front();
 		waiting.pop_front();
