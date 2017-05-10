@@ -114,8 +114,8 @@ public:
 		xoffset *= this->sensitivity;
 		yoffset *= this->sensitivity;
 
-		this->yaw += xoffset;
-		this->pitch -= yoffset; // += causes an inverted mouse
+		this->yaw -= xoffset;
+		this->pitch += yoffset; // += causes an inverted mouse
 
 		// Make sure that when pitch is out of bounds, screen doesn't get flipped
 		if (constrainPitch)

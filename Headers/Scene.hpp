@@ -66,7 +66,7 @@ public:
 
 	Object *playerObject;
 	float maxEnemies;
-	std::vector<Object *> enemyObjects;
+	std::vector<Slime *> enemyObjects;
 	float maxObstacles;
 	std::vector<Object *> staticObjects;
     mazeData mazeInfo;

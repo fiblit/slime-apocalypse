@@ -308,7 +308,7 @@ void Scene::generateMoreMaze() {
 
 void Scene::addEnemyObject(float r, float x, float y, float z) {
 	// Instantiate an enemy object
-	Sphere * enemy = new Sphere(r, x, y, z);
+	Slime * enemy = new Slime(r, x, y, z);
 
 	// Add instantiated object to enemyObjects vector
 	enemyObjects.push_back(enemy);
@@ -398,6 +398,11 @@ void Scene::simulate(GLfloat dt) {
     //playerObject->dyn.pos += playerObject->dyn.vel * dt;
     playerObject->moveBy(playerObject->dyn.vel * dt);//has side effects of changing dyn->pos
     playerObject->dyn.force = glm::vec3(0);
+
+	// Relax the chainmails
+	for (Slime * o : enemyObjects) {
+		o->simulate(dt);
+	}
 }
 
 void Scene::render() {
@@ -550,7 +555,7 @@ void Scene::toggle_flashlight() {
 }
 
 void Scene::slimeTestMove() {
-    test->moveBy(1, 0, 0, .02);
+    test->moveBy(10, 0, 0, .002);
 }
 
 

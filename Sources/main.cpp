@@ -93,7 +93,7 @@ int main() {
         //reintegrate
 		//ai::update_agents(ai::std_NNai);
 
-        //scene->simulate();
+        scene->simulate(game_loop_clock->delta());
 
 		// Render 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -212,7 +212,7 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
 		handle_scene->camera->translate_camera(G::CAMERA::DOWNWARD, clock->delta());
 
     if (UI::keys[GLFW_KEY_LEFT_SHIFT])
-        handle_scene->camera->sprint *= (1.0 + .15*clock->delta());
+        handle_scene->camera->sprint *= (1.0 + 1.0*clock->delta());
 	else
 		handle_scene->camera->sprint = 1.0f;
 

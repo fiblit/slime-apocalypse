@@ -67,8 +67,6 @@ void Sphere::constructStandardMesh(bool override) {
 		return;
 	}
 
-	int stacks = 10; // TODO: need a way to make these dynamic
-	int slices = 10;
 	vector<Vertex> vertices;
 	vector<GLuint> indices;
 	for (int i = 0; i < stacks; i++) {
