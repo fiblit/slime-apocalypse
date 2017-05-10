@@ -52,6 +52,43 @@ Chainmail::Chainmail(Mesh * mesh, int stacks, int slices, glm::vec3 worldCenter)
             elements[idx3].neighbors.insert(idx1);
         }
     }
+
+    //lattice work for internal structure
+    std::vector<std::vector<int>> internals;
+    for (int i = 0; i < stacks; i++) {
+        for (int j = 0; j < slices; j++) {
+            int idx1 = j + ((stacks - i - 1) * slices);
+            int idx2 = (slices - j) + (i * slices);
+            int idx3 = (slices - j) + ((stacks - i - 1) * slices);
+            int me = j + i * slices;
+            std::vector<int> grouping;
+            grouping.push_back(me);
+            grouping.push_back(idx1);
+            grouping.push_back(idx2);
+            grouping.push_back(idx3);
+            
+            if (idx1 < elements.size() && (glm::distance(elements[idx1].pos, elements[me].pos) > .003) && 
+                (idx1 != me && std::find(elements[idx1].neighbors.begin(), elements[idx1].neighbors.end(), me) != elements[idx1].neighbors.end())) {
+                elements[idx1].neighbors.insert(me);
+                elements[me].neighbors.insert(idx1);
+            }
+            
+            if (idx2 < elements.size() && (glm::distance(elements[idx2].pos, elements[me].pos) > .003) &&
+                (idx2 != me && std::find(elements[idx2].neighbors.begin(), elements[idx2].neighbors.end(), me) != elements[idx2].neighbors.end())) {
+                elements[idx2].neighbors.insert(me);
+                elements[me].neighbors.insert(idx2);
+            }
+            
+            if ((idx3 < elements.size()) && (glm::distance(elements[idx3].pos, elements[me].pos) > .003) &&
+                (idx3 != me && std::find(elements[idx3].neighbors.begin(), elements[idx3].neighbors.end(), me) != elements[idx3].neighbors.end())) {
+                elements[idx3].neighbors.insert(me);
+                elements[me].neighbors.insert(idx3);     
+            }
+            internals.push_back(grouping);
+        }
+        
+    }
+
     generateRegions();
 }
 
