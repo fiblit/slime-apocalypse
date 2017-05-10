@@ -94,6 +94,7 @@ void GMP::plan_one(Object * agent) {
         /* PATH PLANNING METHOD */
         agent->ai.plan = GMP::find_path_Astar(1.f, rm_with_goal);
         //remove the added stuff...
+        //todo: issues***
         rm_with_goal->vertices->pop_back();
         rm_with_goal->vertices->pop_back();
 

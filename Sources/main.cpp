@@ -65,9 +65,9 @@ int main() {
 
     /* Path Planning */
     ai::init(scene->enemyObjects, scene->staticObjects, scene->mazeInfo);
-    //game_loop_clock->pause();
-    //GMP::replan(scene->enemyObjects);
-    //game_loop_clock->play();
+    game_loop_clock->pause();
+    GMP::replan(scene->enemyObjects);
+    game_loop_clock->play();
 
     /* Game Loop */
 	GLfloat fpsTimer = 0;
@@ -91,7 +91,7 @@ int main() {
         handle_input(game_loop_clock, scene);
 
         //AI
-        ai::update_agents(scene->staticObjects, scene->enemyObjects);
+        ai::update_agents(scene->staticObjects, scene->enemyObjects, scene->playerObject);
 
         //Physics
         scene->simulate(game_loop_clock->delta());
@@ -208,7 +208,7 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
 		handle_scene->camera->translate_camera(G::CAMERA::DOWNWARD, clock->delta());
 
     if (UI::keys[GLFW_KEY_LEFT_SHIFT])
-        handle_scene->camera->sprint *= static_cast<GLfloat>(1.0 + .15*clock->delta());
+        handle_scene->camera->sprint *= static_cast<GLfloat>(1.0 + 0.5*clock->delta());
 	else
 		handle_scene->camera->sprint = 1.0f;
 
