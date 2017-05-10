@@ -119,7 +119,7 @@ void Chainmail::applyMove(int id, vec3 t, double dt) {
 
 
 
-        if (elements[randElement].pos.z + worldCoordCenter.z < .000) {
+        if (elements[randElement].pos.z + worldCoordCenter.z < zPlaneCollision) {
             float delta = .003;
             elements[randElement].pos.z = delta;
         }
@@ -187,7 +187,7 @@ void Chainmail::propagate() {
 		}
 		if (e->pos.z < minBounds.z) {
 			e->pos.z = minBounds.z;
-            if (e->pos.z + worldCoordCenter.z < .000) {
+            if (e->pos.z + worldCoordCenter.z < zPlaneCollision) {
                 float delta = .003;
                 e->pos.z = delta;
             }
@@ -195,7 +195,7 @@ void Chainmail::propagate() {
 		}
 		else if (e->pos.z > maxBounds.z) {
 			e->pos.z = maxBounds.z;
-            if (e->pos.z + worldCoordCenter.z < .000) {
+            if (e->pos.z + worldCoordCenter.z < zPlaneCollision) {
                 float delta = .003;
                 e->pos.z = delta;
             }
@@ -238,7 +238,7 @@ void Chainmail::relax(float dt) {
 		vec3 v = centroids[e.id] - e.pos;
         v = (e.origin - e.pos);
 		e.pos += 2*dt*v;
-        if (e.pos.z + worldCoordCenter.z < .000) {
+        if (e.pos.z + worldCoordCenter.z < zPlaneCollision) {
             float delta = .003;
             e.pos.z = delta;
         }

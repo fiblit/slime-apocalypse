@@ -12,7 +12,7 @@ Slime::Slime()  : Sphere(){
 Slime::Slime(float r, float x, float y, float z) : Sphere(r, x, y, z) {
     usingStandardMesh = false;
     useCustomMesh();
-    this->dyn.gravity = glm::vec3(0, 0, -5);
+    this->dyn.gravity = glm::vec3(0, 0, -3);
     deformer = new Chainmail(mesh, stacks, slices, this->dyn.pos);
 }
 
