@@ -61,12 +61,11 @@ int main() {
 	stbi_image_free(image);
 	glBindTexture(GL_TEXTURE_2D, 0);*/
 
-	/* Path Planning */
-    //todo dalton: reintegrate
-	//ai::init(std::vector<BoundingVolume *>(), std::vector<Object *>(), std::vector<Object *>(), std::vector<Object *>());
-	//GMP::replan(ai::std_NNai, game_loop_clock);
-
 	scene->setupTestingObjects();
+
+    /* Path Planning */
+    ai::init(scene->enemyObjects, scene->staticObjects);
+    //GMP::replan(scene->enemyObjects, game_loop_clock);
 
     /* Game Loop */
 	GLfloat fpsTimer = 0;
@@ -91,9 +90,9 @@ int main() {
         double xPos;
         double yPos;
         //reintegrate
-		//ai::update_agents(ai::std_NNai);
+        ai::update_agents(scene->staticObjects, scene->enemyObjects, game_loop_clock);
 
-        //scene->simulate();
+        scene->simulate(game_loop_clock->delta());
 
 		// Render 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
