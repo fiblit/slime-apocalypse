@@ -287,12 +287,12 @@ void Scene::generateMoreMaze() {
     if (gridMoves[0] != 0) {
         int start = (gridMoves[0] < 0) ? 0 : maze.size()-1;
         int end = (gridMoves[0] < 0) ? (-1 * gridMoves[0]) : (maze.size() - 1);
-        fillEnemyVector(start, end, true);
+        //fillEnemyVector(start, end, true);
     }
     else if(gridMoves[2] != 0){
         int start = (gridMoves[2] < 0) ? 0 : maze[0].size() - 1;
         int end = (gridMoves[2] < 0) ? (-1 * gridMoves[2]) : (maze[0].size() - 1);
-        fillEnemyVector(start, end, false);
+        //fillEnemyVector(start, end, false);
 
     }
     //add PRM nodes that exist in newly generated maze area

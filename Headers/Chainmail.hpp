@@ -51,9 +51,10 @@ public:
 	void relax(float dt);
 	void generateRegions();
 	void endFrame();
+    Mesh * updateMesh();
 	/* variables */
 	std::vector<Element> elements; // might be able to make this unordered_map with IDs
-	
+    std::vector<Element *> surfaceElements; //O
 	// Waiting list of elements to be processed.
 	// The first value is the sponsor, the second is the element id.
 	std::deque<glm::ivec2> waiting;
@@ -62,11 +63,11 @@ public:
 	// is (minIndex, maxIndex) to avoid doubling.
 	// TODO: Check performance vs tuples
 	std::unordered_map<glm::ivec2,Cuboid,KeyFuncs,KeyFuncs> regions;
-
 	int objectDimension;
 	int spaceDimension;
 	double aMin; // compression factor
 	double aMax; // stretch factor
 	double b;	 // shear factor
+    Mesh * mesh;
 };
 

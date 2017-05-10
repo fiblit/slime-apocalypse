@@ -6,6 +6,7 @@
 #include "Structs.hpp"
 #include "BoundingVolume.hpp"
 #include "Mesh.hpp"
+#include "Chainmail.hpp"
 
 #pragma warning(push, 0)
 #pragma warning(disable: 4055)
@@ -54,6 +55,7 @@ public:
 
 	// Rendering variables
 	Mesh * mesh;
+    Chainmail * deformer;
 };
 
 #endif // OBJECT_H_GUARD

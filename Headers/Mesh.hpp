@@ -34,7 +34,7 @@ public:
 	void draw(Shader * shader);
 	Mesh * copy();
 	void updateVertices(std::vector<Vertex> vertices);
-
+    void updateNormals();
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 	std::vector<Texture> textures;

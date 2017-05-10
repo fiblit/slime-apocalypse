@@ -80,7 +80,6 @@ public:
 	std::unordered_map<shaderNames, Shader *> shaders;
 
 	Camera * camera;
-
 	/* lighting */
 	glm::vec3 light_diffuse = glm::vec3(0.5f, 0.5f, 0.5f); // Decrease the influence
 	glm::vec3 light_ambient = glm::vec3(0.05f, 0.05f, 0.05f); // Low influence

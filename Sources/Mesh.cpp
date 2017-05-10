@@ -34,6 +34,24 @@ Mesh * Mesh::copy() {
 	return copy;
 }
 
+void Mesh::updateNormals() {
+    for (int i = 0; i < vertices.size(); i++) {
+        vertices[i].Normal = glm::vec3(0, 0, 0);
+    }
+    for (int i = 0; i < indices.size(); i += 3) {
+        glm::vec3 normal;
+        glm::vec3 v1 = vertices[indices[i+1]].Position - vertices[indices[i]].Position;
+        glm::vec3 v2 = vertices[indices[i + 1]].Position - vertices[indices[i + 2]].Position;
+        normal = glm::normalize(glm::cross(v1, v2));
+        vertices[indices[i]].Normal += normal;
+        vertices[indices[i+1]].Normal += normal;
+        vertices[indices[i+2]].Normal += normal;
+    }
+    for (int i = 0; i < vertices.size(); i++) {
+        vertices[i].Normal = glm::normalize(vertices[i].Normal);
+    }
+}
+
 // Careful when using on Mesh that is shared by multiple Objects!
 void Mesh::updateVertices(vector<Vertex> vertices) {
 	this->vertices = vertices;

@@ -17,6 +17,15 @@ Chainmail::Chainmail(Mesh * mesh) {
 		e.origin = v.Position;
 		e.pos = v.Position;
 		elements.push_back(e);
+        /*
+        vector<Vertex> vertices;
+        vector<GLuint> indices;
+        for (int i = 0; i < mesh->indices.size(); i++) {
+            vertices.push_back(mesh->vertices[i]);
+            indices.push_back(mesh->indices[i]);
+        }
+        this->mesh = new Mesh(vertices, indices);
+        */
 	}
 
 	for (int i = 0; i < mesh->indices.size(); i += 3) {
@@ -39,16 +48,34 @@ Chainmail::Chainmail(Mesh * mesh) {
 	}
 }
 
+
+
 Chainmail::~Chainmail() {}
 
 // Moves an element and readies its neighbors for propogation
 void Chainmail::applyMove(int id, vec3 t) {
 	this->elements[id].pos += t;
 	this->elements[id].updated = true;
-	
+
 	for (int i : this->elements[id].neighbors)
 		if (!this->elements[i].updated)
 			waiting.push_back(ivec2(id, i));
+}
+
+Mesh * Chainmail::updateMesh() {
+    vector<Vertex> newVertices;
+    for (int i = 0; i < elements.size(); i++) {
+        Vertex v = {};
+        v.Position = elements[i].pos;
+
+        //DUMMY. TODO: FIX
+        v.Normal = vec3(0, 1, 0);
+        //FIXFIXFIX
+
+        newVertices.push_back(v);
+    }
+    mesh->updateVertices(newVertices);
+    return mesh;
 }
 
 // Propogates the changes from elements moving to their neighbors
@@ -105,7 +132,6 @@ void Chainmail::propogate() {
 void Chainmail::relax(float dt) {
 	// First, generate all relaxation centroids
 	vector<vec3> centroids;
-
 	for (Element e : this->elements) {
 		vector<vec3> Q;
 		for (int i : e.neighbors) {
@@ -132,7 +158,7 @@ void Chainmail::endFrame() {
 	waiting.clear(); // might want a more robust end check than this
 }
 
-// Precompute the bounding regions for each element and their neighbors
+//Precompute the bounding regions for each element and their neighbors
 void Chainmail::generateRegions() {
 	for (Element e : this->elements) {
 		for (int nId : e.neighbors) {
@@ -143,7 +169,6 @@ void Chainmail::generateRegions() {
 				Cuboid c;
 				Element eN = this->elements[nId];
 				double dX, dY, dZ;
-
 				// TODO: test that this logic is correct
 				dX = std::abs(e.origin.x - eN.origin.x);
 				dY = std::abs(e.origin.y - eN.origin.y);
