@@ -481,8 +481,8 @@ void Scene::enableFlatShader() {
 		std::string si = "pointLights[" + std::to_string(i) + "].";
 		glUniform3f(shaders[FLAT]->uniform( si + "position"), point_light_positions[i].x, point_light_positions[i].y, point_light_positions[i].z);
 		glUniform1f(shaders[FLAT]->uniform( si + "constant"), 1.0f);
-		glUniform1f(shaders[FLAT]->uniform( si + "linear"), 0.045f);
-		glUniform1f(shaders[FLAT]->uniform( si + "quadratic"), 0.0075f);
+		glUniform1f(shaders[FLAT]->uniform( si + "linear"), 0.005f);
+		glUniform1f(shaders[FLAT]->uniform( si + "quadratic"), 0.0005f);
 		glUniform3f(shaders[FLAT]->uniform( si + "ambient"), light_ambient.x, light_ambient.y, light_ambient.z);
 		glUniform3f(shaders[FLAT]->uniform( si + "diffuse"), light_diffuse.x, light_diffuse.y, light_diffuse.z);
 		glUniform3f(shaders[FLAT]->uniform( si + "specular"), light_specular.x, light_specular.y, light_specular.z);
@@ -496,8 +496,8 @@ void Scene::enableFlatShader() {
 	glUniform1f(shaders[FLAT]->uniform( "spotLight.cutOff"), glm::cos(glm::radians(12.5f)));
 	glUniform1f(shaders[FLAT]->uniform( "spotLight.fadeOff"), glm::cos(glm::radians(17.5f)));
 	glUniform1f(shaders[FLAT]->uniform( "spotLight.constant"), 1.0f);
-	glUniform1f(shaders[FLAT]->uniform( "spotLight.linear"), 0.045f);
-	glUniform1f(shaders[FLAT]->uniform( "spotLight.quadratic"), 0.0075f);
+	glUniform1f(shaders[FLAT]->uniform( "spotLight.linear"), 0.001f);
+	glUniform1f(shaders[FLAT]->uniform( "spotLight.quadratic"), 0.00001f);
 
 	glUniformMatrix4fv(shaders[FLAT]->uniform("proj"), 1, GL_FALSE, glm::value_ptr(proj));
 	glUniformMatrix4fv(shaders[FLAT]->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
