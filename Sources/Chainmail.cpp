@@ -193,9 +193,6 @@ void Chainmail::relax(float dt) {
             c = e.origin;
         }
 		centroids.push_back(c);
-        if (centroids.size() == 31) {
-            std::cout << "HERE" << std::endl;
-        }
 	}
 
 	// Second, push all elements toward their respective centroid
