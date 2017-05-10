@@ -1,14 +1,13 @@
 #ifndef SLIME_H_GUARD
 #define SLIME_H_GUARD
-#include "Sphere.hpp"
+#include "Cube.hpp"
 class Slime :
-    public Sphere
+    public Cube
 {
 public:
     Slime();
-    Slime(float r, float x, float y, float z); 
-    Slime(float r);
-    Slime(float r, glm::vec3 p);
+    Slime(float h, float w, float d, float x, float y, float z);
+    Slime(float h, float w, float d, glm::vec3 p);
 
     void moveBy(float x, float y, float z, double dt);
     void moveBy(glm::vec3 t, double dt);

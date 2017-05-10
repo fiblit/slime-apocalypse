@@ -2,26 +2,21 @@
 
 //the deformable object, based on the sphere.
 
-Slime::Slime()  : Sphere(){
+Slime::Slime()  : Cube(){
     params[0] = 1.0;
     params[1] = 1.0;
     params[2] = 1.0;
     constructStandardMesh();
 }
 
-Slime::Slime(float r, float x, float y, float z) : Sphere(r, x, y, z) {
+Slime::Slime(float h, float w, float d, float x, float y, float z) : Cube(h, w, d, x, y, z) {
     usingStandardMesh = false;
     useCustomMesh();
     deformer = new Chainmail(mesh, aMin, aMax, b);
 }
 
-Slime::Slime(float r) : Sphere(r) {
-    usingStandardMesh = false;
-    useCustomMesh();
-    deformer = new Chainmail(mesh, aMin, aMax, b);
-}
 
-Slime::Slime(float r, glm::vec3 p) : Sphere(r, p) {
+Slime::Slime(float h, float w, float d, glm::vec3 p) : Cube(h, w, d, p) {
     usingStandardMesh = false;
     useCustomMesh();
     deformer = new Chainmail(mesh, aMin, aMax, b);
