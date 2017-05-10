@@ -9,17 +9,64 @@ Scene::Scene() {
 	// Generate player object
 	playerObject = new  Sphere(1, 0,0,0);
 	// Generate static objects (walls, floors, etc.)
-    mazeInfo.height = 10;
-    mazeInfo.width = 10;
+    mazeInfo.height = 20;
+    mazeInfo.width = 20;
+    mazeInfo.maxEnemies = 5;
+    mazeInfo.enemySize = 1;
     mazeInfo.chanceGennedAlive = .5;
     mazeInfo.cellSize = 10;
     mazeInfo.center = playerObject->dyn.pos;
     initMaze();
 	// Generate enemy objects
-	for (int i = 0; i < maxEnemies; i++) {
-        
-	}
+    fillEnemyVector();
 	// Generate PRM per Agent's BV type
+}
+
+void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
+    int i = enemyObjects.size();
+    while (i < mazeInfo.maxEnemies) {
+        //We're looking at columns [X][]
+        if (colsFlag) {
+            int randXGrid = (int)((float)rand()) / RAND_MAX * (start - end);
+            int randYGrid = (int)((float)rand()) / RAND_MAX * mazeInfo.height;
+            int attempts = 0;
+            while (maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && mazeInfo.height / 2) && attempts < 10) {
+                randXGrid = (int)((float)rand()) / RAND_MAX * (start - end);
+                randYGrid = (int)((float)rand()) / RAND_MAX * mazeInfo.height;
+                attempts++;
+            }
+        }
+        //otherwise it's in rows maze[][X];
+        else {
+            for (int i = start; i < end; i++) {
+                int randXGrid = (int)((float)rand()) / RAND_MAX * (mazeInfo.width-1);
+                int randYGrid = (int)((float)rand()) / RAND_MAX * (start - end);
+                int attempts = 0;
+                while (maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && mazeInfo.height / 2) && attempts < 10) {
+                    randXGrid = (int)(((float)rand()) / RAND_MAX * (mazeInfo.width-1));
+                    randYGrid = (int)((float)rand()) / RAND_MAX * (start - end);
+                    attempts++;
+                }
+            }
+        }
+        i++;
+    }
+}
+
+void Scene::fillEnemyVector() {
+    int i = enemyObjects.size();
+    while (i < mazeInfo.maxEnemies) {
+        int randXGrid = (int)(((float)rand()) / RAND_MAX) * (mazeInfo.width-1);
+        int randYGrid = (int)(((float)rand()) / RAND_MAX) * (mazeInfo.height-1);
+        while (maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && randYGrid == mazeInfo.height / 2)) {
+            randXGrid = (int)(((float)rand()) / RAND_MAX) * (mazeInfo.width-1);
+            randYGrid = (int)(((float)rand()) / RAND_MAX) * (mazeInfo.height-1);
+        }
+        float worldX = (randXGrid - mazeInfo.width / 2)* mazeInfo.cellSize;
+        float worldY = (randYGrid - mazeInfo.height / 2)* mazeInfo.cellSize;
+        addEnemyObject(mazeInfo.enemySize, worldX, 0, worldY);
+        i++;
+    }
 }
 Scene::~Scene() {
 	if (playerObject)
@@ -50,7 +97,6 @@ void Scene::automatonSimulate() {
                     int neighbors = 0;
                     mazeCell cBuffer = {};
                     cBuffer.active = 1;
-                    
                     neighbors += maze[mod((i - 1), mazeInfo.width)][mod(j - 1, mazeInfo.height)].filled;
                     neighbors += maze[mod(i, mazeInfo.width)][mod(j - 1, mazeInfo.height)].filled;
                     neighbors += maze[mod((i + 1), mazeInfo.width)][mod((j - 1),mazeInfo.height)].filled;
@@ -139,6 +185,9 @@ vec3 Scene::snapToGrid(vec3 pos) {
 
     return vec3(xSnap, ySnap, zSnap);
 }
+
+
+
 
 //Take the player position and generate maze cells for any cells in the X by X grid surrounding the player that don't
 //have cells generated.
@@ -235,7 +284,17 @@ void Scene::generateMoreMaze() {
     automatonSimulate();
     //add the Objects 
     fillStaticObjVector();
+    if (gridMoves[0] != 0) {
+        int start = (gridMoves[0] < 0) ? 0 : maze.size()-1;
+        int end = (gridMoves[0] < 0) ? (-1 * gridMoves[0]) : (maze.size() - 1);
+        fillEnemyVector(start, end, true);
+    }
+    else if(gridMoves[2] != 0){
+        int start = (gridMoves[2] < 0) ? 0 : maze[0].size() - 1;
+        int end = (gridMoves[2] < 0) ? (-1 * gridMoves[2]) : (maze[0].size() - 1);
+        fillEnemyVector(start, end, false);
 
+    }
     //add PRM nodes that exist in newly generated maze area
 
     //re-run pathfinding algorithms

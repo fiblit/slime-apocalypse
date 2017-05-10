@@ -26,6 +26,8 @@ struct mazeData {
     int width;
     float cellSize;
     float chanceGennedAlive;
+    int maxEnemies;
+    float enemySize;
     glm::vec3 center;
 };
 

@@ -40,6 +40,8 @@ public:
 	void addCylinder(float h, float r, float x, float y);
 	void setPlayerColor(float r, float g, float b);
 	void setPlayerColor(glm::vec3 rgb);
+    void fillEnemyVector();
+    void fillEnemyVector(int start, int end, bool colsFlag);
     void fillStaticObjVector();
     void automatonSimulate();
     void initMaze();

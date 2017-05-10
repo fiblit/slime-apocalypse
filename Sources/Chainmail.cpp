@@ -6,7 +6,10 @@ using glm::vec2;
 using glm::vec3;
 using std::min;
 using std::max;
-
+/*
+Our chainmail deformation used Sarah Gibson's Paper, "3D ChainMail: a Fast Algorithm for Deforming Volumetric Objects"
+As a base idea for implementation.
+*/
 Chainmail::Chainmail(Mesh * mesh) {
 	for (Vertex v : mesh->vertices) {
 		Element e;
@@ -128,7 +131,6 @@ void Chainmail::relax(float dt) {
 void Chainmail::endFrame() {
 	for (Element e : this->elements)
 		e.updated = false;
-
 	waiting.clear(); // might want a more robust end check than this
 }
 
@@ -139,7 +141,6 @@ void Chainmail::generateRegions() {
 			int minId = min(e.id, nId);
 			int maxId = max(e.id, nId);
 			ivec2 key = ivec2(minId, maxId);
-
 			if (this->regions.find(key) == this->regions.end()) {
 				Cuboid c;
 				Element eN = this->elements[nId];
@@ -156,7 +157,6 @@ void Chainmail::generateRegions() {
 				c.max = vec3(this->aMax*dX + this->b*(dY + dZ),
 							 this->aMax*dY + this->b*(dZ + dX),
 							 this->aMax*dZ + this->b*(dX + dY));
-
 				this->regions[key] = c;
 			}
 		}

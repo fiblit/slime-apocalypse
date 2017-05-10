@@ -51,9 +51,7 @@ public:
 	void relax(float dt);
 	void generateRegions();
 	void endFrame();
-
 	/* variables */
-
 	std::vector<Element> elements; // might be able to make this unordered_map with IDs
 	
 	// Waiting list of elements to be processed.
