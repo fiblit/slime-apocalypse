@@ -67,19 +67,16 @@ void Sphere::constructStandardMesh(bool override) {
 		return;
 	}
 
-	int stacks = 20; // TODO: need a way to make these dynamic
-	int slices = 20;
-
+	int stacks = 10; // TODO: need a way to make these dynamic
+	int slices = 10;
 	vector<Vertex> vertices;
 	vector<GLuint> indices;
-
 	for (int i = 0; i < stacks; i++) {
 		int nextStack = (i+1)%(stacks);
 		double longitude = 2 * PI * i / stacks;
 		//calculate the vertices and colors
 		for (int j = 0; j < slices; j++) {
 			Vertex vertex;
-
 			int nextSlice = (j+1)%(slices);
 			double colatitude = PI * j / slices;
 			double x = cos(longitude) * sin(colatitude);

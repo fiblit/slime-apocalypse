@@ -550,7 +550,7 @@ void Scene::toggle_flashlight() {
 }
 
 void Scene::slimeTestMove() {
-    test->moveBy(0, 0, 0, .02);
+    test->moveBy(1, 0, 0, .02);
 }
 
 

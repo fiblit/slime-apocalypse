@@ -10,12 +10,14 @@ public:
     Slime(float r);
     Slime(float r, glm::vec3 p);
 
+    void moveBy(float x, float y, float z); 
     void moveBy(float x, float y, float z, double dt);
+    void moveBy(glm::vec3 t);
     void moveBy(glm::vec3 t, double dt);
     void moveTo(float x, float y, float z);
     void moveTo(glm::vec3 position);
     double aMin = .000000000001;
-    double aMax = 10000000000;
+    double aMax = .000000001;
     double b = 1;;
 
     virtual ~Slime();
