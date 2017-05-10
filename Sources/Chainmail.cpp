@@ -11,64 +11,68 @@ Our chainmail deformation used Sarah Gibson's Paper, "3D ChainMail: a Fast Algor
 As a base idea for implementation.
 */
 Chainmail::Chainmail(Mesh * mesh, int stacks, int slices) {
-	this->vertexLength = mesh->vertices.size();
-	for (Vertex v : mesh->vertices) {
-		Element e;
-		e.id = this->elements.size();
-		e.origin = v.Position;
-		e.pos = v.Position;
-		elements.push_back(e);
-	}
+    this->vertexLength = mesh->vertices.size();
+    for (Vertex v : mesh->vertices) {
+        Element e;
+        e.id = this->elements.size();
+        e.origin = v.Position;
+        e.pos = v.Position;
+        elements.push_back(e);
+    }
     /*
-	// Add a centroid element
-	Element center;
-	center.id = this->elements.size();
-	center.origin = vec3(0);
-	center.pos = vec3(0);
-	for (Element & e : this->elements) {
-		center.neighbors.insert(e.id);
-		e.neighbors.insert(center.id);
-	}
+    // Add a centroid element
+    Element center;
+    center.id = this->elements.size();
+    center.origin = vec3(0);
+    center.pos = vec3(0);
+    for (Element & e : this->elements) {
+        center.neighbors.insert(e.id);
+        e.neighbors.insert(center.id);
+    }
 
-	this->elements.push_back(center);
+    this->elements.push_back(center);
     */
 
-	for (int i = 0; i < mesh->indices.size(); i += 3) {
-		int idx1 = mesh->indices[i];
-		int idx2 = mesh->indices[i+1];
-		int idx3 = mesh->indices[i+2];
+    for (int i = 0; i < mesh->indices.size(); i += 3) {
+        int idx1 = mesh->indices[i];
+        int idx2 = mesh->indices[i + 1];
+        int idx3 = mesh->indices[i + 2];
 
-		if (elements[idx1].neighbors.find(idx2) == elements[idx1].neighbors.end()) {
-			elements[idx1].neighbors.insert(idx2);
-			elements[idx2].neighbors.insert(idx1);
-		}
-		if (elements[idx2].neighbors.find(idx3) == elements[idx2].neighbors.end()) {
-			elements[idx2].neighbors.insert(idx3);
-			elements[idx3].neighbors.insert(idx2);
-		}
-		if (elements[idx1].neighbors.find(idx3) == elements[idx1].neighbors.end()) {
-			elements[idx1].neighbors.insert(idx3);
-			elements[idx3].neighbors.insert(idx1);
-		}
-	}
+        if (elements[idx1].neighbors.find(idx2) == elements[idx1].neighbors.end() && glm::length(elements[idx1].pos - elements[idx2].pos) > .003) {
+            elements[idx1].neighbors.insert(idx2);
+            elements[idx2].neighbors.insert(idx1);
+        }
+        if (elements[idx2].neighbors.find(idx3) == elements[idx2].neighbors.end() && glm::length(elements[idx3].pos - elements[idx2].pos) > .003) {
+            elements[idx2].neighbors.insert(idx3);
+            elements[idx3].neighbors.insert(idx2);
+        }
+        if (elements[idx1].neighbors.find(idx3) == elements[idx1].neighbors.end() && glm::length(elements[idx1].pos - elements[idx3].pos) > .003) {
+            elements[idx1].neighbors.insert(idx3);
+            elements[idx3].neighbors.insert(idx1);
+        }
+    }
     for (int i = 0; i < stacks; i++) {
         for (int j = 0; j < slices; j++) {
-            int idx1 = j + ((stacks - i -1) * slices);
+            int idx1 = j + ((stacks - i - 1) * slices);
             int idx2 = (slices - j) + (i * slices);
             int idx3 = (slices - j) + ((stacks - i - 1) * slices);
             int me = j + i * slices;
 
-            if (idx1 < elements.size() && (idx1 != me || std::find(elements[idx1].neighbors.begin(), elements[idx1].neighbors.end(), me) != elements[idx1].neighbors.end())) {
-                elements[idx1].neighbors.insert(me);
-                elements[me].neighbors.insert(idx1);
+            if (idx1 < elements.size() && ((idx1 != me) && std::find(elements[idx1].neighbors.begin(), elements[idx1].neighbors.end(), me) != elements[idx1].neighbors.end())){
+
+}
+
+            if (idx1 < elements.size() && (idx1 != me && std::find(elements[idx1].neighbors.begin(), elements[idx1].neighbors.end(), me) != elements[idx1].neighbors.end())) {
+                //elements[idx1].neighbors.insert(me);
+                //elements[me].neighbors.insert(idx1);
             }
 
-            if (idx2 < elements.size() && (idx2 != me || std::find(elements[idx2].neighbors.begin(), elements[idx2].neighbors.end(), me) != elements[idx2].neighbors.end())) {
-                elements[idx2].neighbors.insert(me);
-                elements[me].neighbors.insert(idx2);
+            if (idx2 < elements.size() && (idx2 != me && std::find(elements[idx2].neighbors.begin(), elements[idx2].neighbors.end(), me) != elements[idx2].neighbors.end())) {
+                //elements[idx2].neighbors.insert(me);
+                //elements[me].neighbors.insert(idx2);
             }
 
-            if ((idx3 < elements.size()) && (idx3 != me || std::find(elements[idx3].neighbors.begin(), elements[idx3].neighbors.end(), me) != elements[idx3].neighbors.end())) {
+            if ((idx3 < elements.size()) && (idx3 != me && std::find(elements[idx3].neighbors.begin(), elements[idx3].neighbors.end(), me) != elements[idx3].neighbors.end())) {
                 //elements[idx3].neighbors.insert(me);
                 //elements[me].neighbors.insert(idx3);
             }
@@ -83,16 +87,15 @@ Chainmail::~Chainmail() {}
 
 // Moves an element and readies its neighbors for propogation
 void Chainmail::applyMove(int id, vec3 t) {
-	this->elements[id].pos += t;
-	this->elements[id].updated = true;
-
-	for (int i : this->elements[id].neighbors)
-		waiting.push_back(ivec2(id, i));
+    applyMove(0, vec3(0), 0);
 }
 
 void Chainmail::applyMove(int id, vec3 t, double dt) {
-    this->elements[id].pos += (vec3(t[0] * dt, t[1] * dt, t[2] * dt));
-    this->elements[id].updated = true;
+    for (int i = 0; i < 15; i++) {
+        int randElement = ((float)rand()) / RAND_MAX * (elements.size()-1);
+        elements[randElement].pos += vec3(t[0] * .001, t[1] * .001, t[2] * .001);
+        elements[randElement].updated = true;
+    }
 
     for (int i : this->elements[id].neighbors)
         waiting.push_back(ivec2(id, i));
@@ -181,23 +184,15 @@ void Chainmail::relax(float dt) {
 }
 
 void Chainmail::simStep(double dt) {
-    applyMove(0, vec3(1, 0, 0), dt);
-    propagate();
-    relax(1.0);
-    for (Element & e : this->elements)
-        e.updated = false;
-    waiting.clear(); // might want a more robust end check than this
+    simStep(0, vec3(0), dt);
 }
 void Chainmail::simStep(glm::vec3 v, double dt) {
-    applyMove(0, v, dt);
-    propagate();
-    for (Element & e : this->elements)
-        e.updated = false;
-    waiting.clear(); // might want a more robust end check than this
+    simStep(0, v, dt);
 }
 void Chainmail::simStep(int id, glm::vec3 t, double dt) {
     applyMove(id, t, dt);
     propagate();
+    relax(dt);
 	for (Element & e : this->elements)
 		e.updated = false;
 	waiting.clear(); // might want a more robust end check than this
