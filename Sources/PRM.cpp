@@ -94,7 +94,7 @@ PRM::PRM(Cspace2D * c_space) {
     //Node<glm::vec2> * start_node = new Node<glm::vec2>(start, new VecPoint());
     VecPoint * sample = sample_nodes(this->c_space, .1f, 2.8f, 1, std::make_pair(-10.f, 10.f));
 
-    //this->roadmap = connect_roadmap(sample);
+    this->roadmap = connect_roadmap(sample);
 }
 
 /* generates a configuartion space given a list of obstacles and agent */

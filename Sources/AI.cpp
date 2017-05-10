@@ -9,7 +9,7 @@ BVH * ai::dynamic_bvh;
 void ai::init(std::vector<Object *> dynamics, std::vector<Object *> statics) {
     ai::static_bvh = new BVH(statics);
     ai::dynamic_bvh = new BVH(dynamics);
-    /*
+    
     for (Object * o : statics) {
         o->ai.method = ai_comp::Planner::NONE;
     }
@@ -17,8 +17,10 @@ void ai::init(std::vector<Object *> dynamics, std::vector<Object *> statics) {
         std::vector<BoundingVolume *> obs_bv;
         for (Object * s : statics)
             obs_bv.push_back(s->bv);
+        Gtime::add_now();
         ai::std_cspace = dynamics[0]->ai.cspace = new Cspace2D(obs_bv, dynamics[0]->bv);
-        ai::std_prm = new PRM(/*NNai[0]->bv->o, NNai[0]->bv->o,*//*ai::std_cspace);
+        ai::std_prm = new PRM(/*NNai[0]->bv->o, NNai[0]->bv->o,*/ai::std_cspace);
+        std::cout << Gtime::del_top() << std::endl;
 
         for (Object * o : dynamics) {
             o->ai.method = ai_comp::Planner::INDY;
@@ -28,7 +30,6 @@ void ai::init(std::vector<Object *> dynamics, std::vector<Object *> statics) {
             o->ai.prm = ai::std_prm;
         }
     }
-    */
 }
 
 //move to AI/planner --- this is a force-based LMP
