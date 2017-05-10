@@ -62,7 +62,7 @@ Chainmail::Chainmail(Mesh * mesh, int stacks, int slices, glm::vec3 worldCenter)
     }
     */
     //lattice work for internal structure
-    
+    /*
     for (int i = 0; i < stacks; i++) {
         for (int j = 0; j < slices; j++) {
             int idx1 = j + ((stacks - i - 1) * slices);
@@ -89,7 +89,7 @@ Chainmail::Chainmail(Mesh * mesh, int stacks, int slices, glm::vec3 worldCenter)
             }
         }        
     }
-    
+    */
     generateRegions();
 }
 

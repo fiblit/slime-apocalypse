@@ -16,8 +16,9 @@ public:
     void moveBy(glm::vec3 t);
     void moveBy(glm::vec3 t, double dt);
     void moveTo(float x, float y, float z);
-    void moveTo(glm::vec3 position);
+    void moveTo(glm::vec3 position, double dt);
 
+    double timeElapsed = 0;
     virtual ~Slime();
 };
 

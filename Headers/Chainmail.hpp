@@ -73,8 +73,8 @@ public:
 	int spaceDimension;
 	double aMin = .002; // compression factor
 	double aMax = 100;  // stretch factor
-	double b = 10;	  // shear factor
-    const double zPlaneCollision = -.6;
+	double b = 100;	  // shear factor
+    const double zPlaneCollision = 0;//used to hide the buggier parts of the slime model
     Mesh * mesh;
 	int vertexLength; // used for returning the correct model back
 };
