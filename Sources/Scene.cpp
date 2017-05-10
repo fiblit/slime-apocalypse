@@ -6,6 +6,8 @@ using namespace std;
 
 Scene::Scene() {
     this->camera = new Camera();
+    camera->pos = vec3(5, 5, 5);
+    camera->dir = vec3(0,0, 1);
     this->floor = new Cube(10000, .5, 10000, vec3(0, 0, -.5));
 	// Generate player object
     /*

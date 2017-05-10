@@ -209,7 +209,6 @@ void Chainmail::simStep(glm::vec3 v, double dt) {
 }
 void Chainmail::simStep(int id, glm::vec3 t, double dt) {
     applyMove(id, t, dt);
-    applyMove(id, glm::vec3(0, 0, -.3), dt);
     propagate();
     relax(dt);
     updateCenter();
