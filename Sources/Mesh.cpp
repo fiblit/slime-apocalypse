@@ -41,7 +41,7 @@ void Mesh::updateNormals() {
         glm::vec3 normal;
         glm::vec3 v1 = vertices[indices[i+1]].Position - vertices[indices[i]].Position;
         glm::vec3 v2 = vertices[indices[i + 2]].Position - vertices[indices[i]].Position;
-        assert(glm::length(v1 - v2) > 0 && glm::length(v1) > 0 && glm::length(v2));
+        assert(glm::length(v1 - v2) > 0 && glm::length(v1) > 0 && glm::length(v2) > 0);
         normal = glm::normalize(glm::cross(v2, v1));
         vertices[indices[i]].Normal += normal;
         vertices[indices[i+1]].Normal += normal;

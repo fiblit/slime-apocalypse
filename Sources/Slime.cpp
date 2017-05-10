@@ -52,7 +52,7 @@ void Slime::moveTo(glm::vec3 position) {
 }
 
 void Slime::moveBy(glm::vec3 t, double dt) {
-    deformer->simStep(0, t, dt);
+    deformer->simStep(0, glm::vec3(0), dt);
     std::vector<glm::vec3> v;
     deformer->returnVertices(v);
     std::vector<Vertex> newMeshVertices;

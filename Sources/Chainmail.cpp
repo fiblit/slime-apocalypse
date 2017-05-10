@@ -21,6 +21,7 @@ Chainmail::Chainmail(Mesh * mesh, int stacks, int slices, glm::vec3 worldCenter)
         elements.push_back(e);
     }
     // Add a centroid element
+    /*
     Element center;
     center.id = this->elements.size();
     center.origin = vec3(0);
@@ -31,12 +32,13 @@ Chainmail::Chainmail(Mesh * mesh, int stacks, int slices, glm::vec3 worldCenter)
     }
 
     this->elements.push_back(center);
-
+    */
     for (int i = 0; i < mesh->indices.size(); i += 3) {
         int idx1 = mesh->indices[i];
         int idx2 = mesh->indices[i + 1];
         int idx3 = mesh->indices[i + 2];
-
+        if (idx1 == 30 || idx2 == 30 | idx3 == 30) {
+        }
         if (elements[idx1].neighbors.find(idx2) == elements[idx1].neighbors.end() && glm::length(elements[idx1].pos - elements[idx2].pos) > .003) {
             elements[idx1].neighbors.insert(idx2);
             elements[idx2].neighbors.insert(idx1);
@@ -79,7 +81,7 @@ void Chainmail::applyMove(int id, vec3 t, double dt) {
 
 
         if (elements[randElement].pos.z + worldCoordCenter.z < .003) {
-            float delta = (elements[randElement].pos.z + worldCoordCenter.z) - .005;
+            float delta = (elements[randElement].pos.z + worldCoordCenter.z) + .005;
             //std::cout << delta << "? " << std::endl;
             elements[randElement].pos.z = delta;
         }
@@ -148,16 +150,16 @@ void Chainmail::propagate() {
 		if (e->pos.z < minBounds.z) {
 			e->pos.z = minBounds.z;
             if (e->pos.z + worldCoordCenter.z < .003) {
-                float delta = (e->pos.z + worldCoordCenter.z) - .005;
-                //e->pos.z = delta;
+                float delta = (e->pos.z + worldCoordCenter.z) + .005;
+                e->pos.z = delta;
             }
 			e->updated = true;
 		}
 		else if (e->pos.z > maxBounds.z) {
 			e->pos.z = maxBounds.z;
             if (e->pos.z + worldCoordCenter.z < .003) {
-                float delta = (e->pos.z + worldCoordCenter.z) - .005;
-                //e->pos.z = delta;
+                float delta = (e->pos.z + worldCoordCenter.z) + .005;
+                e->pos.z = delta;
             }
 			e->updated = true;
 		}
@@ -185,8 +187,15 @@ void Chainmail::relax(float dt) {
 		vec3 c = vec3(0);
 		for (vec3 v : Q)
 			c += v;
-		c /= Q.size();
+        if (Q.size() != 0)
+		    c /= Q.size();
+        else {
+            c = e.origin;
+        }
 		centroids.push_back(c);
+        if (centroids.size() == 31) {
+            std::cout << "HERE" << std::endl;
+        }
 	}
 
 	// Second, push all elements toward their respective centroid
@@ -195,8 +204,8 @@ void Chainmail::relax(float dt) {
         //v = (e.origin - e.pos);
 		e.pos += 2*dt*v;
         if (e.pos.z + worldCoordCenter.z < .003) {
-            float delta = (e.pos.z + worldCoordCenter.z) - .005;
-            //e.pos.z = delta;
+            float delta = (e.pos.z + worldCoordCenter.z) + .005;
+            e.pos.z = delta;
         }
 	}
 }

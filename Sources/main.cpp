@@ -64,7 +64,7 @@ int main() {
 	scene->setupTestingObjects();
 
     /* Path Planning */
-    ai::init(scene->enemyObjects, scene->staticObjects, scene->mazeInfo);
+    //ai::init(scene->enemyObjects, scene->staticObjects, scene->mazeInfo);
     game_loop_clock->pause();
     GMP::replan(scene->enemyObjects);
     game_loop_clock->play();
@@ -91,7 +91,7 @@ int main() {
         handle_input(game_loop_clock, scene);
 
         //AI
-        ai::update_agents(scene->staticObjects, scene->enemyObjects, scene->playerObject);
+        //ai::update_agents(scene->staticObjects, scene->enemyObjects, scene->playerObject);
 
         //Physics
         scene->simulate(game_loop_clock->delta());
@@ -102,7 +102,9 @@ int main() {
         scene->reset_proj_view();
 
 		// TODO: currently must enable shader every frame to update view matrix; easily fixed
-		scene->enableTestShader();
+        glm::mat4 view = scene->camera->getView();
+        glm::mat4 proj = scene->proj;
+		scene->enableTestShader(proj,view);
         
 		scene->render();
 
