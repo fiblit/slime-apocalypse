@@ -10,35 +10,41 @@ BVH::BVH() {
 
 BVH::BVH(vector<Object *> objects) {
     this->size_ = objects.size();
+    if (objects.size() == 0) {
+        this->o = nullptr;
+        this->right = nullptr;
+        return;
+    }
 
     //create two index arrays
     vector<Index> sorted_x = vector<Index>(objects.size());
     vector<Index> sorted_z = vector<Index>(objects.size());
     for (size_t i = 0; i < objects.size(); i++)
-        //for sorted_x Index is (idx of obj for x, idx of zidx)
-        //for sorted_z Index is (idx of obj for z, idx of xidx)
+        //for sorted_a Index is (idx of obj for x, idx of zidx)
+        //for sorted_b Index is (idx of obj for z, idx of xidx)
         //so .obj will always grab the object,
         //.oth the other table's index to the same object
-        sorted_x[i] = sorted_z[i] = Index(i, 0);
+        sorted_x[i] = sorted_z[i] = Index(static_cast<uint>(i), 0);
 
     //sort by dimension
     std::sort(sorted_x.begin(), sorted_x.end(), [objects](Index a, Index b) {
         return objects[a.obj]->bv->o.x < objects[b.obj]->bv->o.x;
     });
     for (size_t i = 0; i < sorted_x.size(); i++)//connect index tables
-        sorted_z[sorted_x[i].obj].oth = i;
+        sorted_z[sorted_x[i].obj].oth = static_cast<uint>(i);
 
     std::sort(sorted_z.begin(), sorted_z.end(), [objects](Index a, Index b) {
         return objects[a.obj]->bv->o.y < objects[b.obj]->bv->o.y;
     });
     for (size_t i = 0; i < sorted_z.size(); i++)//connect index tables
-        sorted_x[sorted_z[i].oth].oth = i;
+        sorted_x[sorted_z[i].oth].oth = static_cast<uint>(i);
 
     construct_(objects, sorted_x, sorted_z);
 }
 
 void BVH::construct_(vector<Object *> objects, vector<Index> sorted_x, vector<Index> sorted_z) {
     D(assert(sorted_x.size() == sorted_z.size()));
+    D(assert(sorted_x.size() >= 1));
     if (sorted_x.size() == static_cast<size_t>(1)) {
         D(assert(sorted_x[0].obj == sorted_z[0].obj));
         this->right = nullptr;
@@ -80,50 +86,55 @@ void BVH::construct_(vector<Object *> objects, vector<Index> sorted_x, vector<In
     //partition along longer axis, splitting indices equally
     vector<Index> x_rhs, x_lhs;
     vector<Index> z_rhs, z_lhs;
-    if (dx > dz) {
-        size_t half = static_cast<size_t>(sorted_x.size() / 2);
-        size_t half_ceil = static_cast<size_t>((sorted_x.size() / 2) + 0.5);
-        z_lhs = vector<Index>(half);
-        x_lhs = vector<Index>(half);
-        z_rhs = vector<Index>(half_ceil);
-        x_rhs = vector<Index>(half_ceil);
-
-        for (size_t i = 0; i < sorted_x.size(); i++) {
-            if (i < half) {
-                x_lhs[i] = sorted_x[i];
-                z_lhs[sorted_x[i].oth] = sorted_z[sorted_x[i].oth];
-            }
-            else {
-                x_rhs[i - half] = sorted_x[i];
-                z_rhs[sorted_x[i].oth] = sorted_z[sorted_x[i].oth];
-            }
-        }
-    }
-    else {
-        size_t half = static_cast<size_t>(sorted_z.size() / 2);
-        size_t half_ceil = static_cast<size_t>((sorted_z.size() / 2) + 0.5);
-        z_lhs = vector<Index>(half);
-        x_lhs = vector<Index>(half);
-        z_rhs = vector<Index>(half_ceil);
-        x_rhs = vector<Index>(half_ceil);
-
-        for (size_t i = 0; i < sorted_z.size(); i++) {
-            if (i < half) {
-                z_lhs.push_back(sorted_z[i]);
-                x_lhs[sorted_z[i].oth] = sorted_x[sorted_z[i].oth];
-            }
-            else {
-                z_rhs.push_back(sorted_z[i]);
-                x_lhs[sorted_z[i].oth] = sorted_x[sorted_z[i].oth];
-            }
-        }
-    }
+    if (dx > dz)
+        split_(sorted_x, sorted_z, x_lhs, z_lhs, x_rhs, z_rhs);
+    else
+        split_(sorted_z, sorted_x, z_lhs, x_lhs, z_rhs, x_rhs);
 
     //probably the slowest part is the new, tbh XD
     left = new BVH();
     left->construct_(objects, x_lhs, z_lhs);
     right = new BVH();
     right->construct_(objects, x_rhs, z_rhs);
+}
+
+void BVH::split_(
+        vector<Index> & sorted_a,
+        vector<Index> & sorted_b,
+        vector<Index> & a_lhs,
+        vector<Index> & b_lhs,
+        vector<Index> & a_rhs,
+        vector<Index> & b_rhs) {
+    D(assert(sorted_a.size() == sorted_b.size()));
+    size_t half = static_cast<size_t>(sorted_a.size() / 2.);
+    size_t half_ceil = static_cast<size_t>((sorted_a.size() / 2.) + .5);
+    a_lhs = vector<Index>(half);
+    b_lhs = vector<Index>(half);
+    a_rhs = vector<Index>(half_ceil);
+    b_rhs = vector<Index>(half_ceil);
+
+    
+    for (size_t i = 0; i < sorted_a.size(); i++) {
+        if (i < half)
+            a_lhs[i] = Index(sorted_a[i].obj, -1);
+        else
+            a_rhs[i - half] = Index(sorted_a[i].obj, -1);
+    }
+    for (size_t i = 0, lhs = 0, rhs = 0; i < sorted_b.size(); i++) {
+        size_t oth_i = sorted_b[i].oth;
+        if (oth_i < half) {
+            b_lhs[lhs] = Index(sorted_b[i].obj, oth_i);
+            D(assert(oth_i < a_lhs.size()));
+            a_lhs[oth_i] = Index(a_lhs[oth_i].obj, lhs);
+            lhs++;
+        }
+        else {
+            b_rhs[rhs] = Index(sorted_b[i].obj, oth_i - half);
+            D(assert(oth_i < a_rhs.size()));
+            a_rhs[oth_i - half] = Index(a_rhs[oth_i - half].obj, rhs);
+            rhs++;
+        }
+    }
 }
 
 BVH::~BVH() {

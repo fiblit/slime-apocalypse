@@ -61,12 +61,13 @@ int main() {
 	stbi_image_free(image);
 	glBindTexture(GL_TEXTURE_2D, 0);*/
 
-	/* Path Planning */
-    //todo dalton: reintegrate
-	//ai::init(std::vector<BoundingVolume *>(), std::vector<Object *>(), std::vector<Object *>(), std::vector<Object *>());
-	//GMP::replan(ai::std_NNai, game_loop_clock);
-
 	scene->setupTestingObjects();
+
+    /* Path Planning */
+    ai::init(scene->enemyObjects, scene->staticObjects, scene->mazeInfo);
+    game_loop_clock->pause();
+    GMP::replan(scene->enemyObjects);
+    game_loop_clock->play();
 
     /* Game Loop */
 	GLfloat fpsTimer = 0;
@@ -88,16 +89,17 @@ int main() {
         // Callbacks 
         glfwPollEvents();
         handle_input(game_loop_clock, scene);
-        double xPos;
-        double yPos;
-        //reintegrate
-		//ai::update_agents(ai::std_NNai);
 
+        //AI
+        ai::update_agents(scene->staticObjects, scene->enemyObjects, scene->playerObject);
+
+        //Physics
         scene->simulate(game_loop_clock->delta());
 
 		// Render 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        scene->reset_proj_view();
 
 		// TODO: currently must enable shader every frame to update view matrix; easily fixed
 		scene->enableTestShader();
@@ -212,7 +214,7 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
 		handle_scene->camera->translate_camera(G::CAMERA::DOWNWARD, clock->delta());
 
     if (UI::keys[GLFW_KEY_LEFT_SHIFT])
-        handle_scene->camera->sprint *= (1.0 + 1.0*clock->delta());
+        handle_scene->camera->sprint *= static_cast<GLfloat>(1.0 + 0.5*clock->delta());
 	else
 		handle_scene->camera->sprint = 1.0f;
 

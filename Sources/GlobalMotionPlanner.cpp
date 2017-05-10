@@ -67,13 +67,9 @@ VecPoint * GMP::find_path_Astar(float e, Graph<glm::vec2> * roadmap) {
 }
 
 //move to AI/planner (probably GMP)
-void GMP::replan(std::vector<Object *> agents, Gtime::Timer * clock) {
-    clock->pause();
-    /* PATH PLANNING METHOD */
-    for (Object * a : agents) {
+void GMP::replan(std::vector<Slime *> agents) {
+    for (Object * a : agents)
         plan_one(a);
-    }
-    clock->play();
 }
 
 static void connect_to_all(Graph<glm::vec2> * rm, glm::vec2 p, Cspace2D * cspace) {
@@ -94,9 +90,11 @@ void GMP::plan_one(Object * agent) {
         //just do an LoS over every node for both
         connect_to_all(rm_with_goal, agent->bv->o, agent->ai.cspace);
         connect_to_all(rm_with_goal, agent->ai.goal, agent->ai.cspace);
-        
+
+        /* PATH PLANNING METHOD */
         agent->ai.plan = GMP::find_path_Astar(1.f, rm_with_goal);
         //remove the added stuff...
+        //todo: issues***
         rm_with_goal->vertices->pop_back();
         rm_with_goal->vertices->pop_back();
 

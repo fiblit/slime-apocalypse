@@ -44,6 +44,13 @@ private:
         std::vector<Object *> objects,
         std::vector<Index> sorted_x,
         std::vector<Index> sorted_z);
+    void split_(
+        std::vector<Index> & sorted_a,
+        std::vector<Index> & sorted_b,
+        std::vector<Index> & a_lhs,
+        std::vector<Index> & b_lhs,
+        std::vector<Index> & a_rhs,
+        std::vector<Index> & b_rhs);
 };
 
 //http://www.randygaul.net/2013/08/06/dynamic-aabb-tree/

@@ -55,7 +55,6 @@ public:
     void simStep(int startNode, glm::vec3 t, double dt); 
     void simStep(glm::vec3, double dt);
     void simStep(double dt);
-    glm::vec3 getNewWorldPos();
     glm::vec3 returnWorldPos();
     void returnVertices(std::vector<glm::vec3> &returnTo);
 	/* variables */

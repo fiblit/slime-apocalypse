@@ -51,9 +51,14 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     UI::cursor_edy *= UI::cursor_sensitivity;
     last_x = (GLfloat)xpos;
     last_y = (GLfloat)ypos;
+
     int height, width;
     glfwGetWindowSize(window, &width, &height);
     glfwSetCursorPos(window, width/2, height/2);
+
+    UI::cursor_edx *= -1; //invert because of previous lines
+    UI::cursor_edy *= -1; //they are there because some machines can't disable
+                          //the cursor properly
 }
 
 void scroll_callback(GLFWwindow * window, double xoffset, double yoffset) {

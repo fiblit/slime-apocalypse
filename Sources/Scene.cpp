@@ -16,7 +16,7 @@ Scene::Scene() {
     mazeInfo.height = 20;
     mazeInfo.width = 20;
     mazeInfo.maxEnemies = 5;
-    mazeInfo.enemySize = 5;
+    mazeInfo.enemySize = 1;
     mazeInfo.chanceGennedAlive = .5;
     mazeInfo.cellSize = 10;
     mazeInfo.center = playerObject->dyn.pos;
@@ -368,15 +368,6 @@ void Scene::setBounds(vec3 min, vec3 max) {
 	// Set the sampling space of the PRM
 }
 
-/*
-void Scene::replan(double dt) {
-// for each Agent:
-//		Update their target
-//		Plan to target
-//      Avoid local collisions
-}
-*/
-
 //note for later: should this be renamed to animate_dynamics?
 //the actual simulation is kinda spread out, particularly in force-based functions
 //like the stuff in the LMP.
@@ -427,9 +418,7 @@ void Scene::render() {
 	// maybe if I (dalton) add on dear-imgui later
 }
 
-void Scene::enableTextureShader() {
-	glm::mat4 proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 100.0f);
-	glm::mat4 view = camera->getView();
+void Scene::enableTextureShader(glm::mat4 proj, glm::mat4 view) {
 	glm::mat4 model;
 
 	shaders[TEXTURE]->enable();
@@ -476,10 +465,7 @@ void Scene::enableTextureShader() {
 	glUniformMatrix4fv(shaders[TEXTURE]->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
 }
 
-void Scene::enableFlatShader() {
-	glm::mat4 proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 100.0f);
-	glm::mat4 view = camera->getView();
-
+void Scene::enableFlatShader(glm::mat4 proj, glm::mat4 view) {
 	shaders[FLAT]->enable();
 	curShader = shaders[FLAT];
 
@@ -495,8 +481,8 @@ void Scene::enableFlatShader() {
 		std::string si = "pointLights[" + std::to_string(i) + "].";
 		glUniform3f(shaders[FLAT]->uniform( si + "position"), point_light_positions[i].x, point_light_positions[i].y, point_light_positions[i].z);
 		glUniform1f(shaders[FLAT]->uniform( si + "constant"), 1.0f);
-		glUniform1f(shaders[FLAT]->uniform( si + "linear"), 0.045f);
-		glUniform1f(shaders[FLAT]->uniform( si + "quadratic"), 0.0075f);
+		glUniform1f(shaders[FLAT]->uniform( si + "linear"), 0.005f);
+		glUniform1f(shaders[FLAT]->uniform( si + "quadratic"), 0.0005f);
 		glUniform3f(shaders[FLAT]->uniform( si + "ambient"), light_ambient.x, light_ambient.y, light_ambient.z);
 		glUniform3f(shaders[FLAT]->uniform( si + "diffuse"), light_diffuse.x, light_diffuse.y, light_diffuse.z);
 		glUniform3f(shaders[FLAT]->uniform( si + "specular"), light_specular.x, light_specular.y, light_specular.z);
@@ -510,8 +496,8 @@ void Scene::enableFlatShader() {
 	glUniform1f(shaders[FLAT]->uniform( "spotLight.cutOff"), glm::cos(glm::radians(12.5f)));
 	glUniform1f(shaders[FLAT]->uniform( "spotLight.fadeOff"), glm::cos(glm::radians(17.5f)));
 	glUniform1f(shaders[FLAT]->uniform( "spotLight.constant"), 1.0f);
-	glUniform1f(shaders[FLAT]->uniform( "spotLight.linear"), 0.045f);
-	glUniform1f(shaders[FLAT]->uniform( "spotLight.quadratic"), 0.0075f);
+	glUniform1f(shaders[FLAT]->uniform( "spotLight.linear"), 0.001f);
+	glUniform1f(shaders[FLAT]->uniform( "spotLight.quadratic"), 0.00001f);
 
 	glUniformMatrix4fv(shaders[FLAT]->uniform("proj"), 1, GL_FALSE, glm::value_ptr(proj));
 	glUniformMatrix4fv(shaders[FLAT]->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -520,10 +506,7 @@ void Scene::enableFlatShader() {
 	glUniform3f(shaders[FLAT]->uniform("material.specular"), 1, 1, 1);
 }
 
-void Scene::enableLightShader() {
-	glm::mat4 proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 100.0f);
-	glm::mat4 view = camera->getView();
-
+void Scene::enableLightShader(glm::mat4 proj, glm::mat4 view) {
 	shaders[LIGHT]->enable();
 	curShader = shaders[LIGHT];
 
@@ -533,10 +516,7 @@ void Scene::enableLightShader() {
 	glUniform3f(shaders[LIGHT]->uniform("lightColor"), light_specular.x, light_specular.y, light_specular.z);
 }
 
-void Scene::enableTestShader() {
-	glm::mat4 proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 100.0f);
-	glm::mat4 view = camera->getView();
-
+void Scene::enableTestShader(glm::mat4 proj, glm::mat4 view) {
 	shaders[TEST]->enable();
 	curShader = shaders[TEST];
 

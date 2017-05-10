@@ -60,7 +60,7 @@ void Sphere::useCustomMesh() {
 }
 
 void Sphere::constructStandardMesh(bool override) {
-    this->bv = new Circ(glm::vec2(dyn.pos[0], dyn.pos[1]), params[0]);
+    this->bv = new Circ(glm::vec2(dyn.pos[0], dyn.pos[2]), params[0]);
 
 	if (!override && standardMesh != NULL) {
 		mesh = standardMesh;

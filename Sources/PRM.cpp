@@ -1,33 +1,39 @@
 #include "PRM.hpp"
-#include "Scenario.hpp"
 
 /* uniformly bin_samps the configuration space to generate nodes for the PRM;
    All sampled points will be non-colliding with the static environment 
 */
-VecPoint * PRM::sample_nodes(Cspace2D * cSpace_, float perturb, float bin_dim, int bin_samps, std::pair<float, float> bounds) {
+VecPoint * PRM::sample_nodes() {
 	typedef std::chrono::high_resolution_clock hrclock;
 	hrclock::time_point first = hrclock::now();
 
 	std::default_random_engine gen;
-	std::uniform_real_distribution<float> std(-0.5f, 0.5f);
+	std::uniform_real_distribution<float> std(-variance/2.f, variance/2.f);
 
 	VecPoint * sample = new VecPoint();
-	for (int i = 0; i < bin_samps; i++) {
-		for (float x = bounds.first+bin_dim/2; x < bounds.second-bin_dim/2; x+=bin_dim) {
+	for (int i = 0; i < bin_samp; i++) {
+		for (float x = lo_bound.x; x < hi_bound.x; x += bin_dim.x) {
             hrclock::duration seed = hrclock::now() - first;
             gen.seed(static_cast<unsigned int>(seed.count()));
-			for (float y = bounds.first+bin_dim/2; y < bounds.second-bin_dim/2; y+=bin_dim) {
+			for (float y = lo_bound.y; y < hi_bound.y; y += bin_dim.y) {
 				glm::vec2 p(
-                    std(gen)*bin_dim + x,
-                    std(gen)*bin_dim + y
+                    std(gen)*bin_dim.x + x + bin_dim.x / 2.f,
+                    std(gen)*bin_dim.y + y + bin_dim.y / 2.f
                 );
-				do {
-					p.x += std(gen) * 2 * perturb;
-					p.y += std(gen) * 2 * perturb;
-					p.x = std::min(std::max(p.x, bounds.first), bounds.second);
-					p.y = std::min(std::max(p.y, bounds.first), bounds.second);
-				} while (cSpace_->is_collision(p));
-                sample->push_back(new Node<glm::vec2> (p, new VecPoint()));
+
+                bool colliding = c_space->is_collision(p);
+                if (perturb != 0) {
+                    while (colliding) {
+                        p.x += std(gen) * 2 * perturb;
+                        p.y += std(gen) * 2 * perturb;
+                        p.x = std::min(std::max(p.x, lo_bound.x), hi_bound.x);
+                        p.y = std::min(std::max(p.y, lo_bound.y), hi_bound.y);
+                        colliding = c_space->is_collision(p);
+                    }
+                }
+
+                if (!colliding)
+                    sample->push_back(new Node<glm::vec2> (p, new VecPoint()));
 			}
 		}
 	}
@@ -37,19 +43,6 @@ VecPoint * PRM::sample_nodes(Cspace2D * cSpace_, float perturb, float bin_dim, i
 
 /* threshold search to find nearby */
 VecPoint * PRM::find_nearest_neighbours(VecPoint * nodes, int targetIdx) {
-    float threshold; // meters
-    switch (G::SCENARIO) {
-    case G::SCENE::DEADEND:
-    case G::SCENE::WALL:
-        threshold = 3.3f;
-        break;
-    case G::SCENE::DEFAULT:
-    case G::SCENE::NO_BOID:
-    case G::SCENE::MAZE:
-    default:
-        threshold = 5.f;
-        break;
-    }
 
 	VecPoint * neighbours = new VecPoint();
 
@@ -88,13 +81,23 @@ Graph<glm::vec2> * PRM::connect_roadmap(VecPoint * nodes) {
 }
 
 /* bin_samps and connects a Pobabilistic Road Map */
-PRM::PRM(Cspace2D * c_space) {
-    this->c_space = c_space;
-
-    //Node<glm::vec2> * start_node = new Node<glm::vec2>(start, new VecPoint());
-    VecPoint * sample = sample_nodes(this->c_space, .1f, 2.8f, 1, std::make_pair(-10.f, 10.f));
-
-    //this->roadmap = connect_roadmap(sample);
+PRM::PRM(Cspace2D * c_space,
+        float threshold,
+        float perturb,
+        glm::vec2 bin_dim,
+        int bin_samp,
+        glm::vec2 lo_bound,
+        glm::vec2 hi_bound,
+        float variance) :
+    c_space(c_space),
+    threshold(threshold),
+    perturb(perturb),
+    bin_dim(bin_dim),
+    bin_samp(bin_samp),
+    lo_bound(lo_bound),
+    hi_bound(hi_bound),
+    variance(variance){
+    this->roadmap = connect_roadmap(sample_nodes());
 }
 
 /* generates a configuartion space given a list of obstacles and agent */
