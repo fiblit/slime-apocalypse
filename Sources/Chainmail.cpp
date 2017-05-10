@@ -10,7 +10,10 @@ using std::max;
 Our chainmail deformation used Sarah Gibson's Paper, "3D ChainMail: a Fast Algorithm for Deforming Volumetric Objects"
 As a base idea for implementation.
 */
-Chainmail::Chainmail(Mesh * mesh) {
+Chainmail::Chainmail(Mesh * mesh, double aMin, double aMax, double b) {
+    this->aMin = aMin;
+    this->aMax = aMax;
+    this->b = b;
 	for (Vertex v : mesh->vertices) {
 		Element e;
 		e.id = this->elements.size();
@@ -46,6 +49,7 @@ Chainmail::Chainmail(Mesh * mesh) {
 			elements[idx3].neighbors.insert(idx1);
 		}
 	}
+    generateRegions();
 }
 
 
@@ -58,70 +62,70 @@ void Chainmail::applyMove(int id, vec3 t) {
 	this->elements[id].updated = true;
 
 	for (int i : this->elements[id].neighbors)
-		if (!this->elements[i].updated)
-			waiting.push_back(ivec2(id, i));
+		waiting.push_back(ivec2(id, i));
 }
 
-Mesh * Chainmail::updateMesh() {
+void Chainmail::applyMove(int id, vec3 t, double dt) {
+    this->elements[id].pos += (vec3(t[0] * dt, t[1] * dt, t[2] * dt));
+    this->elements[id].updated = true;
+
+    for (int i : this->elements[id].neighbors)
+        waiting.push_back(ivec2(id, i));
+}
+
+void Chainmail::returnVertices(vector<vec3> &returnTo) {
     vector<Vertex> newVertices;
     for (int i = 0; i < elements.size(); i++) {
-        Vertex v = {};
-        v.Position = elements[i].pos;
-
-        //DUMMY. TODO: FIX
-        v.Normal = vec3(0, 1, 0);
-        //FIXFIXFIX
-
-        newVertices.push_back(v);
+        returnTo.push_back(elements[i].pos);
     }
-    mesh->updateVertices(newVertices);
-    return mesh;
 }
 
-// Propogates the changes from elements moving to their neighbors
-void Chainmail::propogate() {
+// Propagates the changes from elements moving to their neighbors
+void Chainmail::propagate() {
 	while (!waiting.empty()) {
 		ivec2 v = waiting.front();
 		waiting.pop_front();
-		Element sponsor = this->elements[v.x];
-		Element e = this->elements[v.y];
+		Element * sponsor = &this->elements[v.x];
+		Element * e = &this->elements[v.y];
+        
+        if (e->updated) continue;
 
 		if (v.x > v.y)
 			v = ivec2(v.y, v.x);
 		Cuboid c = this->regions[v]; // this should never throw an error if done right
+		vec3 minBounds = sponsor->pos + c.min;
 
-		vec3 minBounds = sponsor.pos + c.min;
-		vec3 maxBounds = sponsor.pos + c.max;
-
-		if (e.pos.x < minBounds.x) {
-			e.pos.x = minBounds.x;
-			e.updated = true;
+		vec3 maxBounds = sponsor->pos + c.max;
+		if (e->pos.x < minBounds.x) {
+			e->pos.x = minBounds.x;
+			e->updated = true;
 		}
-		else if (e.pos.x > maxBounds.x) {
-			e.pos.x = maxBounds.x;
-			e.updated = true;
+		else if (e->pos.x > maxBounds.x) {
+			e->pos.x = maxBounds.x;
+			e->updated = true;
 		}
-		if (e.pos.y < minBounds.y) {
-			e.pos.y = minBounds.y;
-			e.updated = true;
+		if (e->pos.y < minBounds.y) {
+			e->pos.y = minBounds.y;
+			e->updated = true;
 		}
-		else if (e.pos.y > maxBounds.y) {
-			e.pos.y = maxBounds.y;
-			e.updated = true;
+		else if (e->pos.y > maxBounds.y) {
+			e->pos.y = maxBounds.y;
+			e->updated = true;
 		}
-		if (e.pos.z < minBounds.z) {
-			e.pos.z = minBounds.z;
-			e.updated = true;
+		if (e->pos.z < minBounds.z) {
+			e->pos.z = minBounds.z;
+			e->updated = true;
 		}
-		else if (e.pos.z > maxBounds.z) {
-			e.pos.z = maxBounds.z;
-			e.updated = true;
+		else if (e->pos.z > maxBounds.z) {
+			e->pos.z = maxBounds.z;
+			e->updated = true;
 		}
 
-		if (e.updated)
-			for (int i : this->elements[e.id].neighbors)
-				if (!this->elements[i].updated)
-					waiting.push_back(ivec2(e.id, i));
+		if (e->updated)
+			for (int i : this->elements[e->id].neighbors)
+                if (!this->elements[i].updated) {
+                    waiting.push_back(ivec2(e->id, i));
+                }
 	}
 
 }
@@ -157,7 +161,24 @@ void Chainmail::endFrame() {
 		e.updated = false;
 	waiting.clear(); // might want a more robust end check than this
 }
-
+void Chainmail::simStep(double dt) {
+    applyMove(0, vec3(1, 0, 0), dt);
+    //propagate();
+    //relax(1.0);
+    //endFrame();
+}
+void Chainmail::simStep(glm::vec3 v, double dt) {
+    applyMove(0, v, dt);
+    //propagate();
+    //relax(dt);
+    //endFrame();
+}
+void Chainmail::simStep(int id, glm::vec3 t, double dt) {
+    applyMove(id, t, dt);
+    propagate();
+    //relax(dt);
+    //endFrame();
+}
 //Precompute the bounding regions for each element and their neighbors
 void Chainmail::generateRegions() {
 	for (Element e : this->elements) {

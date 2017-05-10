@@ -43,15 +43,19 @@ struct Element {
 class Chainmail
 {
 public:
-	Chainmail(Mesh * mesh);
+	Chainmail(Mesh * mesh, double aMin, double aMax, double b);
 	virtual ~Chainmail();
 
-	void applyMove(int id, glm::vec3 t);
-	void propogate();
+    void applyMove(int id, glm::vec3 t);
+    void applyMove(int id, glm::vec3 t, double dt);
+	void propagate();
 	void relax(float dt);
 	void generateRegions();
 	void endFrame();
-    Mesh * updateMesh();
+    void simStep(int startNode, glm::vec3 t, double dt); 
+    void simStep(glm::vec3, double dt);
+    void simStep(double dt);
+    void returnVertices(std::vector<glm::vec3> &returnTo);
 	/* variables */
 	std::vector<Element> elements; // might be able to make this unordered_map with IDs
     std::vector<Element *> surfaceElements; //O
