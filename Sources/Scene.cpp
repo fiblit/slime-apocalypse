@@ -7,7 +7,7 @@ using namespace std;
 Scene::Scene() {
     this->camera = new Camera();
     camera->pos = vec3(5, 5, 5);
-    camera->dir = vec3(0,0, 1);
+    camera->dir = vec3(0,1, 0);
     this->floor = new Cube(10000, .5, 10000, vec3(0, 0, -.5));
 	// Generate player object
     /*
@@ -532,7 +532,7 @@ void Scene::enableTestShader(glm::mat4 proj, glm::mat4 view) {
 void Scene::setupTestingObjects() {
 	// walls
 	playerObject = new Sphere(1, 100, 0, 0);
-    test = new Slime(3, 0, 0,  5);
+    test = new Slime(3, 0, 0,  3.4);
     enemyObjects.push_back(test);
 }
 
@@ -541,7 +541,7 @@ void Scene::toggle_flashlight() {
 }
 
 void Scene::slimeTestMove() {
-    test->dyn.force = vec3(100, 0, 100);
+    test->dyn.force = vec3(10000, 0, 10000);
 }
 
 

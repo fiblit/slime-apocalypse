@@ -25,7 +25,7 @@ Chainmail::Chainmail(Mesh * mesh, int stacks, int slices, glm::vec3 worldCenter)
     Element center;
     center.id = this->elements.size();
     center.origin = vec3(0);
-    center.pos = vec3(0);
+    center.pos = worldCoordCenter;
     for (Element & e : this->elements) {
         center.neighbors.insert(e.id);
         e.neighbors.insert(center.id);
@@ -33,39 +33,42 @@ Chainmail::Chainmail(Mesh * mesh, int stacks, int slices, glm::vec3 worldCenter)
 
     this->elements.push_back(center);
     */
-    for (int i = 0; i < mesh->indices.size(); i += 3) {
-        int idx1 = mesh->indices[i];
-        int idx2 = mesh->indices[i + 1];
-        int idx3 = mesh->indices[i + 2];
-        if (idx1 == 30 || idx2 == 30 | idx3 == 30) {
-        }
-        if (elements[idx1].neighbors.find(idx2) == elements[idx1].neighbors.end() && glm::length(elements[idx1].pos - elements[idx2].pos) > .003) {
-            elements[idx1].neighbors.insert(idx2);
-            elements[idx2].neighbors.insert(idx1);
-        }
-        if (elements[idx2].neighbors.find(idx3) == elements[idx2].neighbors.end() && glm::length(elements[idx3].pos - elements[idx2].pos) > .003) {
-            elements[idx2].neighbors.insert(idx3);
-            elements[idx3].neighbors.insert(idx2);
-        }
-        if (elements[idx1].neighbors.find(idx3) == elements[idx1].neighbors.end() && glm::length(elements[idx1].pos - elements[idx3].pos) > .003) {
-            elements[idx1].neighbors.insert(idx3);
-            elements[idx3].neighbors.insert(idx1);
-        }
-    }
 
+    //Random distribution of points in sphere
+    /*
+    for (int i = 0; i < 100; i++) {
+        double maxDist = glm::distance(worldCenter, elements[0].pos);
+        double x = ((float)rand()) / RAND_MAX * maxDist - (maxDist / 2);
+        double y = ((float)rand()) / RAND_MAX * maxDist - (maxDist / 2);
+        double z = ((float)rand()) / RAND_MAX * maxDist - (maxDist / 2);
+        while (glm::distance(vec3(x, y, z), worldCenter) > maxDist) {
+            x = ((float)rand()) / RAND_MAX * maxDist - (maxDist / 2);
+            y = ((float)rand()) / RAND_MAX * maxDist - (maxDist / 2);
+            z = ((float)rand()) / RAND_MAX * maxDist - (maxDist / 2);
+        }
+        Element e = {};
+        e.id = elements.size();
+        e.origin = vec3(x, y, z);
+        e.pos = e.origin;
+        e.updated = false;
+        double someDist = maxDist / 2;
+        for (int i = 0; i < elements.size(); i++) {
+            if (glm::distance(elements[i].pos, e.pos) < someDist) {
+                elements[i].neighbors.insert(e.id);
+                e.neighbors.insert(i);
+            }
+        }
+        elements.push_back(e);
+    }
+    */
     //lattice work for internal structure
-    std::vector<std::vector<int>> internals;
+    
     for (int i = 0; i < stacks; i++) {
         for (int j = 0; j < slices; j++) {
             int idx1 = j + ((stacks - i - 1) * slices);
             int idx2 = (slices - j) + (i * slices);
             int idx3 = (slices - j) + ((stacks - i - 1) * slices);
             int me = j + i * slices;
-            std::vector<int> grouping;
-            grouping.push_back(me);
-            grouping.push_back(idx1);
-            grouping.push_back(idx2);
-            grouping.push_back(idx3);
             
             if (idx1 < elements.size() && (glm::distance(elements[idx1].pos, elements[me].pos) > .003) && 
                 (idx1 != me && std::find(elements[idx1].neighbors.begin(), elements[idx1].neighbors.end(), me) != elements[idx1].neighbors.end())) {
@@ -84,11 +87,9 @@ Chainmail::Chainmail(Mesh * mesh, int stacks, int slices, glm::vec3 worldCenter)
                 elements[idx3].neighbors.insert(me);
                 elements[me].neighbors.insert(idx3);     
             }
-            internals.push_back(grouping);
-        }
-        
+        }        
     }
-
+    
     generateRegions();
 }
 
@@ -119,7 +120,6 @@ void Chainmail::applyMove(int id, vec3 t, double dt) {
 
         if (elements[randElement].pos.z + worldCoordCenter.z < .003) {
             float delta = (elements[randElement].pos.z + worldCoordCenter.z) + .005;
-            //std::cout << delta << "? " << std::endl;
             elements[randElement].pos.z = delta;
         }
         elements[randElement].updated = true;
@@ -235,7 +235,7 @@ void Chainmail::relax(float dt) {
 	// Second, push all elements toward their respective centroid
 	for (Element & e : this -> elements) {
 		vec3 v = centroids[e.id] - e.pos;
-        //v = (e.origin - e.pos);
+        v = (e.origin - e.pos);
 		e.pos += 2*dt*v;
         if (e.pos.z + worldCoordCenter.z < .003) {
             float delta = (e.pos.z + worldCoordCenter.z) + .005;

@@ -28,7 +28,7 @@ Slime::Slime(float r, glm::vec3 p) : Sphere(r, p) {
 }
 
 void Slime::simulate(float dt) {
-	deformer->simStep(0, glm::vec3(0, 0, -1), dt);
+	deformer->simStep(0, glm::vec3(0, 0, -5), dt);
     this->dyn.pos = deformer->returnWorldPos();
 }
 
