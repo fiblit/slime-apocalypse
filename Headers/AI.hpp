@@ -15,7 +15,7 @@ namespace ai {
     extern BVH * static_bvh;
     extern BVH * dynamic_bvh;
     void init(std::vector<Object *> dynamics, std::vector<Object *> statics);
-    void update_agents(std::vector<Object *> statics, std::vector<Object *> dynamics, Gtime::Timer * clock);
+    void update_agents(std::vector<Object *> statics, std::vector<Object *> dynamics);
 };
 
 #endif // AI_H_GUARD

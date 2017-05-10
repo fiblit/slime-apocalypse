@@ -32,8 +32,7 @@ void ai::init(std::vector<Object *> dynamics, std::vector<Object *> statics) {
 }
 
 //move to AI/planner --- this is a force-based LMP
-void ai::update_agents(std::vector<Object *> statics, std::vector<Object *> dynamics, Gtime::Timer * clock) {
-    clock->pause();
+void ai::update_agents(std::vector<Object *> statics, std::vector<Object *> dynamics) {
     if (ai::static_bvh->size() != statics.size()) {
         delete ai::static_bvh;//probably very slow
         ai::static_bvh = new BVH(statics);
@@ -51,5 +50,4 @@ void ai::update_agents(std::vector<Object *> statics, std::vector<Object *> dyna
         }
     }
     */
-    clock->play();
 }

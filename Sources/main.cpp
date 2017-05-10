@@ -65,7 +65,9 @@ int main() {
 
     /* Path Planning */
     ai::init(scene->enemyObjects, scene->staticObjects);
-    //GMP::replan(scene->enemyObjects, game_loop_clock);
+    //game_loop_clock->pause();
+    //GMP::replan(scene->enemyObjects);
+    //game_loop_clock->play();
 
     /* Game Loop */
 	GLfloat fpsTimer = 0;
@@ -89,9 +91,11 @@ int main() {
         handle_input(game_loop_clock, scene);
         double xPos;
         double yPos;
-        //reintegrate
-        ai::update_agents(scene->staticObjects, scene->enemyObjects, game_loop_clock);
 
+        //AI
+        ai::update_agents(scene->staticObjects, scene->enemyObjects);
+
+        //Physics
         scene->simulate(game_loop_clock->delta());
 
 		// Render 
