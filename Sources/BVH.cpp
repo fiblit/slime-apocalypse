@@ -40,7 +40,7 @@ BVH::BVH(vector<Object *> objects) {
 void BVH::construct_(vector<Object *> objects, vector<Index> sorted_x, vector<Index> sorted_z) {
     D(assert(sorted_x.size() == sorted_z.size()));
     if (sorted_x.size() == static_cast<size_t>(1)) {
-        //D(assert(sorted_x[0] == sorted_z[0]));
+        D(assert(sorted_x[0].obj == sorted_z[0].obj));
         this->right = nullptr;
         o = objects[sorted_x[0].obj];
         return;
@@ -98,7 +98,6 @@ void BVH::construct_(vector<Object *> objects, vector<Index> sorted_x, vector<In
                 z_rhs[sorted_x[i].oth] = sorted_z[sorted_x[i].oth];
             }
         }
-
     }
     else {
         size_t half = static_cast<size_t>(sorted_z.size() / 2);
