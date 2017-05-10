@@ -6,7 +6,9 @@ BVH * ai::static_bvh;
 BVH * ai::dynamic_bvh;
 
 //todo: figure out how to handle varying size Cspace
-void ai::init(std::vector<Object *> dynamics, std::vector<Object *> statics) {
+void ai::init(std::vector<Object *> dynamics, std::vector<Object *> statics, mazeData map) {
+    static const float root2 = static_cast<float>(sqrt(2));
+
     ai::static_bvh = new BVH(statics);
     ai::dynamic_bvh = new BVH(dynamics);
     
@@ -14,12 +16,24 @@ void ai::init(std::vector<Object *> dynamics, std::vector<Object *> statics) {
         o->ai.method = ai_comp::Planner::NONE;
     }
     if (dynamics.size() > static_cast<size_t>(0)) {
+        Gtime::add_now();
         std::vector<BoundingVolume *> obs_bv;
         for (Object * s : statics)
             obs_bv.push_back(s->bv);
-        Gtime::add_now();
         ai::std_cspace = dynamics[0]->ai.cspace = new Cspace2D(obs_bv, dynamics[0]->bv);
-        ai::std_prm = new PRM(/*NNai[0]->bv->o, NNai[0]->bv->o,*/ai::std_cspace);
+        std::cout << Gtime::del_top() << std::endl;
+
+        Gtime::add_now();
+        glm::vec2 center_2d(map.center.x, map.center.z);
+        glm::vec2 dim(map.width, map.height);
+        ai::std_prm = new PRM(
+            ai::std_cspace,
+            2 * root2 * map.cellSize,
+            0.f,
+            glm::vec2(map.cellSize, map.cellSize),
+            1,
+            center_2d - dim,
+            center_2d + dim);
         std::cout << Gtime::del_top() << std::endl;
 
         for (Object * o : dynamics) {
@@ -37,6 +51,7 @@ void ai::update_agents(std::vector<Object *> statics, std::vector<Object *> dyna
     if (ai::static_bvh->size() != statics.size()) {
         delete ai::static_bvh;//probably very slow
         ai::static_bvh = new BVH(statics);
+        //TODO: update PRM
     }
     delete ai::dynamic_bvh;
     ai::dynamic_bvh = new BVH(dynamics);

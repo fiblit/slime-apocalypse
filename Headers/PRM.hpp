@@ -28,13 +28,26 @@ public:
 
 class PRM {
 private:
-	Cspace2D * c_space;
-	VecPoint * sample_nodes(Cspace2D * c_space, float perturb, float bin_dim, int bin_samps, std::pair<float, float> bounds);
+    Cspace2D * c_space;
+	VecPoint * sample_nodes();
 	VecPoint * find_nearest_neighbours(VecPoint * nodes, int targetIdx);
 	Graph<glm::vec2> * connect_roadmap(VecPoint * nodes);
+
+    float threshold;
+    float perturb;
+    glm::vec2 bin_dim;
+    int bin_samp;
+    glm::vec2 lo_bound;
+    glm::vec2 hi_bound;
 public:
 	Graph<glm::vec2> * roadmap;
-	PRM(Cspace2D * c_space);
+	PRM(Cspace2D * c_space,
+        float threshold, 
+        float perturb,
+        glm::vec2 bin_dim,
+        int bin_samp,
+        glm::vec2 lo_bound,
+        glm::vec2 hi_bound);
 };
 
 #endif // PRM_H_GUARD
