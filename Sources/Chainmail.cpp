@@ -151,7 +151,7 @@ void Chainmail::relax(float dt) {
 
 	// Second, push all elements toward their respective centroid
 	for (Element e : this->elements) {
-		e.pos += dt*centroids[e.id];
+        e.pos = e.origin;
 	}
 }
 
@@ -175,7 +175,7 @@ void Chainmail::simStep(glm::vec3 v, double dt) {
 }
 void Chainmail::simStep(int id, glm::vec3 t, double dt) {
     applyMove(id, t, dt);
-    //propagate();
+    propagate();
     //relax(dt);
     //endFrame();
 }
