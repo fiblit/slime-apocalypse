@@ -71,9 +71,10 @@ public:
     glm::vec3 worldCoordCenter;
     int objectDimension;
 	int spaceDimension;
-	double aMin = .01; // compression factor
-	double aMax = 10;  // stretch factor
+	double aMin = 100; // compression factor
+	double aMax = 10000;  // stretch factor
 	double b = 10;	  // shear factor
+
     Mesh * mesh;
 	int vertexLength; // used for returning the correct model back
 };

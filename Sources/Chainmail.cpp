@@ -118,8 +118,9 @@ void Chainmail::applyMove(int id, vec3 t, double dt) {
         elements[randElement].pos += vec3(t[0] * .001, t[1] * .001, t[2] * .001);
 
 
-        if (elements[randElement].pos.z + worldCoordCenter.z < .003) {
-            float delta = (elements[randElement].pos.z + worldCoordCenter.z) + .005;
+
+        if (elements[randElement].pos.z + worldCoordCenter.z < .000) {
+            float delta = .003;
             elements[randElement].pos.z = delta;
         }
         elements[randElement].updated = true;
@@ -186,16 +187,16 @@ void Chainmail::propagate() {
 		}
 		if (e->pos.z < minBounds.z) {
 			e->pos.z = minBounds.z;
-            if (e->pos.z + worldCoordCenter.z < .003) {
-                float delta = (e->pos.z + worldCoordCenter.z) + .005;
+            if (e->pos.z + worldCoordCenter.z < .000) {
+                float delta = .003;
                 e->pos.z = delta;
             }
 			e->updated = true;
 		}
 		else if (e->pos.z > maxBounds.z) {
 			e->pos.z = maxBounds.z;
-            if (e->pos.z + worldCoordCenter.z < .003) {
-                float delta = (e->pos.z + worldCoordCenter.z) + .005;
+            if (e->pos.z + worldCoordCenter.z < .000) {
+                float delta = .003;
                 e->pos.z = delta;
             }
 			e->updated = true;
@@ -237,8 +238,8 @@ void Chainmail::relax(float dt) {
 		vec3 v = centroids[e.id] - e.pos;
         v = (e.origin - e.pos);
 		e.pos += 2*dt*v;
-        if (e.pos.z + worldCoordCenter.z < .003) {
-            float delta = (e.pos.z + worldCoordCenter.z) + .005;
+        if (e.pos.z + worldCoordCenter.z < .000) {
+            float delta = .003;
             e.pos.z = delta;
         }
 	}
@@ -281,20 +282,6 @@ void Chainmail::generateRegions() {
 							 this->aMax*dY + this->b*(dZ + dX),
 							 this->aMax*dZ + this->b*(dX + dY));
 
-                /*
-                if (eN.origin.x < e.origin.x) {
-                    c.min.x *= -1;
-                    c.max.x *= -1;
-                }
-                if (eN.origin.y < e.origin.y) {
-                    c.min.y *= -1;
-                    c.max.y *= -1;
-                }
-                if (eN.origin.z < e.origin.z) {
-                    c.min.z *= -1;
-                    c.max.z *= -1;
-                }
-                */
 				this->regions[key] = c;
 			}
 		}

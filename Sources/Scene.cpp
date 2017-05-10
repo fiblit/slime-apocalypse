@@ -532,7 +532,7 @@ void Scene::enableTestShader(glm::mat4 proj, glm::mat4 view) {
 void Scene::setupTestingObjects() {
 	// walls
 	playerObject = new Sphere(1, 100, 0, 0);
-    test = new Slime(3, 0, 0,  3.4);
+    test = new Slime(3, 0, 0,  4);
     enemyObjects.push_back(test);
 }
 

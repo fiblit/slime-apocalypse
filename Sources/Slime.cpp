@@ -12,23 +12,27 @@ Slime::Slime()  : Sphere(){
 Slime::Slime(float r, float x, float y, float z) : Sphere(r, x, y, z) {
     usingStandardMesh = false;
     useCustomMesh();
+    this->dyn.gravity = glm::vec3(0, 0, -5);
     deformer = new Chainmail(mesh, stacks, slices, this->dyn.pos);
 }
 
 Slime::Slime(float r) : Sphere(r) {
     usingStandardMesh = false;
     useCustomMesh();
+    this->dyn.gravity = glm::vec3(0, 0, -5);
     deformer = new Chainmail(mesh, stacks, slices, this->dyn.pos);
 }
 
 Slime::Slime(float r, glm::vec3 p) : Sphere(r, p) {
     usingStandardMesh = false;
     useCustomMesh();
+    this->dyn.gravity = glm::vec3(0, 0, -2);
     deformer = new Chainmail(mesh, stacks, slices, this->dyn.pos);
 }
 
 void Slime::simulate(float dt) {
-	deformer->simStep(0, glm::vec3(0, 0, -5), dt);
+    
+	deformer->simStep(0, dyn.gravity, dt);
     this->dyn.pos = deformer->returnWorldPos();
 }
 

@@ -94,7 +94,8 @@ int main() {
         //ai::update_agents(scene->staticObjects, scene->enemyObjects, scene->playerObject);
 
         //Physics
-        scene->simulate(game_loop_clock->delta());
+        //for(int i = 0 ; i < 20 ; i++)
+            scene->simulate(game_loop_clock->delta());
 
 		// Render 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
