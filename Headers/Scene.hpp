@@ -56,12 +56,18 @@ public:
 
 	void render();
 
-	void enableTextureShader();
-	void enableFlatShader();
-	void enableLightShader();
-	void enableTestShader();
-
     void toggle_flashlight();
+
+	void enableTextureShader(glm::mat4 proj, glm::mat4 view);
+	void enableFlatShader(glm::mat4 proj, glm::mat4 view);
+	void enableLightShader(glm::mat4 proj, glm::mat4 view);
+	void enableTestShader(glm::mat4 proj, glm::mat4 view);
+
+    void reset_proj_view() {
+        proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 300.0f);
+        view = camera->getView();
+    }
+    glm::mat4 proj, view;
 
 	Object *playerObject;
 	float maxEnemies;
