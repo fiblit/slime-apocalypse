@@ -1,0 +1,24 @@
+#ifndef SLIME_H_GUARD
+#define SLIME_H_GUARD
+#include "Sphere.hpp"
+class Slime :
+    public Sphere
+{
+public:
+    Slime();
+    Slime(float r, float x, float y, float z); 
+    Slime(float r);
+    Slime(float r, glm::vec3 p);
+
+	void simulate(float dt);
+    void moveBy(float x, float y, float z); 
+    void moveBy(float x, float y, float z, double dt);
+    void moveBy(glm::vec3 t);
+    void moveBy(glm::vec3 t, double dt);
+    void moveTo(float x, float y, float z);
+    void moveTo(glm::vec3 position);
+
+    virtual ~Slime();
+};
+
+#endif // OBJECT_H_GUARD

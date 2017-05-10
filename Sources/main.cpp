@@ -102,7 +102,7 @@ int main() {
         scene->reset_proj_view();
 
 		// TODO: currently must enable shader every frame to update view matrix; easily fixed
-		scene->enableFlatShader(scene->proj, scene->view);
+		scene->enableTestShader();
         
 		scene->render();
 
@@ -178,6 +178,12 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
     handle_scene->camera->scroll_zoom_camera(UI::d_scroll);
 	UI::d_scroll = 0;
 
+    if (UI::keys[GLFW_KEY_K]) {
+        scene->slimeTestMove();
+    }    
+    if (UI::keys[GLFW_KEY_L]) {
+        scene->slimeTestStill();
+    }
     if (UI::keys[GLFW_KEY_UP]) {
         scene->playerObject->dyn.pos += glm::vec3(0, 0, -1);
         scene->generateMoreMaze();

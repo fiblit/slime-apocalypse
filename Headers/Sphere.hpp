@@ -20,6 +20,10 @@ public:
 	static Mesh * standardMesh;
 	bool usingStandardMesh = true;
 
+	// may need to change from static const
+	static const int stacks = 15;
+	static const int slices = 15;
+
 	// params[0] is radius
 };
 

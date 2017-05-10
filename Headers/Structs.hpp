@@ -56,6 +56,7 @@ struct dynamics_comp {
     glm::vec3 acc;
     glm::vec3 mass;
     glm::vec3 force;
+    glm::vec3 gravity;
 };
 
 //used by the motion planning module (mostly global MP)

@@ -8,6 +8,7 @@
 #include "Object.hpp"
 #include "Cube.hpp"
 #include "Sphere.hpp"
+#include "Slime.hpp"
 #include "Structs.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
@@ -71,7 +72,8 @@ public:
 
 	Object *playerObject;
 	float maxEnemies;
-	std::vector<Object *> enemyObjects;
+    Cube *floor;
+	std::vector<Slime *> enemyObjects;
 	float maxObstacles;
 	std::vector<Object *> staticObjects;
     mazeData mazeInfo;
@@ -99,6 +101,10 @@ public:
 	glm::vec3 dir_light_dir = glm::vec3(-0.5f, 1.0f, -0.7f);
 
 	bool is_flashlight_on = true;
+
+    void slimeTestMove();
+    void slimeTestStill();
+    Slime * test;
 };
 
 #endif // SCENE_H_GUARD

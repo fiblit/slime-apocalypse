@@ -6,7 +6,7 @@ BVH * ai::static_bvh;
 BVH * ai::dynamic_bvh;
 
 //todo: figure out how to handle varying size Cspace
-void ai::init(std::vector<Object *> dynamics, std::vector<Object *> statics, mazeData map) {
+void ai::init(std::vector<Slime *> dynamics, std::vector<Object *> statics, mazeData map) {
     static const float root2 = static_cast<float>(sqrt(2));
 
     ai::static_bvh = new BVH(statics);
