@@ -20,11 +20,16 @@ Chainmail::Chainmail(Mesh * mesh, int stacks, int slices) {
 		elements.push_back(e);
 	}
 	// Add a centroid element
-	/*Element center;
+	Element center;
 	center.id = this->elements.size();
 	center.origin = vec3(0);
 	center.pos = vec3(0);
-	this->elements[0].neighbors.insert(center.id);
+	for (Element & e : this->elements) {
+		center.neighbors.insert(e.id);
+		e.neighbors.insert(center.id);
+	}
+	this->elements.push_back(center);
+	/*this->elements[0].neighbors.insert(center.id);
 	this->elements[stacks*slices].neighbors.insert(center.id);
 	this->elements[stacks/2].neighbors.insert(center.id);
 	this->elements[stacks/2 + stacks*(slices/4)].neighbors.insert(center.id);
