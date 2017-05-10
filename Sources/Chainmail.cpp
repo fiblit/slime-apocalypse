@@ -175,7 +175,7 @@ void Chainmail::simStep(glm::vec3 v, double dt) {
 }
 void Chainmail::simStep(int id, glm::vec3 t, double dt) {
     applyMove(id, t, dt);
-    propagate();
+    //propagate();
     //relax(dt);
     //endFrame();
 }
@@ -192,15 +192,30 @@ void Chainmail::generateRegions() {
 				double dX, dY, dZ;
 				// TODO: test that this logic is correct
 				dX = std::abs(e.origin.x - eN.origin.x);
-				dY = std::abs(e.origin.y - eN.origin.y);
-				dZ = std::abs(e.origin.z - eN.origin.z);
-
+                dX = abs(eN.origin.x - e.origin.x);
+                dY = abs(eN.origin.x - e.origin.x);
+                dZ = abs(eN.origin.x - e.origin.x);
 				c.min = vec3(this->aMin*dX - this->b*(dY + dZ),
 							 this->aMin*dY - this->b*(dZ + dX),
 							 this->aMin*dZ - this->b*(dX + dY));
 				c.max = vec3(this->aMax*dX + this->b*(dY + dZ),
 							 this->aMax*dY + this->b*(dZ + dX),
 							 this->aMax*dZ + this->b*(dX + dY));
+
+                /*
+                if (eN.origin.x < e.origin.x) {
+                    c.min.x *= -1;
+                    c.max.x *= -1;
+                }
+                if (eN.origin.y < e.origin.y) {
+                    c.min.y *= -1;
+                    c.max.y *= -1;
+                }
+                if (eN.origin.z < e.origin.z) {
+                    c.min.z *= -1;
+                    c.max.z *= -1;
+                }
+                */
 				this->regions[key] = c;
 			}
 		}

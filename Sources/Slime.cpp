@@ -27,20 +27,6 @@ Slime::Slime(float r, glm::vec3 p) : Sphere(r, p) {
     deformer = new Chainmail(mesh, aMin, aMax, b);
 }
 
-void Slime::moveBy(float x, float y, float z) {
-    deformer->applyMove(0, glm::vec3(x, y, z));
-    std::vector<glm::vec3> v;
-    deformer->returnVertices(v);
-    std::vector<Vertex> newMeshVertices;
-    for (int i = 0; i < v.size(); i++) {
-        Vertex newVert = {};
-        newVert.Position = v[i];
-        newMeshVertices.push_back(newVert);
-    }
-    mesh->updateVertices(newMeshVertices);
-    mesh->updateNormals();
-}
-
 void Slime::moveBy(float x, float y, float z, double dt) {
     deformer->simStep(0, glm::vec3(x, y, z), dt);
     std::vector<glm::vec3> v;
@@ -69,19 +55,6 @@ void Slime::moveBy(glm::vec3 t, double dt) {
     mesh->updateVertices(newMeshVertices);
     mesh->updateNormals();
 
-}
-void Slime::moveBy(glm::vec3 t) {
-    deformer->applyMove(0, t);
-    std::vector<glm::vec3> v;
-    deformer->returnVertices(v);
-    std::vector<Vertex> newMeshVertices;
-    for (int i = 0; i < v.size(); i++) {
-        Vertex newVert = {};
-        newVert.Position = v[i];
-        newMeshVertices.push_back(newVert);
-    }
-    mesh->updateVertices(newMeshVertices);
-    mesh->updateNormals();
 }
 void Slime::moveTo(float x, float y, float z) {
     deformer->applyMove(0, glm::vec3(x, y, z));

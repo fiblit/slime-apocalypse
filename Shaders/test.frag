@@ -25,7 +25,7 @@ void main() {
 
 	vec3 result = material.diffuse * max(0.0, dot(norm, light)) + material.specular * s + vec3(.2);
   
-	color = vec4(result, 1.0);
+	color = vec4(Normal, 1.0);
 }
 
 

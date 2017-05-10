@@ -50,6 +50,9 @@ void Mesh::updateNormals() {
     for (int i = 0; i < vertices.size(); i++) {
         vertices[i].Normal = glm::normalize(vertices[i].Normal);
     }
+
+    glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+    glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_DYNAMIC_DRAW);
 }
 
 // Careful when using on Mesh that is shared by multiple Objects!

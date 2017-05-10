@@ -532,9 +532,11 @@ void Scene::enableTestShader() {
 	glUniformMatrix4fv(shaders[TEST]->uniform("proj"), 1, GL_FALSE, glm::value_ptr(proj));
 	glUniformMatrix4fv(shaders[TEST]->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
 
+    /*
 	glUniform3f(shaders[TEST]->uniform("material.diffuse"), 1, 0, 0);
 	glUniform3f(shaders[TEST]->uniform("material.specular"), 1, 1, 1);
 	glUniform1f(shaders[TEST]->uniform("material.shine"), 32.0f);
+    */
 }
 void Scene::setupTestingObjects() {
 	// walls
