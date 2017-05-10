@@ -39,6 +39,7 @@ private:
     int bin_samp;
     glm::vec2 lo_bound;
     glm::vec2 hi_bound;
+    float variance;
 public:
 	Graph<glm::vec2> * roadmap;
 	PRM(Cspace2D * c_space,
@@ -47,7 +48,8 @@ public:
         glm::vec2 bin_dim,
         int bin_samp,
         glm::vec2 lo_bound,
-        glm::vec2 hi_bound);
+        glm::vec2 hi_bound,
+        float variance);
 };
 
 #endif // PRM_H_GUARD

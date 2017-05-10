@@ -8,7 +8,7 @@ VecPoint * PRM::sample_nodes() {
 	hrclock::time_point first = hrclock::now();
 
 	std::default_random_engine gen;
-	std::uniform_real_distribution<float> std(-0.5f, 0.5f);
+	std::uniform_real_distribution<float> std(-variance/2.f, variance/2.f);
 
 	VecPoint * sample = new VecPoint();
 	for (int i = 0; i < bin_samp; i++) {
@@ -87,14 +87,16 @@ PRM::PRM(Cspace2D * c_space,
         glm::vec2 bin_dim,
         int bin_samp,
         glm::vec2 lo_bound,
-        glm::vec2 hi_bound) :
+        glm::vec2 hi_bound,
+        float variance) :
     c_space(c_space),
     threshold(threshold),
     perturb(perturb),
     bin_dim(bin_dim),
     bin_samp(bin_samp),
     lo_bound(lo_bound),
-    hi_bound(hi_bound) {
+    hi_bound(hi_bound),
+    variance(variance){
     this->roadmap = connect_roadmap(sample_nodes());
 }
 
