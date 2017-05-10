@@ -21,7 +21,6 @@ std::vector<BoundingVolume *> Circ::minkowskiSum(BoundingVolume * bv) {
     if (circ != nullptr) {
         return minkowskiSum_(circ);
     }
-    
     Rect * rect = dynamic_cast<Rect*>(bv);
     if (rect != nullptr) {
         return minkowskiSum_(rect);

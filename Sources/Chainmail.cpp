@@ -112,7 +112,6 @@ void Chainmail::relax(float dt) {
 			Q.push_back(this->elements[i].pos +
 						 (e.origin - this->elements[i].origin));
 		}
-
 		vec3 c = vec3(0);
 		for (vec3 v : Q)
 			c += v;
