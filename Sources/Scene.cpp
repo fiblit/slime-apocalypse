@@ -541,7 +541,7 @@ void Scene::enableTestShader() {
 void Scene::setupTestingObjects() {
 	// walls
 	playerObject = new Sphere(1, 100, 0, 0);
-    test = new Slime(3, 3, 3, 0,0,0);
+    test = new Slime(3, -2, 0, 0);
     enemyObjects.push_back(test);
 }
 
@@ -550,7 +550,7 @@ void Scene::toggle_flashlight() {
 }
 
 void Scene::slimeTestMove() {
-    test->moveBy(0, 0, 0, .02);
+    test->moveBy(1, 0, 0, .02);
 }
 
 

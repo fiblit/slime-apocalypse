@@ -175,7 +175,7 @@ void Chainmail::simStep(glm::vec3 v, double dt) {
 }
 void Chainmail::simStep(int id, glm::vec3 t, double dt) {
     applyMove(id, t, dt);
-    propagate();
+    //propagate();
     //relax(dt);
     //endFrame();
 }
