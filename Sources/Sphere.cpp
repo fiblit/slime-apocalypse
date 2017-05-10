@@ -73,14 +73,14 @@ void Sphere::constructStandardMesh(bool override) {
 	vector<Vertex> vertices;
 	vector<GLuint> indices;
 
-	for (int i = 0; i < stacks+1; i++) {
-		int nextStack = (i+1)%(stacks+1);
+	for (int i = 0; i < stacks; i++) {
+		int nextStack = (i+1)%(stacks);
 		double longitude = 2 * PI * i / stacks;
 		//calculate the vertices and colors
-		for (int j = 0; j < slices+1; j++) {
+		for (int j = 0; j < slices; j++) {
 			Vertex vertex;
 
-			int nextSlice = (j+1)%(slices+1);
+			int nextSlice = (j+1)%(slices);
 			double colatitude = PI * j / slices;
 			double x = cos(longitude) * sin(colatitude);
 			double y = sin(longitude) * sin(colatitude);
@@ -89,15 +89,31 @@ void Sphere::constructStandardMesh(bool override) {
 			vertex.Normal = glm::normalize(vertex.Position);
 			vertices.push_back(vertex);
 
-			indices.push_back(j + i*slices);
-			indices.push_back(j + (nextStack)*slices);
-			indices.push_back(nextSlice + (nextStack)*slices);
+			if (j > 0 && j < slices - 1) {
+				indices.push_back(j + i*slices);
+				indices.push_back(j + (nextStack)*slices);
+				indices.push_back(nextSlice + (nextStack)*slices);
 
-			indices.push_back(j + i*slices);
-			indices.push_back(nextSlice + (nextStack)*slices);
-			indices.push_back(nextSlice + i*slices);
+				indices.push_back(j + i*slices);
+				indices.push_back(nextSlice + (nextStack)*slices);
+				indices.push_back(nextSlice + i*slices);
+			}
+			else if (j == 0) {
+				indices.push_back(0);
+				indices.push_back(nextSlice + (nextStack)*slices);
+				indices.push_back(nextSlice + i*slices);
+			}
+			else if (j == slices - 1) {
+				indices.push_back(j + i*slices);
+				indices.push_back(j + (nextStack)*slices);
+				indices.push_back(stacks*slices);
+			}
 		}
 	}
+	Vertex vertex;
+	vertex.Position = vec3(cos(2*PI)*sin(PI), sin(2*PI)*sin(PI), cos(PI));
+	vertex.Normal = glm::normalize(vertex.Position);
+	vertices.push_back(vertex);
 	if (override) {
 		standardMesh->vertices = vertices;
 		standardMesh->indices = indices;

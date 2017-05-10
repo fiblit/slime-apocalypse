@@ -541,7 +541,7 @@ void Scene::enableTestShader() {
 void Scene::setupTestingObjects() {
 	// walls
 	playerObject = new Sphere(1, 100, 0, 0);
-    test = new Slime(3, -2, 0, 0);
+    test = new Slime(3, 0, 0, -10);
     enemyObjects.push_back(test);
 }
 
