@@ -87,13 +87,17 @@ Chainmail::~Chainmail() {}
 
 // Moves an element and readies its neighbors for propogation
 void Chainmail::applyMove(int id, vec3 t) {
-    applyMove(0, vec3(0), 0);
+    applyMove(0, t, 0);
 }
 
 void Chainmail::applyMove(int id, vec3 t, double dt) {
     for (int i = 0; i < 15; i++) {
         int randElement = ((float)rand()) / RAND_MAX * (elements.size()-1);
         elements[randElement].pos += vec3(t[0] * .001, t[1] * .001, t[2] * .001);
+        if (abs(t.z) > .00003 || abs(t.y > .00003) || abs(t.x > .00003)) {
+            std::cout << t.z << std::endl;
+            std::cout << elements[randElement].pos.z << std::endl;
+        }
         elements[randElement].updated = true;
     }
 
@@ -146,6 +150,7 @@ void Chainmail::propagate() {
 		}
 		else if (e->pos.z > maxBounds.z) {
 			e->pos.z = maxBounds.z;
+            if ((e->pos.z) < 0) e->pos.z = .03;
 			e->updated = true;
 		}
 
