@@ -66,6 +66,7 @@ public:
 
 	Object *playerObject;
 	float maxEnemies;
+    Cube *floor;
 	std::vector<Slime *> enemyObjects;
 	float maxObstacles;
 	std::vector<Object *> staticObjects;

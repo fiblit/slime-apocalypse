@@ -24,7 +24,7 @@ Mesh::~Mesh() {}
 void Mesh::draw(Shader * shader) {
 	// Draw mesh
 	glBindVertexArray(this->VAO);
-	glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, +this->indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
@@ -33,7 +33,6 @@ Mesh * Mesh::copy() {
 	copy->setupMesh();
 	return copy;
 }
-
 void Mesh::updateNormals() {
     for (int i = 0; i < vertices.size(); i++) {
         vertices[i].Normal = glm::vec3(0, 0, 0);

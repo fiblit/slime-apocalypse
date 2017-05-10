@@ -6,6 +6,7 @@ using namespace std;
 
 Scene::Scene() {
     this->camera = new Camera();
+    this->floor = new Cube(10000, .5, 10000, vec3(0, 0, -.5));
 	// Generate player object
     /*
 	playerObject = new  Sphere(1, 0,0,0);
@@ -382,6 +383,7 @@ void Scene::simulate(GLfloat dt) {
     for (Object * o : enemyObjects) {
         //Forward euler integration of motion
         o->dyn.vel += o->dyn.force * dt;
+        o->dyn.vel += o->dyn.gravity * dt;
         //o->dyn.pos += o->dyn.vel * dt;
         o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
 
@@ -409,6 +411,8 @@ void Scene::render() {
 	// Render the player object
     this->playerObject->draw(curShader);
 
+    //render Floor
+    floor->draw(curShader);
 	// Render each enemy object
     for (Object * o : enemyObjects)
         o->draw(curShader);
@@ -546,7 +550,7 @@ void Scene::enableTestShader() {
 void Scene::setupTestingObjects() {
 	// walls
 	playerObject = new Sphere(1, 100, 0, 0);
-    test = new Slime(3, 0, 0, -10);
+    test = new Slime(3, 0, 0,  5);
     enemyObjects.push_back(test);
 }
 
@@ -555,10 +559,11 @@ void Scene::toggle_flashlight() {
 }
 
 void Scene::slimeTestMove() {
-    test->moveBy(10, 0, 0, .002);
+    test->dyn.force = vec3(100, 0, 100);
 }
 
 
 void Scene::slimeTestStill() {
-    test->moveBy(0, 0, 0, .04);
+    test->dyn.force = vec3(0,0,-1000);
+    test->dyn.vel[0] = 0;
 }

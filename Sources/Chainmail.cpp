@@ -10,7 +10,8 @@ using std::max;
 Our chainmail deformation used Sarah Gibson's Paper, "3D ChainMail: a Fast Algorithm for Deforming Volumetric Objects"
 As a base idea for implementation.
 */
-Chainmail::Chainmail(Mesh * mesh, int stacks, int slices) {
+Chainmail::Chainmail(Mesh * mesh, int stacks, int slices, glm::vec3 worldCenter) {
+    worldCoordCenter = worldCenter;
     this->vertexLength = mesh->vertices.size();
     for (Vertex v : mesh->vertices) {
         Element e;
@@ -19,7 +20,6 @@ Chainmail::Chainmail(Mesh * mesh, int stacks, int slices) {
         e.pos = v.Position;
         elements.push_back(e);
     }
-    /*
     // Add a centroid element
     Element center;
     center.id = this->elements.size();
@@ -31,7 +31,6 @@ Chainmail::Chainmail(Mesh * mesh, int stacks, int slices) {
     }
 
     this->elements.push_back(center);
-    */
 
     for (int i = 0; i < mesh->indices.size(); i += 3) {
         int idx1 = mesh->indices[i];
@@ -51,33 +50,6 @@ Chainmail::Chainmail(Mesh * mesh, int stacks, int slices) {
             elements[idx3].neighbors.insert(idx1);
         }
     }
-    for (int i = 0; i < stacks; i++) {
-        for (int j = 0; j < slices; j++) {
-            int idx1 = j + ((stacks - i - 1) * slices);
-            int idx2 = (slices - j) + (i * slices);
-            int idx3 = (slices - j) + ((stacks - i - 1) * slices);
-            int me = j + i * slices;
-
-            if (idx1 < elements.size() && ((idx1 != me) && std::find(elements[idx1].neighbors.begin(), elements[idx1].neighbors.end(), me) != elements[idx1].neighbors.end())){
-
-}
-
-            if (idx1 < elements.size() && (idx1 != me && std::find(elements[idx1].neighbors.begin(), elements[idx1].neighbors.end(), me) != elements[idx1].neighbors.end())) {
-                //elements[idx1].neighbors.insert(me);
-                //elements[me].neighbors.insert(idx1);
-            }
-
-            if (idx2 < elements.size() && (idx2 != me && std::find(elements[idx2].neighbors.begin(), elements[idx2].neighbors.end(), me) != elements[idx2].neighbors.end())) {
-                //elements[idx2].neighbors.insert(me);
-                //elements[me].neighbors.insert(idx2);
-            }
-
-            if ((idx3 < elements.size()) && (idx3 != me && std::find(elements[idx3].neighbors.begin(), elements[idx3].neighbors.end(), me) != elements[idx3].neighbors.end())) {
-                //elements[idx3].neighbors.insert(me);
-                //elements[me].neighbors.insert(idx3);
-            }
-        }
-    }
     generateRegions();
 }
 
@@ -85,18 +57,31 @@ Chainmail::Chainmail(Mesh * mesh, int stacks, int slices) {
 
 Chainmail::~Chainmail() {}
 
+glm::vec3 Chainmail::returnWorldPos() {
+    return worldCoordCenter;
+}
+
+
+
 // Moves an element and readies its neighbors for propogation
 void Chainmail::applyMove(int id, vec3 t) {
     applyMove(0, t, 0);
 }
 
 void Chainmail::applyMove(int id, vec3 t, double dt) {
-    for (int i = 0; i < 15; i++) {
+    for (int i = 0; i < elements.size()/2; i++) {
+        
         int randElement = ((float)rand()) / RAND_MAX * (elements.size()-1);
+        while (elements[randElement].updated) {
+            randElement = ((float)rand()) / RAND_MAX * (elements.size() - 1);
+        }
         elements[randElement].pos += vec3(t[0] * .001, t[1] * .001, t[2] * .001);
-        if (abs(t.z) > .00003 || abs(t.y > .00003) || abs(t.x > .00003)) {
-            std::cout << t.z << std::endl;
-            std::cout << elements[randElement].pos.z << std::endl;
+
+
+        if (elements[randElement].pos.z + worldCoordCenter.z < .003) {
+            float delta = (elements[randElement].pos.z + worldCoordCenter.z) - .005;
+            //std::cout << delta << "? " << std::endl;
+            elements[randElement].pos.z = delta;
         }
         elements[randElement].updated = true;
     }
@@ -105,10 +90,26 @@ void Chainmail::applyMove(int id, vec3 t, double dt) {
         waiting.push_back(ivec2(id, i));
 }
 
+
+//updates the center of the object to ensure the 'center' is the origin;
+void Chainmail::updateCenter() {
+    glm::vec3 oldCenter = worldCoordCenter;
+    glm::vec3 newCenter = glm::vec3(0);
+    for (int i = 0; i < elements.size(); i++) {
+        newCenter += (worldCoordCenter + elements[i].pos);
+    }
+    newCenter /= elements.size();
+    glm::vec3 delta = oldCenter - newCenter;
+    worldCoordCenter = newCenter;
+    for (int i = 0; i < elements.size(); i++) {
+        elements[i].pos += delta;
+    }
+}
+
 void Chainmail::returnVertices(vector<vec3> &returnTo) {
     vector<Vertex> newVertices;
     for (int i = 0; i < vertexLength; i++) {
-        returnTo.push_back(elements[i].pos);
+        returnTo.push_back(elements[i].pos + worldCoordCenter);
     }
 }
 
@@ -146,11 +147,18 @@ void Chainmail::propagate() {
 		}
 		if (e->pos.z < minBounds.z) {
 			e->pos.z = minBounds.z;
+            if (e->pos.z + worldCoordCenter.z < .003) {
+                float delta = (e->pos.z + worldCoordCenter.z) - .005;
+                //e->pos.z = delta;
+            }
 			e->updated = true;
 		}
 		else if (e->pos.z > maxBounds.z) {
 			e->pos.z = maxBounds.z;
-            if ((e->pos.z) < 0) e->pos.z = .03;
+            if (e->pos.z + worldCoordCenter.z < .003) {
+                float delta = (e->pos.z + worldCoordCenter.z) - .005;
+                //e->pos.z = delta;
+            }
 			e->updated = true;
 		}
 
@@ -184,7 +192,12 @@ void Chainmail::relax(float dt) {
 	// Second, push all elements toward their respective centroid
 	for (Element & e : this -> elements) {
 		vec3 v = centroids[e.id] - e.pos;
+        //v = (e.origin - e.pos);
 		e.pos += 2*dt*v;
+        if (e.pos.z + worldCoordCenter.z < .003) {
+            float delta = (e.pos.z + worldCoordCenter.z) - .005;
+            //e.pos.z = delta;
+        }
 	}
 }
 
@@ -196,8 +209,10 @@ void Chainmail::simStep(glm::vec3 v, double dt) {
 }
 void Chainmail::simStep(int id, glm::vec3 t, double dt) {
     applyMove(id, t, dt);
+    applyMove(id, glm::vec3(0, 0, -.3), dt);
     propagate();
     relax(dt);
+    updateCenter();
 	for (Element & e : this->elements)
 		e.updated = false;
 	waiting.clear(); // might want a more robust end check than this

@@ -43,7 +43,7 @@ struct Element {
 class Chainmail
 {
 public:
-	Chainmail(Mesh * mesh, int stacks, int slices);
+	Chainmail(Mesh * mesh, int stacks, int slices, glm::vec3 worldCenter);
 	virtual ~Chainmail();
 
     void applyMove(int id, glm::vec3 t);
@@ -51,9 +51,12 @@ public:
 	void propagate();
 	void relax(float dt);
 	void generateRegions();
+    void updateCenter();
     void simStep(int startNode, glm::vec3 t, double dt); 
     void simStep(glm::vec3, double dt);
     void simStep(double dt);
+    glm::vec3 getNewWorldPos();
+    glm::vec3 returnWorldPos();
     void returnVertices(std::vector<glm::vec3> &returnTo);
 	/* variables */
 	std::vector<Element> elements; // might be able to make this unordered_map with IDs
@@ -66,11 +69,12 @@ public:
 	// is (minIndex, maxIndex) to avoid doubling.
 	// TODO: Check performance vs tuples
 	std::unordered_map<glm::ivec2,Cuboid,KeyFuncs,KeyFuncs> regions;
-	int objectDimension;
+    glm::vec3 worldCoordCenter;
+    int objectDimension;
 	int spaceDimension;
-	double aMin = .05; // compression factor
-	double aMax = 3;  // stretch factor
-	double b = 5;	  // shear factor
+	double aMin = .95; // compression factor
+	double aMax = 10;  // stretch factor
+	double b = 100;	  // shear factor
     Mesh * mesh;
 	int vertexLength; // used for returning the correct model back
 };
