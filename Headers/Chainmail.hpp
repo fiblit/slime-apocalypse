@@ -43,7 +43,7 @@ struct Element {
 class Chainmail
 {
 public:
-	Chainmail(Mesh * mesh, double aMin, double aMax, double b);
+	Chainmail(Mesh * mesh, int stacks, int slices);
 	virtual ~Chainmail();
 
     void applyMove(int id, glm::vec3 t);
@@ -51,7 +51,6 @@ public:
 	void propagate();
 	void relax(float dt);
 	void generateRegions();
-	void endFrame();
     void simStep(int startNode, glm::vec3 t, double dt); 
     void simStep(glm::vec3, double dt);
     void simStep(double dt);
@@ -69,9 +68,10 @@ public:
 	std::unordered_map<glm::ivec2,Cuboid,KeyFuncs,KeyFuncs> regions;
 	int objectDimension;
 	int spaceDimension;
-	double aMin; // compression factor
-	double aMax; // stretch factor
-	double b;	 // shear factor
+	double aMin = .05; // compression factor
+	double aMax = 3;  // stretch factor
+	double b = 5;	  // shear factor
     Mesh * mesh;
+	int vertexLength; // used for returning the correct model back
 };
 

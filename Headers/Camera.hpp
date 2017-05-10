@@ -24,7 +24,7 @@ namespace G {
 
 		// Default camera values
 		const GLfloat YAW = -90.0f;
-		const GLfloat PITCH = -75.0f;
+		const GLfloat PITCH = 0.0f;
 		const GLfloat SPEED = 6.0f;
 		const GLfloat SENSITIVTY = 0.1f;
 		const GLfloat FOV = 45.0f;
@@ -53,7 +53,7 @@ public:
 
 	// Constructor with vectors
 	Camera(
-			glm::vec3 pos = glm::vec3(0.0f, 20.0f, 0.0f),
+			glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
 			GLfloat yaw = G::CAMERA::YAW,
 			GLfloat pitch = G::CAMERA::PITCH):
@@ -114,8 +114,8 @@ public:
 		xoffset *= this->sensitivity;
 		yoffset *= this->sensitivity;
 
-		this->yaw += xoffset;
-		this->pitch -= yoffset; // += causes an inverted mouse
+		this->yaw -= xoffset;
+		this->pitch += yoffset; // += causes an inverted mouse
 
 		// Make sure that when pitch is out of bounds, screen doesn't get flipped
 		if (constrainPitch)
