@@ -11,6 +11,7 @@ Scene::Scene(unsigned seed) {
 
     this->camera = new Camera();
     this->floor = new Cube(10000, 10000, .5, vec3(0, 0, -.5));
+    floor->color = glm::vec3(.6, .6, .6);
 	// Generate player object
     
 	playerObject = new  Sphere(1, 0,3,0);
@@ -35,7 +36,8 @@ Scene::Scene(unsigned seed) {
     Slime  * test = new Slime(3, glm::vec3(0, 2, -2));
     enemyObjects.push_back(test);
     test = new Slime(3, glm::vec3(0, 2, 2));
-    enemyObjects.push_back(test);*/
+    enemyObjects.push_back(test);
+    */
     //dalton will.... get around to this :D
 
 }
@@ -57,27 +59,49 @@ void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
                 attempts++;
             }
             //put enemy here
-            addEnemyObject(mazeInfo.enemySize, randXGrid, 3.5, randYGrid);
+            addEnemyObject(mazeInfo.enemySize, randXGrid, 0, randYGrid);
         }
         //otherwise it's in rows maze[][X];
         else {
+            int randXGrid = width_rand(gen);
+            int randYGrid = startend(gen);
             for (int i = start; i < end; i++) {
-                int randXGrid = width_rand(gen);
-                int randYGrid = startend(gen);
                 int attempts = 0;
                 while (maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && mazeInfo.height / 2) && attempts < 10) {
                     randXGrid = width_rand(gen);
                     randYGrid = startend(gen);
                     attempts++;
                 }
+                addEnemyObject(mazeInfo.enemySize, randXGrid, 0, randYGrid);
             }
         }
         i++;
     }
 }
 
+
+void Scene::fillStaticObjVector() {
+    for (int i = 0; i < staticObjects.size(); i++) {
+        delete staticObjects[i];
+    }
+    staticObjects.clear();
+    for (size_t i = 0; i < maze.size(); i++) {
+        for (size_t j = 0; j < maze[i].size(); j++) {
+            if (maze[i][j].filled) {
+                float xPos = ((float)i - (mazeInfo.width / 2.0)) * mazeInfo.cellSize;
+                float yPos = ((float)j - (mazeInfo.height / 2.0)) * mazeInfo.cellSize;
+                vec3 pos = mazeInfo.center + vec3(xPos, 0, yPos);
+                addWall(30, mazeInfo.cellSize, mazeInfo.cellSize, pos);
+            }
+            maze[i][j].active = 0;
+        }
+    }
+}
+
+
 void Scene::fillEnemyVector() {
     int i = enemyObjects.size();
+    std::cout << i << std::endl;
     while (i < mazeInfo.maxEnemies) {
         int randXGrid = width_rand(gen);
         int randYGrid = height_rand(gen);
@@ -89,7 +113,7 @@ void Scene::fillEnemyVector() {
         }
         float worldX = (randXGrid - mazeInfo.width / 2)* mazeInfo.cellSize;
         float worldY = (randYGrid - mazeInfo.height / 2)* mazeInfo.cellSize;
-        addEnemyObject(mazeInfo.enemySize, worldX, 3, worldY);
+        addEnemyObject(mazeInfo.enemySize, worldX, mazeInfo.enemySize, worldY);
         i++;
     }
 }
@@ -130,7 +154,7 @@ void Scene::automatonSimulate() {
                     neighbors += maze[mod((i + 1), mazeInfo.width)][mod((j + 1), mazeInfo.height)].filled;
                     neighbors += maze[mod((i + 1), mazeInfo.width)][mod(j, mazeInfo.height)].filled;
                     neighbors += maze[mod((i - 1), mazeInfo.width)][mod(j, mazeInfo.height)].filled;
-                    cBuffer.filled = (neighbors <= 1 || neighbors >= 4) ? 0 : 1;
+                    cBuffer.filled = (neighbors <= 1 || neighbors >= 3) ? 0 : 1;
                     bufferRow.push_back(cBuffer);
                 }
                 else {
@@ -149,23 +173,6 @@ void Scene::automatonSimulate() {
 return;
 }
 
-void Scene::fillStaticObjVector() {
-    for (int i = 0; i < staticObjects.size(); i++) {
-        delete staticObjects[i];
-    }
-    staticObjects.clear();
-    for (size_t i = 0; i < maze.size(); i++) {
-        for (size_t j = 0; j < maze[i].size(); j++) {
-            if (maze[i][j].filled) {
-                float xPos = ((float) i - (mazeInfo.width / 2.0)) * mazeInfo.cellSize;
-                float yPos = ((float) j - (mazeInfo.height / 2.0)) * mazeInfo.cellSize;
-                vec3 pos = mazeInfo.center + vec3(xPos, 0, yPos);
-                addWall(10, mazeInfo.cellSize, mazeInfo.cellSize, pos);
-            }
-            maze[i][j].active = 0;
-        }
-    }
-}
 //use a cellular Automaton algorithm to initialize the maze.
 //generate a randomly initialized grid and run through a fixed number of interations of the automaton algorithm
 void Scene::initMaze() {
@@ -177,7 +184,7 @@ void Scene::initMaze() {
             mazeCell c = {};
             c.active = 1;
             float randNum = simple_float(gen);
-            c.filled = (randNum > mazeInfo.chanceGennedAlive) ? 1 : 0;
+            c.filled = (randNum > mazeInfo.chanceGennedAlive) ? 0 : 1;
             row.push_back(c);
         }
         maze.push_back(row);
@@ -288,7 +295,7 @@ void Scene::generateMoreMaze() {
         while (xIdx >= 0 && xIdx < maze.size()) {
             for (size_t y = 0; y < maze[xIdx].size(); y++) {
                 maze[xIdx][y].active = 1;
-                maze[xIdx][y].filled = (simple_float(gen) > mazeInfo.chanceGennedAlive) ? 1 : 0;
+                maze[xIdx][y].filled = (simple_float(gen) > mazeInfo.chanceGennedAlive) ? 0 : 1;
             }
             xIdx += xIterator;
         }
@@ -301,7 +308,7 @@ void Scene::generateMoreMaze() {
         while (yIdx >= 0 && yIdx < maze[0].size()) {
             for (size_t x = 0; x < maze.size(); x++) {
                 maze[x][yIdx].active = 1;
-                maze[x][yIdx].filled = (simple_float(gen) > mazeInfo.chanceGennedAlive) ? 1 : 0;
+                maze[x][yIdx].filled = (simple_float(gen) > mazeInfo.chanceGennedAlive) ? 0 : 1;
             }
             yIdx += yIterator;
         }
@@ -311,7 +318,6 @@ void Scene::generateMoreMaze() {
     //add the Objects 
     fillStaticObjVector();
     fillEnemyVector();
-    enemyObjects.push_back(new Slime(3, glm::vec3(0, 2, 5)));
     //add PRM nodes that exist in newly generated maze area
 
     //re-run pathfinding algorithms
@@ -386,7 +392,8 @@ void Scene::setBounds(vec3 min, vec3 max) {
 void Scene::simulate(GLfloat dt) {
     static bool nan_happened = false;
     // For each dynamic object
-    //camera->pos = playerObject->dyn.pos - camera->dir;
+    camera->pos = playerObject->dyn.pos - (camera->dir*5.0f);
+    camera->pos[1] += 2;
     for (Object * o : enemyObjects) {
         //nan should never happen, but if it does, just stop moving.
         if (isnan(o->dyn.force.x)) {
