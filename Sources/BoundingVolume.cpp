@@ -131,9 +131,9 @@ bool Rect::is_collision(glm::vec2 p) {
 }
 
 bool Rect::line_of_sight(glm::vec2, glm::vec2 b, glm::vec2 Lab, float len2) {
-    float t = intersect(b, Lab);//the intersect for axis aligned is actually pretty fast
-    return !(t*t < len2);
-    /*
+    //float t = intersect(b, Lab);//the intersect for axis aligned is actually pretty fast
+    //return !(t*t < len2);
+    
     float left = this->o.x - this->w / 2;
     float right = this->o.x + this->w / 2;
     float top = this->o.y + this->h / 2;
@@ -143,7 +143,7 @@ bool Rect::line_of_sight(glm::vec2, glm::vec2 b, glm::vec2 Lab, float len2) {
         || axialLineSegLineSegCollision(a, b, right, 0, bottom, top)
         || axialLineSegLineSegCollision(a, b, bottom, 1, left, right)
         || axialLineSegLineSegCollision(a, b, top, 1, left, right));
-        */
+        
 }
 
 //TODO: fix, so I can rotate rects
