@@ -368,8 +368,8 @@ void Scene::simulate(GLfloat dt) {
     for (Object * o : enemyObjects) {
         //Forward euler integration of motion
         o->dyn.vel += o->dyn.force * dt;
-        o->dyn.vel += o->dyn.gravity * dt;
-        //o->dyn.pos += o->dyn.vel * dt;
+        //o->dyn.vel += o->dyn.gravity * dt;
+        o->dyn.pos += o->dyn.vel * dt;
         o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
 
         //TODO dalton: notify other systems of events such as collisions (for particle effects, merging, etc.)
