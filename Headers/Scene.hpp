@@ -5,6 +5,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <algorithm>
+#include <random>
 #include "Object.hpp"
 #include "Cube.hpp"
 #include "Sphere.hpp"
@@ -31,7 +32,7 @@ enum shaderNames {
 
 class Scene {
 public:
-	Scene();
+	Scene(unsigned seed = 0);
 	virtual ~Scene();
 
 	void addEnemyObject(float r, float x, float y, float z);
@@ -99,6 +100,14 @@ public:
 	glm::vec3 dir_light_dir = glm::vec3(-0.5f, 1.0f, -0.7f);
 
 	bool is_flashlight_on = true;
+
+private:
+    typedef std::uniform_int_distribution<int> uint_dist;
+    typedef std::uniform_real_distribution<float> float_dist;
+    float_dist simple_float = float_dist(0, 1);
+    uint_dist width_rand;
+    uint_dist height_rand;
+    std::default_random_engine gen;
 };
 
 #endif // SCENE_H_GUARD
