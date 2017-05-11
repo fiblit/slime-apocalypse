@@ -103,6 +103,7 @@ int main() {
         scene->reset_proj_view();
 
 		// TODO: currently must enable shader every frame to update view matrix; easily fixed
+        scene->reset_proj_view();
 		scene->enableTestShader(scene->proj, scene->camera->getView());
         
 		scene->render();
