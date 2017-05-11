@@ -11,7 +11,7 @@ Scene::Scene(unsigned seed) {
 
     this->camera = new Camera();
     this->floor = new Cube(10000, 10000, .5, vec3(0, 0, -.5));
-    floor->color = glm::vec3(.6, .6, .6);
+	floor->setColor(.4, .4, .4);
 	// Generate player object
 
   
@@ -327,6 +327,7 @@ void Scene::addEnemyObject(float r, float x, float y, float z) {
 	// Instantiate an enemy object
 
 	Slime * enemy = new Slime(r, x, y, z);
+	enemy->setColor(.1, .6, .2);
 
 	// Add instantiated object to enemyObjects vector
 	enemyObjects.push_back(enemy);
@@ -335,6 +336,7 @@ void Scene::addEnemyObject(float r, float x, float y, float z) {
 void Scene::addWall(float h, float x1, float x2, float z1, float z2) {
 	// Instantiate a wall object
 	Cube * wall = new Cube(abs(x1-x2), abs(z1-z2), h, (x1+x2)/2, 0.0, (z1+z2)/2);
+	wall->setColor(.7, .3, .1);
 
     // Add instantiated object to staticObjects vector
     staticObjects.push_back(wall);
@@ -353,6 +355,7 @@ void Scene::addEnemyObject(float r, vec3 pos) {
 void Scene::addWall(float h, float w, float l, vec3 center) {
     // Instantiate a wall object
     Cube * wall = new Cube(w, l, h, center);
+	wall->setColor(.7, .3, .1);
 
     // Add instantiated object to staticObjects vector
     staticObjects.push_back(wall);
@@ -450,13 +453,13 @@ void Scene::render() {
     enableTestShader(proj, view);
     this->playerObject->draw(curShader);
 
-    //render Floor
-    floor->draw(curShader);
 	// Render each enemy object
+	enableFlatShader(proj, view);
     for (Object * o : enemyObjects)
         o->draw(curShader);
 
-    enableFlatShader(proj, view);
+	//render Floor
+	floor->draw(curShader);
 
 	// Render each static object
 	for (Object * o : staticObjects)
@@ -521,9 +524,9 @@ void Scene::enableFlatShader(glm::mat4 proj, glm::mat4 view) {
 	glUniform1f(shaders[FLAT]->uniform("material.shine"), 32.0f);
 
 	glUniform3f(shaders[FLAT]->uniform("dirLight.direction"), dir_light_dir.x, dir_light_dir.y, dir_light_dir.z);
-	glUniform3f(shaders[FLAT]->uniform("dirLight.ambient"), light_ambient.x*0.1f, light_ambient.y*0.1f, light_ambient.z*0.1f);
-	glUniform3f(shaders[FLAT]->uniform("dirLight.diffuse"), light_diffuse.x*0.1f, light_diffuse.y*0.1f, light_diffuse.z*0.1f);
-	glUniform3f(shaders[FLAT]->uniform("dirLight.specular"), light_specular.x*0.1f, light_specular.y*0.1f, light_specular.z*0.1f);
+	glUniform3f(shaders[FLAT]->uniform("dirLight.ambient"), light_ambient.x*1.0f, light_ambient.y*1.0f, light_ambient.z*1.0f);
+	glUniform3f(shaders[FLAT]->uniform("dirLight.diffuse"), light_diffuse.x*1.0f, light_diffuse.y*1.0f, light_diffuse.z*1.0f);
+	glUniform3f(shaders[FLAT]->uniform("dirLight.specular"), light_specular.x*1.0f, light_specular.y*1.0f, light_specular.z*1.0f);
 
 	for (GLuint i = 0; i < 4; i++) {
 		std::string si = "pointLights[" + std::to_string(i) + "].";

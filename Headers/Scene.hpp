@@ -91,7 +91,7 @@ public:
 
 	Camera * camera;
 	/* lighting */
-	glm::vec3 light_diffuse = glm::vec3(0.5f, 0.5f, 0.5f); // Decrease the influence
+	glm::vec3 light_diffuse = glm::vec3(0.3f, 0.3f, 0.3f); // Decrease the influence
 	glm::vec3 light_ambient = glm::vec3(0.05f, 0.05f, 0.05f); // Low influence
 	glm::vec3 light_specular = glm::vec3(1.0f, 1.0f, 1.0f);
 	glm::vec3 point_light_positions[4] = {
@@ -100,7 +100,7 @@ public:
 		glm::vec3(0.f,  1.f, 4.f),
 		glm::vec3(5.f,  2.f, -5.f)
 	};
-	glm::vec3 dir_light_dir = glm::vec3(-0.5f, 1.0f, -0.7f);
+	glm::vec3 dir_light_dir = glm::vec3(-1.0f, -0.3f, -0.6f);
 
 	bool is_flashlight_on = true;
 
