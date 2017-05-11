@@ -1,4 +1,4 @@
-#include "BoundingVolume.hpp"
+﻿#include "BoundingVolume.hpp"
 Rect::Rect() { this->vt = volume_type::RECT; }
 Rect::Rect(glm::vec2 o, float w, float h) {
     this->vt = volume_type::RECT;
@@ -130,10 +130,10 @@ bool Rect::is_collision(glm::vec2 p) {
         && abs(p.y - this->o.y) <= this->h / 2;
 }
 
-bool Rect::line_of_sight(glm::vec2, glm::vec2 b, glm::vec2 Lab, float len2) {
+bool Rect::line_of_sight(glm::vec2 a, glm::vec2 b, glm::vec2 Lab, float len2) {
     //float t = intersect(b, Lab);//the intersect for axis aligned is actually pretty fast
-    //return !(t*t < len2);
-    
+    //return t*t > len2;
+
     float left = this->o.x - this->w / 2;
     float right = this->o.x + this->w / 2;
     float top = this->o.y + this->h / 2;
@@ -143,7 +143,6 @@ bool Rect::line_of_sight(glm::vec2, glm::vec2 b, glm::vec2 Lab, float len2) {
         || axialLineSegLineSegCollision(a, b, right, 0, bottom, top)
         || axialLineSegLineSegCollision(a, b, bottom, 1, left, right)
         || axialLineSegLineSegCollision(a, b, top, 1, left, right));
-        
 }
 
 //TODO: fix, so I can rotate rects
@@ -177,7 +176,6 @@ bool Rect::lineSegCollision(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, glm::vec2 
 
     return true;//must have hit
 }
-//deprecated
 bool Rect::axialLineSegLineSegCollision(glm::vec2 pp1, glm::vec2 pp2, float val, int axis, float oValLo, float oValHi) {
     glm::vec3 l = glm::cross(glm::vec3(pp1, 1), glm::vec3(pp2, 1));
     //ax+by+circ = 0
@@ -196,8 +194,78 @@ bool Rect::axialLineSegLineSegCollision(glm::vec2 pp1, glm::vec2 pp2, float val,
     }
 }
 
+static float axialLineSegRayIntersect(glm::vec2 po, glm::vec2 pv, float val, int axis, float oValLo, float oValHi){
+    //https://rootllama.wordpress.com/2014/06/20/ray-line-segment-intersection-test-in-2d/
+    glm::vec2 q, s;
+    if (axis == 0) {//vert 
+        q = glm::vec2(val, oValLo);
+        s = glm::vec2(0, oValHi - oValLo);
+    }
+    else {
+        q = glm::vec2(oValLo, val);
+        s = glm::vec2(oValHi - oValLo, 0);
+    }
+    glm::vec2 v1 = po - s;
+    glm::vec2 v2 = q - s;
+    glm::vec2 v3(-pv.y, pv.x);
+    float dot = glm::dot(v2, v3);
+    if (dot != 0) {
+        float t1 = (v2.x * v1.y - v2.y * v1.x) / dot;
+        float t2 = glm::dot(v1, v3) / dot;
+        if (t1 >= 0 && 0 <= t2 && t2 <= 1)
+            return t1;
+    }
+    else
+        return std::numeric_limits<float>::max();
+
+
+    //http://stackoverflow.com/questions/14307158/how-do-you-check-for-intersection-between-a-line-segment-and-a-line-ray-emanatin
+    //http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect/565282#565282
+    /*glm::vec2 p = po;
+    glm::vec2 r = pv;
+    //v x w = vx wy − vy wx
+    //t = (q − p) × s / (r × s)
+    //u = (q − p) × r / (r × s)
+    glm::vec2 qp = q - p;
+    float rxs = r.x * s.y - r.y * s.x;
+    float qpxs = qp.x * s.y - qp.y * s.x;
+    float qpxr = qp.x * r.y - qp.y * r.x;
+    float e = 0.0000001;
+    if (abs(rxs) < e) {
+        return std::numeric_limits<float>::max();
+    }
+    else {
+        float t = qpxs / rxs;
+        float u = qpxr / rxs;
+        if (0 <= t && 0 <= u && u <= 1)
+            return t;
+        else
+            return std::numeric_limits<float>::max();
+    }*/
+}
+
 //assumes axis alignment
 float Rect::intersect(glm::vec2 bo, glm::vec2 v) {
+    if (is_collision(bo))
+        return 0;
+    
+    float left = this->o.x - this->w / 2;
+    float right = this->o.x + this->w / 2;
+    float top = this->o.y + this->h / 2;
+    float bottom = this->o.y - this->h / 2;
+
+    float t = std::numeric_limits<float>::max();
+    float possible = axialLineSegRayIntersect(bo, v, left, 0, bottom, top);
+    if (possible < t) t = possible;
+    possible = axialLineSegRayIntersect(bo, v, right, 0, bottom, top);
+    if (possible < t) t = possible;
+    possible = axialLineSegRayIntersect(bo, v, bottom, 1, left, right);
+    if (possible < t) t = possible;
+    possible = axialLineSegRayIntersect(bo, v, top, 1, left, right);
+    if (possible < t) t = possible;
+
+    return t;
+    /*
     glm::vec2 d_o = bo - this->o;
 
     float t_x_hi = (this->w - d_o.x) / v.x;
@@ -205,6 +273,17 @@ float Rect::intersect(glm::vec2 bo, glm::vec2 v) {
 
     float t_x_lo = (-this->w - d_o.x) / v.x;
     float t_y_lo = (-this->h - d_o.y) / v.y;
+
+    if (t_x_hi > t_x_lo) {
+        float t = t_x_hi;
+        t_x_hi = t_x_lo;
+        t_x_lo = t_x_hi;
+    }
+    if (t_y_hi > t_y_lo) {
+        float t = t_y_hi;
+        t_y_hi = t_y_lo;
+        t_y_lo = t_y_hi;
+    }
 
     //no intersection forward or back
     if (t_x_hi < t_y_lo || t_x_lo > t_y_hi)
@@ -219,4 +298,5 @@ float Rect::intersect(glm::vec2 bo, glm::vec2 v) {
         else
             return t_lo;
     }
+    */
 }
