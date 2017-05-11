@@ -5,6 +5,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <algorithm>
+#include <random>
 #include "Object.hpp"
 #include "Cube.hpp"
 #include "Sphere.hpp"
@@ -32,7 +33,7 @@ enum shaderNames {
 
 class Scene {
 public:
-	Scene();
+	Scene(unsigned seed = 0);
 	virtual ~Scene();
 
 	void addEnemyObject(float r, float x, float y, float z);
@@ -66,7 +67,7 @@ public:
 	void enableTestShader(glm::mat4 proj, glm::mat4 view);
 
     void reset_proj_view() {
-        proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 300.0f);
+        proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 5000.0f);
         view = camera->getView();
     }
     glm::mat4 proj, view;
@@ -103,9 +104,13 @@ public:
 
 	bool is_flashlight_on = true;
 
-    void slimeTestMove();
-    void slimeTestStill();
-    Slime * test;
+private:
+    typedef std::uniform_int_distribution<int> uint_dist;
+    typedef std::uniform_real_distribution<float> float_dist;
+    float_dist simple_float = float_dist(0, 1);
+    uint_dist width_rand;
+    uint_dist height_rand;
+    std::default_random_engine gen;
 };
 
 #endif // SCENE_H_GUARD

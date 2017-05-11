@@ -184,42 +184,42 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
         v[1] = 0;
         v *= 10.f;
         handle_scene->playerObject->moveBy(v, clock->delta());
-        //handle_scene->generateMoreMaze();
+        handle_scene->generateMoreMaze();
     }
     if (UI::keys[GLFW_KEY_DOWN]) {
         glm::vec3 v = handle_scene->camera->dir;
         v[1] = 0;
         v *= -10.f;
         handle_scene->playerObject->moveBy(v, clock->delta());
-        //scene->generateMoreMaze();
+        scene->generateMoreMaze();
     }
     if (UI::keys[GLFW_KEY_LEFT]) {
         glm::vec3 v = handle_scene->camera->right;
         v[1] = 0;
         v *= -10.f;
         handle_scene->playerObject->moveBy(v, clock->delta());
-        //scene->generateMoreMaze();
+        scene->generateMoreMaze();
     }
     if (UI::keys[GLFW_KEY_RIGHT]) {
         glm::vec3 v = handle_scene->camera->right;
         v[1] = 0;
         v *= 10.f;
         handle_scene->playerObject->moveBy(v, clock->delta());
-        //scene->generateMoreMaze();
+        scene->generateMoreMaze();
     }
 
     if (UI::keys[GLFW_KEY_PAGE_UP]) {
         glm::vec3 v = glm::vec3(0, 1, 0);
         v *= 10.f;
         handle_scene->playerObject->moveBy(v, clock->delta());
-        //scene->generateMoreMaze();
+        scene->generateMoreMaze();
     }
 
     if (UI::keys[GLFW_KEY_PAGE_DOWN]) {
         glm::vec3 v = glm::vec3(0, -1, 0);
         v *= 10.f;
         handle_scene->playerObject->moveBy(v, clock->delta());
-        //scene->generateMoreMaze();
+        scene->generateMoreMaze();
     }
     if (UI::keys[GLFW_KEY_H]) {
         float sign = 1.0;
