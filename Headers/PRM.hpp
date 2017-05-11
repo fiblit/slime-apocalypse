@@ -23,6 +23,7 @@ private:
 public:
     std::vector<BoundingVolume *> c_obs;
 	Cspace2D(std::vector<BoundingVolume *> obs, BoundingVolume * agent);
+    ~Cspace2D();
 	bool is_collision(glm::vec2 a);
 	bool line_of_sight(glm::vec2 a, glm::vec2 b);
 };
@@ -51,6 +52,7 @@ public:
         glm::vec2 lo_bound,
         glm::vec2 hi_bound,
         float variance);
+    ~PRM();
 };
 
 #endif // PRM_H_GUARD

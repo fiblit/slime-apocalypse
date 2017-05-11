@@ -38,6 +38,10 @@ Cube::Cube(float w, float l, float h, vec3 p) : Object(p) {
 Cube::~Cube() {
 	if (mesh && mesh != standardMesh)
 		delete mesh;
+    //if (deformer != nullptr)
+    //    delete deformer;
+    if (bv != nullptr)
+        delete bv;
 }
 
 void Cube::useStandardMesh() {

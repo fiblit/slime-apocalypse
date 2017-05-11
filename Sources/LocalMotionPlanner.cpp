@@ -63,6 +63,7 @@ float LMP::ttc_(Circ * i, glm::vec2 iv, Rect * j, glm::vec2 jv) {
         float t = bv->intersect(j->o, dv);
         if (t < min_t)
             min_t = t;
+        delete bv;
     }
     return min_t;
 }
@@ -225,5 +226,6 @@ glm::vec2 LMP::calc_sum_force(Object * a, BVH * static_bvh, BVH * dynamic_bvh, s
         }
     }
 
-    return goal_F + ttc_F + boid_F + follow_F;
+    glm::vec2 sum_F = goal_F + ttc_F + boid_F + follow_F;
+    return sum_F;
 }
