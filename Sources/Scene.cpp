@@ -393,7 +393,7 @@ void Scene::simulate(GLfloat dt) {
     playerObject->dyn.force = glm::vec3(0);
 
 	// Relax the chainmails
-	for (Slime * o : enemyObjects) {
+	for (Object * o : enemyObjects) {
 		o->simulate(dt);
 	}
 }
