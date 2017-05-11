@@ -61,6 +61,7 @@ void Slime::moveBy(glm::vec3 t, double dt) {
         newVert.Position = v[i];
         newMeshVertices.push_back(newVert);
     }
+    dyn.pos = deformer->returnWorldPos();
     mesh->updateVertices(newMeshVertices);
     mesh->updateNormals();
 

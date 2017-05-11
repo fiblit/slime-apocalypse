@@ -22,8 +22,8 @@ public:
 	bool usingStandardMesh = true;
 
 	// may need to change from static const
-	static const int stacks = 15;
-	static const int slices = 15;
+	static const int stacks = 11;
+	static const int slices = 11;
 
 	// params[0] is radius
 };

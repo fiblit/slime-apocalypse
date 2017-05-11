@@ -8,7 +8,7 @@ Scene::Scene() {
     this->camera = new Camera();
     this->floor = new Cube(10000, .5, 10000, vec3(0, 0, -.5));
 	// Generate player object
-    /*
+    
 	playerObject = new  Sphere(1, 0,0,0);
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 20;
@@ -22,7 +22,7 @@ Scene::Scene() {
 	// Generate enemy objects
     fillEnemyVector();
 	// Generate PRM per Agent's BV type
-    */
+    
 }
 
 void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
@@ -529,9 +529,9 @@ void Scene::enableTestShader(glm::mat4 proj, glm::mat4 view) {
 }
 void Scene::setupTestingObjects() {
 	// walls
-	playerObject = new Sphere(1, 100, 0, 0);
-    test = new Slime(3, 0, 0,  5);
-    enemyObjects.push_back(test);
+	//playerObject = new Sphere(1, 100, 0, 0);
+    //test = new Slime(3, 0, 0,  5);
+    //enemyObjects.push_back(test);
 }
 
 void Scene::toggle_flashlight() {

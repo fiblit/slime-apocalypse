@@ -64,9 +64,9 @@ int main() {
 	scene->setupTestingObjects();
 
     /* Path Planning */
-    ai::init(scene->enemyObjects, scene->staticObjects, scene->mazeInfo);
+    //ai::init(scene->enemyObjects, scene->staticObjects, scene->mazeInfo);
     game_loop_clock->pause();
-    GMP::replan(scene->enemyObjects);
+    //GMP::replan(scene->enemyObjects);
     game_loop_clock->play();
 
     /* Game Loop */
@@ -91,7 +91,7 @@ int main() {
         handle_input(game_loop_clock, scene);
 
         //AI
-        ai::update_agents(scene->staticObjects, scene->enemyObjects, scene->playerObject);
+        //ai::update_agents(scene->staticObjects, scene->enemyObjects, scene->playerObject);
 
         //Physics
         scene->simulate(game_loop_clock->delta());
