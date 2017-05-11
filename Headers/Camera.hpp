@@ -108,7 +108,17 @@ public:
 		if (direction == G::CAMERA::DOWNWARD)
 			this->pos -= this->up *fspeed;
 	}
+    bool isFacing(glm::vec3 p) {
+        glm::vec3 vec = p - this->pos;
+        glm::normalize(vec);
+        if (glm::dot(vec, this->dir) < .5) {
+            return false;
+        }
+        else {
+            return true;
+        }
 
+    }
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 	void mouse_rotate_camera(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true) {
 		xoffset *= this->sensitivity;

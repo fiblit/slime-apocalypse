@@ -245,6 +245,22 @@ void Chainmail::relax(float dt) {
 	}
 }
 
+void Chainmail::resetMesh() {
+    for (int i = 0; i < elements.size(); i++) {
+        elements[i].pos = elements[i].origin;
+    }
+}
+
+void Chainmail::simpleUpdateCenter(glm::vec3 t, double dt) {
+    worldCoordCenter += t * (float)dt;
+
+}
+
+
+void Chainmail::simpleSimStep(int id, glm::vec3 t, double dt) {
+    resetMesh();
+    simpleUpdateCenter(t, dt);
+}
 void Chainmail::simStep(double dt) {
     simStep(0, vec3(0), dt);
 }

@@ -32,6 +32,10 @@ void Slime::simulate(double dt) {
     this->dyn.pos = deformer->returnWorldPos();
 }
 
+void Slime::simpleSimulate(double dt) {
+    deformer->simpleSimStep(0, dyn.gravity, dt);
+    this->dyn.pos = deformer->returnWorldPos();
+}
 void Slime::moveBy(float x, float y, float z) {
 	moveBy(glm::vec3(x,y,z), 0);
 }

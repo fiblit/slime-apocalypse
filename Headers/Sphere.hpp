@@ -14,6 +14,7 @@ public:
 	virtual ~Sphere();
 
     virtual void simulate(double dt) {};
+    virtual void simpleSimulate(double dt) {};
 	void constructStandardMesh(bool override = false);
 	void useStandardMesh();
 	void useCustomMesh();

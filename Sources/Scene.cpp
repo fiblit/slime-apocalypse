@@ -13,12 +13,13 @@ Scene::Scene(unsigned seed) {
     this->floor = new Cube(10000, 10000, .5, vec3(0, 0, -.5));
     floor->color = glm::vec3(.6, .6, .6);
 	// Generate player object
-    
+
+  
 	playerObject = new  Sphere(1, 0,3,0);
     playerObject->color = (vec3(1, .6, .6));
 	// Generate static objects (walls, floors, etc.)
-    mazeInfo.height = 20;
-    mazeInfo.width = 20;
+    mazeInfo.height = 30;
+    mazeInfo.width = 30;
     mazeInfo.maxEnemies = 10;
     mazeInfo.enemySize = 3;
     mazeInfo.chanceGennedAlive = .25;
@@ -32,13 +33,14 @@ Scene::Scene(unsigned seed) {
     height_rand = uint_dist(0, mazeInfo.height - 1);
 
     initMaze();
-
     /*
     Slime  * test = new Slime(3, glm::vec3(0, 2, -2));
     enemyObjects.push_back(test);
     test = new Slime(3, glm::vec3(0, 2, 2));
     enemyObjects.push_back(test);
+
     */
+    
     //dalton will.... get around to this :D
 
 }
@@ -393,8 +395,14 @@ void Scene::setBounds(vec3 min, vec3 max) {
 void Scene::simulate(GLfloat dt) {
     static bool nan_happened = false;
     // For each dynamic object
-    camera->pos = playerObject->dyn.pos - (camera->dir*5.0f);
+    if (playerObject) {
+        camera->pos = playerObject->dyn.pos;
+        camera->pos -= -(camera->dir*5.0f);
+    }
+        
     camera->pos[1] += 2;
+    for (Object * o : staticObjects) {
+    }
     for (Object * o : enemyObjects) {
         //nan should never happen, but if it does, just stop moving.
         if (isnan(o->dyn.force.x)) {
@@ -408,6 +416,7 @@ void Scene::simulate(GLfloat dt) {
         //Forward euler integration of motion
         o->dyn.vel += o->dyn.force * dt;
         o->dyn.pos += o->dyn.vel * dt;
+        o->dyn.vel += o->dyn.gravity * dt;
         o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
 
         //TODO: Check for collisions
@@ -429,8 +438,11 @@ void Scene::simulate(GLfloat dt) {
 
 	// Relax the chainmails
 	for (Object * o : enemyObjects) {
-		o->simulate(dt);
-	}
+        if (camera->isFacing(o->dyn.pos)) 
+            o->simulate(dt);
+        else 
+            o->simpleSimulate(dt);
+    }
 }
 
 void Scene::render() {
