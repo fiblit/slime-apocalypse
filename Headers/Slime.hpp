@@ -10,7 +10,7 @@ public:
     Slime(float r);
     Slime(float r, glm::vec3 p);
 
-	void simulate(float dt);
+    void simulate(double dt) override;
     void moveBy(float x, float y, float z); 
     void moveBy(float x, float y, float z, double dt);
     void moveBy(glm::vec3 t);

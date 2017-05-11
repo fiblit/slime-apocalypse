@@ -11,6 +11,7 @@ Scene::Scene() {
     
 	playerObject = new  Sphere(1, 0,3,0);
 	// Generate static objects (walls, floors, etc.)
+    /*
     mazeInfo.height = 20;
     mazeInfo.width = 20;
     mazeInfo.maxEnemies = 10;
@@ -19,6 +20,11 @@ Scene::Scene() {
     mazeInfo.cellSize = 10;
     mazeInfo.center = playerObject->dyn.pos;
     initMaze();
+    */
+    Slime  * test = new Slime(3, glm::vec3(0, 2, -2));
+    enemyObjects.push_back(test);
+    test = new Slime(3, glm::vec3(0, 2, 2));
+    enemyObjects.push_back(test);
     //dalton will.... get around to this :D
 }
 
@@ -380,6 +386,9 @@ void Scene::simulate(GLfloat dt) {
         o->dyn.pos += o->dyn.vel * dt;
         o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
 
+        //TODO: Check for collisions
+
+
         //TODO dalton: notify other systems of events such as collisions (for particle effects, merging, etc.)
 
         //Reset forces for next frame
@@ -396,7 +405,7 @@ void Scene::simulate(GLfloat dt) {
 
 	// Relax the chainmails
 	for (Object * o : enemyObjects) {
-		//o->simulate(dt);
+		o->simulate(dt);
 	}
 }
 

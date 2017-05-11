@@ -13,7 +13,7 @@ public:
 	Sphere(float r, glm::vec3 p);
 	virtual ~Sphere();
 
-    void simulate(double dt);
+    virtual void simulate(double dt) {};
 	void constructStandardMesh(bool override = false);
 	void useStandardMesh();
 	void useCustomMesh();

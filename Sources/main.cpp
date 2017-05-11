@@ -94,8 +94,7 @@ int main() {
         //ai::update_agents(scene->staticObjects, scene->enemyObjects, scene->playerObject);
 
         //Physics
-        //for(int i = 0 ; i < 20 ; i++)
-            scene->simulate(game_loop_clock->delta());
+        scene->simulate(game_loop_clock->delta());
 
 		// Render 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -185,28 +184,50 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
         v[1] = 0;
         v *= 10.f;
         handle_scene->playerObject->moveBy(v, clock->delta());
-        handle_scene->generateMoreMaze();
+        //handle_scene->generateMoreMaze();
     }
     if (UI::keys[GLFW_KEY_DOWN]) {
         glm::vec3 v = handle_scene->camera->dir;
         v[1] = 0;
         v *= -10.f;
         handle_scene->playerObject->moveBy(v, clock->delta());
-        scene->generateMoreMaze();
+        //scene->generateMoreMaze();
     }
     if (UI::keys[GLFW_KEY_LEFT]) {
         glm::vec3 v = handle_scene->camera->right;
         v[1] = 0;
         v *= -10.f;
         handle_scene->playerObject->moveBy(v, clock->delta());
-        scene->generateMoreMaze();
+        //scene->generateMoreMaze();
     }
     if (UI::keys[GLFW_KEY_RIGHT]) {
         glm::vec3 v = handle_scene->camera->right;
         v[1] = 0;
         v *= 10.f;
         handle_scene->playerObject->moveBy(v, clock->delta());
-        scene->generateMoreMaze();
+        //scene->generateMoreMaze();
+    }
+
+    if (UI::keys[GLFW_KEY_PAGE_UP]) {
+        glm::vec3 v = glm::vec3(0, 1, 0);
+        v *= 10.f;
+        handle_scene->playerObject->moveBy(v, clock->delta());
+        //scene->generateMoreMaze();
+    }
+
+    if (UI::keys[GLFW_KEY_PAGE_DOWN]) {
+        glm::vec3 v = glm::vec3(0, -1, 0);
+        v *= 10.f;
+        handle_scene->playerObject->moveBy(v, clock->delta());
+        //scene->generateMoreMaze();
+    }
+    if (UI::keys[GLFW_KEY_H]) {
+        float sign = 1.0;
+        for (int i = 0; i < handle_scene->enemyObjects.size(); i++) {
+            sign *= -1;
+            glm::vec3 v = glm::vec3(0, 5, 0) * sign;
+            handle_scene->enemyObjects[i]->moveBy(v, clock->delta());
+        }
     }
 
     if (UI::keys[GLFW_KEY_W])
