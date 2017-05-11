@@ -7,7 +7,6 @@ using namespace std;
 Scene::Scene() {
     this->camera = new Camera();
 	// Generate player object
-    /*
 	playerObject = new  Sphere(1, 0,0,0);
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 20;
@@ -21,7 +20,7 @@ Scene::Scene() {
 	// Generate enemy objects
     fillEnemyVector();
 	// Generate PRM per Agent's BV type
-    */
+    //dalton will.... get around to this :D
 }
 
 void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
@@ -525,7 +524,7 @@ void Scene::enableTestShader(glm::mat4 proj, glm::mat4 view) {
 	glUniformMatrix4fv(shaders[TEST]->uniform("proj"), 1, GL_FALSE, glm::value_ptr(proj));
 	glUniformMatrix4fv(shaders[TEST]->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
 
-	glUniform3f(shaders[TEST]->uniform("material.diffuse"), 1, 0, 0);
+	glUniform3f(shaders[TEST]->uniform("material.diffuse"), 0, 0, 1);
 	glUniform3f(shaders[TEST]->uniform("material.specular"), 1, 1, 1);
 	glUniform1f(shaders[TEST]->uniform("material.shine"), 32.0f);
 }
