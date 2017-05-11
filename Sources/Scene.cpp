@@ -30,12 +30,12 @@ void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
     while (i < mazeInfo.maxEnemies) {
         //We're looking at columns [X][]
         if (colsFlag) {
-            int randXGrid = (int)((float)rand() / RAND_MAX) * (start - end);
-            int randYGrid = (int)((float)rand() / RAND_MAX) * (mazeInfo.height-1);
+            int randXGrid = (int)(((float)rand()) / RAND_MAX * (start - end));
+            int randYGrid = (int)(((float)rand()) / RAND_MAX * (mazeInfo.height-1));
             int attempts = 0;
             while ((maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && mazeInfo.height / 2)) && attempts < 10) {
-                randXGrid = (int)((float)rand() / RAND_MAX) * (start - end);
-                randYGrid = (int)((float)rand() / RAND_MAX) * (mazeInfo.height-1);
+                randXGrid = (int)(((float)rand()) / RAND_MAX * (start - end));
+                randYGrid = (int)(((float)rand()) / RAND_MAX * (mazeInfo.height-1));
                 attempts++;
             }
             //put enemy here
@@ -44,14 +44,14 @@ void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
         //otherwise it's in rows maze[][X];
         else {
             for (int i = start; i < end; i++) {
-                int randXGrid = (int)((float)rand() / RAND_MAX) * (mazeInfo.width-1);
-                int randNum = (int)(float)rand() / RAND_MAX;
-                int randYGrid =  randNum * (end - start);
+                int randXGrid = (int)(((float)rand()) / RAND_MAX * (mazeInfo.width-1));
+                int randYGrid = (int)(((float)rand() / RAND_MAX) * (end - start));
+                if (randYGrid < 0) { randYGrid = 0; }
                 int attempts = 0;
-                while (maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && mazeInfo.height / 2) && attempts < 10) {
+                while ((maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && mazeInfo.height / 2)) && attempts < 10) {
                     randXGrid = (int)(((float)rand()) / RAND_MAX * (mazeInfo.width-1));
-                    randNum = (int)(float)rand() / RAND_MAX;
-                    randYGrid = randNum * (end - start);
+                    randYGrid = (int)(((float)rand()) / RAND_MAX * (start - end));
+                    if (randYGrid < 0) { randYGrid = 0; }
                     attempts++;
                 }
             }
@@ -63,11 +63,11 @@ void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
 void Scene::fillEnemyVector() {
     int i = enemyObjects.size();
     while (i < mazeInfo.maxEnemies) {
-        int randXGrid = (int)(((float)rand()) / RAND_MAX) * (mazeInfo.width-1);
-        int randYGrid = (int)(((float)rand()) / RAND_MAX) * (mazeInfo.height-1);
+        int randXGrid = (int)(((float)rand() / RAND_MAX) * (mazeInfo.width-1));
+        int randYGrid = (int)(((float)rand() / RAND_MAX) * (mazeInfo.height-1));
         while (maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && randYGrid == mazeInfo.height / 2)) {
-            randXGrid = (int)(((float)rand()) / RAND_MAX) * (mazeInfo.width-1);
-            randYGrid = (int)(((float)rand()) / RAND_MAX) * (mazeInfo.height-1);
+            randXGrid = (int)(((float)rand() / RAND_MAX) * (mazeInfo.width-1));
+            randYGrid = (int)(((float)rand() / RAND_MAX) * (mazeInfo.height-1));
         }
         float worldX = (randXGrid - mazeInfo.width / 2)* mazeInfo.cellSize;
         float worldY = (randYGrid - mazeInfo.height / 2)* mazeInfo.cellSize;
