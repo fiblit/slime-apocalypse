@@ -399,7 +399,7 @@ void Scene::setBounds(vec3 min, vec3 max) {
 void Scene::simulate(GLfloat dt) {
     static bool nan_happened = false;
     // For each dynamic object
-    if (playerObject) {
+    if (playerObject && !is_noclip_on) {
         camera->pos = playerObject->dyn.pos;
         camera->pos -= -(camera->dir*5.0f);
         camera->pos[1] += 2;
@@ -435,6 +435,7 @@ void Scene::simulate(GLfloat dt) {
     // Move the player character? (I don't know if we should have that logic in the scene)
     // All UI does is say that the player should be moving somebody needs to actually move it
     // However, it might be best to have a preceding function for handling input
+    /*this is bypassed by handle_input*/
     //playerObject->dyn.vel += playerObject->dyn.force * dt;
     //playerObject->dyn.pos += playerObject->dyn.vel * dt;
     //playerObject->moveBy(playerObject->dyn.vel * dt);//has side effects of changing dyn->pos
@@ -580,4 +581,13 @@ void Scene::setupTestingObjects() {
 
 void Scene::toggle_flashlight() {
     is_flashlight_on = !is_flashlight_on;
+}
+
+void Scene::toggle_noclip() {
+    is_noclip_on = !is_noclip_on;
+}
+
+void Scene::reset_proj_view() {
+    proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 5000.0f);
+    view = camera->getView();
 }

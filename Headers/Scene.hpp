@@ -60,16 +60,14 @@ public:
 	void render();
 
     void toggle_flashlight();
+    void toggle_noclip();
 
 	void enableTextureShader(glm::mat4 proj, glm::mat4 view);
 	void enableFlatShader(glm::mat4 proj, glm::mat4 view);
 	void enableLightShader(glm::mat4 proj, glm::mat4 view);
 	void enableTestShader(glm::mat4 proj, glm::mat4 view);
 
-    void reset_proj_view() {
-        proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 5000.0f);
-        view = camera->getView();
-    }
+    void reset_proj_view();
     glm::mat4 proj, view;
 
 	Object *playerObject;
@@ -103,6 +101,7 @@ public:
 	glm::vec3 dir_light_dir = glm::vec3(-1.0f, -0.3f, -0.6f);
 
 	bool is_flashlight_on = true;
+    bool is_noclip_on = false;
 
 private:
     typedef std::uniform_int_distribution<int> uint_dist;

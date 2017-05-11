@@ -36,7 +36,7 @@ public:
 	// Simple movement functions; we'll need to adapt these to however our objects move
 	virtual void moveBy(float x, float y, float z);
     virtual void moveBy(glm::vec3 t);
-    virtual void moveBy(glm::vec3 t, double dt);
+    virtual void moveBy(glm::vec3 t, float dt);
 	virtual void moveTo(float x, float y, float z);
 	virtual void moveTo(glm::vec3 position);
 

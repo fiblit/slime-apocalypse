@@ -88,8 +88,8 @@ void Object::moveTo(float x, float y, float z) {
 }
 
 
-void Object::moveBy(glm::vec3 t, double dt) {
-    this->dyn.pos += t * (float)dt;
+void Object::moveBy(glm::vec3 t, float dt) {
+    moveBy(t * dt);
 }
 
 // Simple movement functions; we'll need to adapt these to however our objects move
