@@ -13,9 +13,9 @@ Scene::Scene() {
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 20;
     mazeInfo.width = 20;
-    mazeInfo.maxEnemies = 5;
-    mazeInfo.enemySize = 1;
-    mazeInfo.chanceGennedAlive = .5;
+    mazeInfo.maxEnemies = 10;
+    mazeInfo.enemySize = 3;
+    mazeInfo.chanceGennedAlive = 0;
     mazeInfo.cellSize = 10;
     mazeInfo.center = playerObject->dyn.pos;
     initMaze();
@@ -30,12 +30,12 @@ void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
     while (i < mazeInfo.maxEnemies) {
         //We're looking at columns [X][]
         if (colsFlag) {
-            int randXGrid = (int)((float)rand()) / RAND_MAX * (start - end);
-            int randYGrid = (int)((float)rand()) / RAND_MAX * (mazeInfo.height-1);
+            int randXGrid = (int)((float)rand() / RAND_MAX) * (start - end);
+            int randYGrid = (int)((float)rand() / RAND_MAX) * (mazeInfo.height-1);
             int attempts = 0;
             while ((maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && mazeInfo.height / 2)) && attempts < 10) {
-                randXGrid = (int)((float)rand()) / RAND_MAX * (start - end);
-                randYGrid = (int)((float)rand()) / RAND_MAX * (mazeInfo.height-1);
+                randXGrid = (int)((float)rand() / RAND_MAX) * (start - end);
+                randYGrid = (int)((float)rand() / RAND_MAX) * (mazeInfo.height-1);
                 attempts++;
             }
             //put enemy here
@@ -44,12 +44,14 @@ void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
         //otherwise it's in rows maze[][X];
         else {
             for (int i = start; i < end; i++) {
-                int randXGrid = (int)((float)rand()) / RAND_MAX * (mazeInfo.width-1);
-                int randYGrid = (int)((float)rand()) / RAND_MAX * (end - start);
+                int randXGrid = (int)((float)rand() / RAND_MAX) * (mazeInfo.width-1);
+                int randNum = (int)(float)rand() / RAND_MAX;
+                int randYGrid =  randNum * (end - start);
                 int attempts = 0;
                 while (maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && mazeInfo.height / 2) && attempts < 10) {
                     randXGrid = (int)(((float)rand()) / RAND_MAX * (mazeInfo.width-1));
-                    randYGrid = (int)((float)rand()) / RAND_MAX * (start - end);
+                    randNum = (int)(float)rand() / RAND_MAX;
+                    randYGrid = randNum * (end - start);
                     attempts++;
                 }
             }
@@ -266,7 +268,7 @@ void Scene::generateMoreMaze() {
         while (xIdx >= 0 && xIdx < maze.size()) {
             for (size_t y = 0; y < maze[xIdx].size(); y++) {
                 maze[xIdx][y].active = 1;
-                maze[xIdx][y].filled = (((float)rand())/RAND_MAX > mazeInfo.chanceGennedAlive) ? 1 : 0;
+                maze[xIdx][y].filled = (((float)rand())/RAND_MAX > mazeInfo.chanceGennedAlive) ? 0 : 1;
             }
             xIdx += xIterator;
         }
