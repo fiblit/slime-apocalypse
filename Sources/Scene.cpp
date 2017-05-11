@@ -15,6 +15,7 @@ Scene::Scene(unsigned seed) {
 	// Generate player object
     
 	playerObject = new  Sphere(1, 0,3,0);
+    playerObject->color = (vec3(1, .6, .6));
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 20;
     mazeInfo.width = 20;
