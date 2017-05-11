@@ -178,22 +178,24 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
     handle_scene->camera->scroll_zoom_camera(UI::d_scroll);
 	UI::d_scroll = 0;
 
+    scene->playerObject->dyn.vel = glm::vec3(0, 0, 0);
     if (UI::keys[GLFW_KEY_UP]) {
-        scene->playerObject->dyn.pos += glm::vec3(0, 0, -1);
+        scene->playerObject->dyn.vel += glm::vec3(0, 0, -3);
         scene->generateMoreMaze();
     }
     if (UI::keys[GLFW_KEY_DOWN]) {
-        scene->playerObject->dyn.pos += glm::vec3(0, 0, 1);
+        scene->playerObject->dyn.vel += glm::vec3(0, 0, 3);
         scene->generateMoreMaze();
     }
     if (UI::keys[GLFW_KEY_LEFT]) {
-        scene->playerObject->dyn.pos += glm::vec3(-1, 0, 0);
+        scene->playerObject->dyn.vel += glm::vec3(-3, 0, 0);
         scene->generateMoreMaze();
     }
     if (UI::keys[GLFW_KEY_RIGHT]) {
-        scene->playerObject->dyn.pos += glm::vec3(1, 0, 0);
+        scene->playerObject->dyn.vel += glm::vec3(3, 0, 0);
         scene->generateMoreMaze();
     }
+
     if (UI::keys[GLFW_KEY_W])
         handle_scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta());
     if (UI::keys[GLFW_KEY_S])
