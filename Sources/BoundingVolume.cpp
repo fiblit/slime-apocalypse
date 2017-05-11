@@ -214,6 +214,8 @@ static float axialLineSegRayIntersect(glm::vec2 po, glm::vec2 pv, float val, int
         float t2 = glm::dot(v1, v3) / dot;
         if (t1 >= 0 && 0 <= t2 && t2 <= 1)
             return t1;
+        else
+            return std::numeric_limits<float>::max();
     }
     else
         return std::numeric_limits<float>::max();
