@@ -147,10 +147,13 @@ BVH::~BVH() {
 
 vector<Object *> BVH::query(BoundingVolume * q) {
     vector<Object *> NN;
+    if (left == nullptr)
+        return vector<Object *>();
     query_(q, &NN);
     return NN;
 }
 void BVH::query_(BoundingVolume * q, vector<Object *> * NN) {
+
     //create cspace
     vector<BoundingVolume *> ms;
     if (is_leaf())
