@@ -94,7 +94,8 @@ int main() {
         ai::update_agents(scene->staticObjects, scene->enemyObjects, scene->playerObject);
 
         //Physics
-        scene->simulate(game_loop_clock->delta());
+        //for(int i = 0 ; i < 20 ; i++)
+            scene->simulate(game_loop_clock->delta());
 
 		// Render 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -102,7 +103,7 @@ int main() {
         scene->reset_proj_view();
 
 		// TODO: currently must enable shader every frame to update view matrix; easily fixed
-		scene->enableFlatShader(scene->proj, scene->view);
+		scene->enableTestShader(scene->proj, scene->view);
         
 		scene->render();
 
@@ -179,19 +180,25 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
 	UI::d_scroll = 0;
 
     scene->playerObject->dyn.vel = glm::vec3(0, 0, 0);
-    if (UI::keys[GLFW_KEY_UP]) {
+    if (UI::keys[GLFW_KEY_K]) {
+        scene->slimeTestMove();
+    }    
+    if (UI::keys[GLFW_KEY_L]) {
+        scene->slimeTestStill();
+    }
+    if (UI::keys[GLFW_KEY_W]) {
         scene->playerObject->dyn.vel += glm::vec3(0, 0, -3);
         scene->generateMoreMaze();
     }
-    if (UI::keys[GLFW_KEY_DOWN]) {
+    if (UI::keys[GLFW_KEY_S]) {
         scene->playerObject->dyn.vel += glm::vec3(0, 0, 3);
         scene->generateMoreMaze();
     }
-    if (UI::keys[GLFW_KEY_LEFT]) {
+    if (UI::keys[GLFW_KEY_A]) {
         scene->playerObject->dyn.vel += glm::vec3(-3, 0, 0);
         scene->generateMoreMaze();
     }
-    if (UI::keys[GLFW_KEY_RIGHT]) {
+    if (UI::keys[GLFW_KEY_D]) {
         scene->playerObject->dyn.vel += glm::vec3(3, 0, 0);
         scene->generateMoreMaze();
     }

@@ -11,6 +11,7 @@ public:
 	Cube(float w, float l, float h, glm::vec3 p);
 	virtual ~Cube();
 
+    void simulate(double dt);
 	void constructStandardMesh(bool override = false);
 	void useStandardMesh();
 	void useCustomMesh();

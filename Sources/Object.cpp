@@ -14,21 +14,26 @@ Object::Object() {
 
 Object::Object(vec2 p) {
     dyn.pos = vec3(p.x, p.y, 0.);
+    dyn.gravity = vec3(0, 0, 0);
 }
 
 Object::Object(float x, float y) {
 	dyn.pos = vec3(x, y, 0.0);
+    dyn.gravity = vec3(0, 0, 0);
 }
 
 Object::Object(vec3 p) {
 	dyn.pos = p;
+    dyn.gravity = vec3(0, 0, 0);
 }
 
 Object::Object(float x, float y, float z) {
     dyn.pos = vec3(x, y, z);
+    dyn.gravity = vec3(0, 0, 0);
 }
 
-Object::~Object() {}
+Object::~Object() {
+}
 
 void Object::setParams(float x) {
 	params[0] = x;

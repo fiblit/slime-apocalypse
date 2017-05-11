@@ -24,7 +24,7 @@ Mesh::~Mesh() {}
 void Mesh::draw(Shader * shader) {
 	// Draw mesh
 	glBindVertexArray(this->VAO);
-	glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, +this->indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
@@ -33,16 +33,22 @@ Mesh * Mesh::copy() {
 	copy->setupMesh();
 	return copy;
 }
-
 void Mesh::updateNormals() {
     for (int i = 0; i < vertices.size(); i++) {
         vertices[i].Normal = glm::vec3(0, 0, 0);
     }
     for (int i = 0; i < indices.size(); i += 3) {
         glm::vec3 normal;
+        glm::vec3 vertex1 = vertices[indices[i]].Position;
+        glm::vec3 vertex2 = vertices[indices[i+1]].Position;
+        glm::vec3 vertex3 = vertices[indices[i+2]].Position;
         glm::vec3 v1 = vertices[indices[i+1]].Position - vertices[indices[i]].Position;
-        glm::vec3 v2 = vertices[indices[i + 1]].Position - vertices[indices[i + 2]].Position;
-        normal = glm::normalize(glm::cross(v1, v2));
+        glm::vec3 v2 = vertices[indices[i + 2]].Position - vertices[indices[i]].Position;
+        double a = glm::length(v1);
+        double b = glm::length(v2);
+        double c = glm::length(v1 - v2);
+        assert(a > 0 && b > 0);
+        normal = glm::normalize(glm::cross(v2, v1));
         vertices[indices[i]].Normal += normal;
         vertices[indices[i+1]].Normal += normal;
         vertices[indices[i+2]].Normal += normal;
@@ -50,6 +56,10 @@ void Mesh::updateNormals() {
     for (int i = 0; i < vertices.size(); i++) {
         vertices[i].Normal = glm::normalize(vertices[i].Normal);
     }
+
+    glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+    glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_DYNAMIC_DRAW);
+
 }
 
 // Careful when using on Mesh that is shared by multiple Objects!

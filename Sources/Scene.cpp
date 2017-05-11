@@ -10,7 +10,11 @@ Scene::Scene(unsigned seed) {
     hrclock::time_point first = hrclock::now();
 
     this->camera = new Camera();
+    camera->pos = vec3(5, 5, 5);
+    camera->dir = vec3(0,1, 0);
+    this->floor = new Cube(10000, 10000, .5, vec3(0, 0, -.5));
 	// Generate player object
+    
 	playerObject = new  Sphere(1, 0,0,0);
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 20;
@@ -32,7 +36,6 @@ Scene::Scene(unsigned seed) {
     fillEnemyVector();
 	// Generate PRM per Agent's BV type
     //dalton will.... get around to this :D
-
 }
 
 
@@ -51,6 +54,8 @@ void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
                 randYGrid = height_rand(gen);
                 attempts++;
             }
+            //put enemy here
+            addEnemyObject(mazeInfo.enemySize, randXGrid, 3.5, randYGrid);
         }
         //otherwise it's in rows maze[][X];
         else {
@@ -82,7 +87,7 @@ void Scene::fillEnemyVector() {
         }
         float worldX = (randXGrid - mazeInfo.width / 2)* mazeInfo.cellSize;
         float worldY = (randYGrid - mazeInfo.height / 2)* mazeInfo.cellSize;
-        addEnemyObject(mazeInfo.enemySize, worldX, 0, worldY);
+        addEnemyObject(mazeInfo.enemySize, worldX, 3, worldY);
         i++;
     }
 }
@@ -150,8 +155,8 @@ void Scene::fillStaticObjVector() {
     for (size_t i = 0; i < maze.size(); i++) {
         for (size_t j = 0; j < maze[i].size(); j++) {
             if (maze[i][j].filled) {
-                float xPos = (i - (mazeInfo.width / 2.0)) * mazeInfo.cellSize;
-                float yPos = (j - (mazeInfo.height / 2.0)) * mazeInfo.cellSize;
+                float xPos = ((float) i - (mazeInfo.width / 2.0)) * mazeInfo.cellSize;
+                float yPos = ((float) j - (mazeInfo.height / 2.0)) * mazeInfo.cellSize;
                 vec3 pos = mazeInfo.center + vec3(xPos, 0, yPos);
                 addWall(10, mazeInfo.cellSize, mazeInfo.cellSize, pos);
             }
@@ -224,6 +229,7 @@ void Scene::generateMoreMaze() {
     */
     mazeInfo.center = newCenter;
     //unload enemies that are outside of X by X grid & generate new ones
+
     int enemyObjectCount = enemyObjects.size();
     int idx = 0;
     while (idx < enemyObjectCount) {
@@ -304,14 +310,16 @@ void Scene::generateMoreMaze() {
     if (gridMoves[0] != 0) {
         int start = (gridMoves[0] < 0) ? 0 : maze.size()-1;
         int end = (gridMoves[0] < 0) ? (-1 * gridMoves[0]) : (maze.size() - 1);
-        assert(start > 0 && end < maze.size());
-        //fillEnemyVector(start, end, true);
+        assert(start >= 0 && end < maze.size());
+        assert(start <= end);
+        fillEnemyVector(start, end, true);
     }
     else if(gridMoves[2] != 0){
         int start = (gridMoves[2] < 0) ? 0 : (maze[0].size() - 1);
         int end = (gridMoves[2] < 0) ? (-1 * gridMoves[2]) : (maze[0].size() - 1);
-        assert(start > 0 && end << maze[0].size());
-        //fillEnemyVector(start, end, false);
+        assert(start >= 0 && end < maze[0].size());
+        assert(start <= end);
+        fillEnemyVector(start, end, false);
 
     }
     //add PRM nodes that exist in newly generated maze area
@@ -324,7 +332,7 @@ void Scene::generateMoreMaze() {
 
 void Scene::addEnemyObject(float r, float x, float y, float z) {
 	// Instantiate an enemy object
-	Sphere * enemy = new Sphere(r, x, y, z);
+	Slime * enemy = new Slime(r, x, y, z);
 
 	// Add instantiated object to enemyObjects vector
 	enemyObjects.push_back(enemy);
@@ -412,10 +420,15 @@ void Scene::simulate(GLfloat dt) {
     // Move the player character? (I don't know if we should have that logic in the scene)
     // All UI does is say that the player should be moving somebody needs to actually move it
     // However, it might be best to have a preceding function for handling input
-    playerObject->dyn.vel += playerObject->dyn.force * dt;
+    //playerObject->dyn.vel += playerObject->dyn.force * dt;
     //playerObject->dyn.pos += playerObject->dyn.vel * dt;
-    playerObject->moveBy(playerObject->dyn.vel * dt);//has side effects of changing dyn->pos
-    playerObject->dyn.force = glm::vec3(0);
+    //playerObject->moveBy(playerObject->dyn.vel * dt);//has side effects of changing dyn->pos
+    //playerObject->dyn.force = glm::vec3(0);
+
+	// Relax the chainmails
+	for (Object * o : enemyObjects) {
+		o->simulate(dt);
+	}
 }
 
 void Scene::render() {
@@ -423,6 +436,8 @@ void Scene::render() {
     enableTestShader(proj, view);
     this->playerObject->draw(curShader);
 
+    //render Floor
+    floor->draw(curShader);
 	// Render each enemy object
     for (Object * o : enemyObjects)
         o->draw(curShader);
@@ -548,26 +563,21 @@ void Scene::enableTestShader(glm::mat4 proj, glm::mat4 view) {
 }
 void Scene::setupTestingObjects() {
 	// walls
-    /*addWall(2, -5, -6, 5, -8);
-    addWall(3, 3, -8, 5, 8);
-    addWall(1, -5, 6, 3, 8);
-    addWall(3, -3, -3, -1, 3);*/
-
-    // enemies
-    /*
-    addEnemyObject(1, -10, 0, 0);
-    addEnemyObject(1, 0, 0, -10);
-    addEnemyObject(1, 10, 0, 0);
-    addEnemyObject(1, 0, 0, 10);
-
-    addWall(2, -7, 7, -7, -5);
-    addWall(2, 5, 7, -7, 7);
-    addWall(2, -7, 7, 5, 7);
-    addWall(2, -7, -5, -7, 7);
-    */
-    playerObject = new Sphere(1, 0, 0, 0);
+	//playerObject = new Sphere(1, 100, 0, 0);
+    //test = new Slime(3, 0, 0,  5);
+    //enemyObjects.push_back(test);
 }
 
 void Scene::toggle_flashlight() {
     is_flashlight_on = !is_flashlight_on;
+}
+
+void Scene::slimeTestMove() {
+    test->dyn.force = vec3(10000, 0, 10000);
+}
+
+
+void Scene::slimeTestStill() {
+    test->dyn.force = vec3(0,0,-1000);
+    test->dyn.vel[0] = 0;
 }

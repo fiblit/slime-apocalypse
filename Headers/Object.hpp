@@ -42,6 +42,7 @@ public:
 	virtual void constructStandardMesh(bool override = false) = 0;
 	virtual void useStandardMesh() = 0;
 	virtual void useCustomMesh() = 0;
+    virtual void simulate(double dt) = 0;
 
 	void draw(Shader * shader);
 
