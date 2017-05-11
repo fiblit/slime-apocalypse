@@ -20,7 +20,7 @@ Scene::Scene(unsigned seed) {
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 30;
     mazeInfo.width = 30;
-    mazeInfo.maxEnemies = 300;
+    mazeInfo.maxEnemies = 15;
     mazeInfo.enemySize = 3;
     mazeInfo.chanceGennedAlive = .25;
     mazeInfo.cellSize = 10;
