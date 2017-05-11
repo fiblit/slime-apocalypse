@@ -115,7 +115,7 @@ void Chainmail::applyMove(int id, vec3 t, double dt) {
         while (elements[randElement].updated) {
             randElement = ((float)rand()) / RAND_MAX * (elements.size() - 1);
         }
-        elements[randElement].pos += vec3(t[0] * .001, t[1] * .001, t[2] * .001);
+        elements[randElement].pos += t * .001f;
 
 
         if (elements[randElement].pos.y + worldCoordCenter.y < yPlaneCollision) {
