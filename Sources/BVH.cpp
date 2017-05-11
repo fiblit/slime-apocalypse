@@ -144,45 +144,46 @@ BVH::~BVH() {
     }
 }
 
-
+//only use Circ queries please...
 vector<Object *> BVH::query(BoundingVolume * q) {
     vector<Object *> NN;
     if (left == nullptr)
         return vector<Object *>();
-    query_(q, &NN);
+    //we are making terrible assumptions
+    query_(dynamic_cast<Circ *>(q), &NN);
     return NN;
 }
-void BVH::query_(BoundingVolume * q, vector<Object *> * NN) {
-    //create cspace
-    vector<BoundingVolume *> ms;
-    if (is_leaf())
-        ms = q->minkowskiSum(o->bv);
-    else
-        ms = q->minkowskiSum(&aabb);
-    
-    //test (in cspace) if q hits the BV
-    for (BoundingVolume * bv : ms) {
-        if (bv->is_collision(q->o)) {
-            if (is_leaf())
-                //leaves add their object (it's a near neighbor)
-                NN->push_back(o);
-            else {
-                //otherwise recurse, as the top level was hit
-                this->left->query_(q, NN);
-                this->right->query_(q, NN);
-            }  
+void BVH::query_(Circ * q, vector<Object *> * NN) {
+    if (is_leaf()) {
+        if (o->bv->vt == BoundingVolume::volume_type::CIRC) {
+            if (circ_circ_collider_(q, static_cast<Circ *>(o->bv)))
+                NN->push_back(this->o);
         }
-        delete bv;
+        else {
+            if (circ_rect_collider_(q, static_cast<Rect *>(o->bv)))
+                NN->push_back(this->o);
+        }
+    }
+    else {
+        if (circ_rect_collider_(q, &aabb)) {
+            this->left->query_(q, NN);
+            this->right->query_(q, NN);
+        }
     }
 }
 
 //don't use, test later as the sqrt will probably make this slower
 //this would be useful if it is faster, though, since circ/rect is common
 //that would also mean I need to update my BV code.
-bool BVH::circ_rect_collider_(Circ * c, Rect * r) {
-    glm::vec2 L = r->o - c->o;
+bool BVH::circ_rect_collider_(Circ * q, Rect * r) {
+    glm::vec2 L = r->o - q->o;
     L /= sqrt(glm::dot(L, L));
-    L *= c->r;
-    L += c->o;
+    L *= q->r;
+    L += q->o;
     return r->is_collision(L);
+}
+bool BVH::circ_circ_collider_(Circ * q, Circ * c) {
+    glm::vec2 diff = q->o - c->o;
+    float r = q->r + c->r;
+    return glm::dot(diff, diff) < r*r;
 }
