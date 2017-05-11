@@ -179,12 +179,6 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
     handle_scene->camera->scroll_zoom_camera(UI::d_scroll);
 	UI::d_scroll = 0;
 
-    if (UI::keys[GLFW_KEY_K]) {
-        scene->slimeTestMove();
-    }    
-    if (UI::keys[GLFW_KEY_L]) {
-        scene->slimeTestStill();
-    }
     if (UI::keys[GLFW_KEY_UP]) {
         glm::vec3 v = handle_scene->camera->dir;
         v[1] = 0;
@@ -213,6 +207,7 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
         handle_scene->playerObject->moveBy(v, clock->delta());
         scene->generateMoreMaze();
     }
+
     if (UI::keys[GLFW_KEY_W])
         handle_scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta());
     if (UI::keys[GLFW_KEY_S])

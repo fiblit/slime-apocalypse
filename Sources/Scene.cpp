@@ -22,7 +22,7 @@ Scene::Scene() {
 	// Generate enemy objects
     fillEnemyVector();
 	// Generate PRM per Agent's BV type
-    
+    //dalton will.... get around to this :D
 }
 
 void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
@@ -363,12 +363,20 @@ void Scene::setBounds(vec3 min, vec3 max) {
 //the actual simulation is kinda spread out, particularly in force-based functions
 //like the stuff in the LMP.
 void Scene::simulate(GLfloat dt) {
+    static bool nan_happened = false;
     // For each dynamic object:
     camera->pos = playerObject->dyn.pos - camera->dir;
     for (Object * o : enemyObjects) {
+        //nan should never happen, but if it does, just stop moving.
+        if (isnan(o->dyn.force.x)) {
+            if (!nan_happened) {
+                std::cout << "WARNING: there was a nan force" << std::endl;
+                nan_happened = !nan_happened;
+            }
+            o->dyn.force = glm::vec3(0, 0, 0);
+        }
         //Forward euler integration of motion
         o->dyn.vel += o->dyn.force * dt;
-        //o->dyn.vel += o->dyn.gravity * dt;
         o->dyn.pos += o->dyn.vel * dt;
         o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
 
@@ -394,6 +402,7 @@ void Scene::simulate(GLfloat dt) {
 
 void Scene::render() {
 	// Render the player object
+    enableTestShader(proj, view);
     this->playerObject->draw(curShader);
 
     //render Floor
@@ -401,6 +410,8 @@ void Scene::render() {
 	// Render each enemy object
     for (Object * o : enemyObjects)
         o->draw(curShader);
+
+    enableFlatShader(proj, view);
 
 	// Render each static object
 	for (Object * o : staticObjects)
@@ -515,29 +526,10 @@ void Scene::enableTestShader(glm::mat4 proj, glm::mat4 view) {
 	glUniformMatrix4fv(shaders[TEST]->uniform("proj"), 1, GL_FALSE, glm::value_ptr(proj));
 	glUniformMatrix4fv(shaders[TEST]->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
 
-    /*
-	glUniform3f(shaders[TEST]->uniform("material.diffuse"), 1, 0, 0);
-	glUniform3f(shaders[TEST]->uniform("material.specular"), 1, 1, 1);
-	glUniform1f(shaders[TEST]->uniform("material.shine"), 32.0f);
-    */
 }
 void Scene::setupTestingObjects() {
-	// walls
-	//playerObject = new Sphere(1, 100, 0, 0);
-    //test = new Slime(3, 0, 0,  5);
-    //enemyObjects.push_back(test);
 }
 
 void Scene::toggle_flashlight() {
     is_flashlight_on = !is_flashlight_on;
-}
-
-void Scene::slimeTestMove() {
-    test->dyn.force = vec3(10000, 0, 10000);
-}
-
-
-void Scene::slimeTestStill() {
-    test->dyn.force = vec3(0,0,-1000);
-    test->dyn.vel[0] = 0;
 }

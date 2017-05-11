@@ -38,6 +38,10 @@ Sphere::Sphere(float r, vec3 p) : Object(p) {
 Sphere::~Sphere() {
 	if (mesh && mesh != standardMesh)
 		delete mesh;
+    //if (deformer != nullptr)
+    //    delete deformer;
+    if (bv != nullptr)
+        delete bv;
 }
 
 void Sphere::useStandardMesh() {

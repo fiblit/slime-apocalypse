@@ -63,6 +63,7 @@ float LMP::ttc_(Circ * i, glm::vec2 iv, Rect * j, glm::vec2 jv) {
         float t = bv->intersect(j->o, dv);
         if (t < min_t)
             min_t = t;
+        delete bv;
     }
     return min_t;
 }
@@ -70,16 +71,16 @@ float LMP::ttc_(Circ * i, glm::vec2 iv, Rect * j, glm::vec2 jv) {
 glm::vec2 LMP::lookahead(Object * a, glm::vec2 target) {
     glm::vec2 t_new = target;
     if (static_cast<size_t>(a->ai.num_done) < a->ai.plan->size()) {
-        t_new = (*(a->ai.plan))[a->ai.num_done]->data;
+        t_new = (*(a->ai.plan))[a->ai.num_done];
 
         while (static_cast<size_t>(a->ai.num_done) + 1 < a->ai.plan->size()
-            && a->ai.cspace->line_of_sight(a->bv->o, (*(a->ai.plan))[a->ai.num_done + 1]->data)) {
+            && a->ai.cspace->line_of_sight(a->bv->o, (*(a->ai.plan))[a->ai.num_done + 1])) {
             a->ai.num_done++;
-            t_new = (*(a->ai.plan))[a->ai.num_done]->data;
+            t_new = (*(a->ai.plan))[a->ai.num_done];
         }
     }
     else
-        t_new = (*(a->ai.plan))[a->ai.plan->size() - 1]->data;
+        t_new = (*(a->ai.plan))[a->ai.plan->size() - 1];
     return t_new;
 }
 
@@ -122,7 +123,6 @@ glm::vec2 follow_force(Object * lead, Object * a) {
     return ff;
 }
 
-//TOOD: replace near_boids with the ability to access/search a spatial struct of boids
 glm::vec2 boid_force(Object * a, BVH * dynamic_bvh) {
     const float boid_speed = 1.2f;
 
@@ -174,7 +174,6 @@ glm::vec2 boid_force(Object * a, BVH * dynamic_bvh) {
     return boid_force;
 }
 
-//TODO: replace NN with spatial search callback
 glm::vec2 LMP::calc_sum_force(Object * a, BVH * static_bvh, BVH * dynamic_bvh, std::vector<Object *> leaders) {
     float speed = 1.0f; // x m/s
     glm::vec2 goal_vel;
@@ -227,5 +226,6 @@ glm::vec2 LMP::calc_sum_force(Object * a, BVH * static_bvh, BVH * dynamic_bvh, s
         }
     }
 
-    return goal_F + ttc_F + boid_F + follow_F;
+    glm::vec2 sum_F = goal_F + ttc_F + boid_F + follow_F;
+    return sum_F;
 }

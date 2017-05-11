@@ -173,6 +173,7 @@ void BVH::query_(BoundingVolume * q, vector<Object *> * NN) {
                 this->right->query_(q, NN);
             }  
         }
+        delete bv;
     }
 }
 
