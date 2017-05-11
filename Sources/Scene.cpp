@@ -20,7 +20,7 @@ Scene::Scene(unsigned seed) {
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 30;
     mazeInfo.width = 30;
-    mazeInfo.maxEnemies = 300;
+    mazeInfo.maxEnemies = 10;
     mazeInfo.enemySize = 3;
     mazeInfo.chanceGennedAlive = .25;
     mazeInfo.cellSize = 10;
@@ -33,16 +33,7 @@ Scene::Scene(unsigned seed) {
     height_rand = uint_dist(0, mazeInfo.height - 1);
 
     initMaze();
-    /*
-    Slime  * test = new Slime(3, glm::vec3(0, 2, -2));
-    enemyObjects.push_back(test);
-    test = new Slime(3, glm::vec3(0, 2, 2));
-    enemyObjects.push_back(test);
-
-    */
-    
-    //dalton will.... get around to this :D
-
+    //fillEnemyVector();
 }
 
 
@@ -69,6 +60,8 @@ void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
             int randXGrid = width_rand(gen);
             int randYGrid = startend(gen);
             for (int i = start; i < end; i++) {
+                int randXGrid = width_rand(gen);
+                int randYGrid = startend(gen);
                 int attempts = 0;
                 while (maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && mazeInfo.height / 2) && attempts < 10) {
                     randXGrid = width_rand(gen);
@@ -321,7 +314,7 @@ void Scene::generateMoreMaze() {
     automatonSimulate();
     //add the Objects 
     fillStaticObjVector();
-    fillEnemyVector();
+    //fillEnemyVector();
     //add PRM nodes that exist in newly generated maze area
 
     //re-run pathfinding algorithms
