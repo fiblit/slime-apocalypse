@@ -186,19 +186,31 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
         scene->slimeTestStill();
     }
     if (UI::keys[GLFW_KEY_UP]) {
-        scene->playerObject->dyn.pos += glm::vec3(0, 0, -1);
-        scene->generateMoreMaze();
+        glm::vec3 v = handle_scene->camera->dir;
+        v[1] = 0;
+        v *= 10.f;
+        handle_scene->playerObject->moveBy(v, clock->delta());
+        handle_scene->generateMoreMaze();
     }
     if (UI::keys[GLFW_KEY_DOWN]) {
-        scene->playerObject->dyn.pos += glm::vec3(0, 0, 1);
+        glm::vec3 v = handle_scene->camera->dir;
+        v[1] = 0;
+        v *= -10.f;
+        handle_scene->playerObject->moveBy(v, clock->delta());
         scene->generateMoreMaze();
     }
     if (UI::keys[GLFW_KEY_LEFT]) {
-        scene->playerObject->dyn.pos += glm::vec3(-1, 0, 0);
+        glm::vec3 v = handle_scene->camera->right;
+        v[1] = 0;
+        v *= -10.f;
+        handle_scene->playerObject->moveBy(v, clock->delta());
         scene->generateMoreMaze();
     }
     if (UI::keys[GLFW_KEY_RIGHT]) {
-        scene->playerObject->dyn.pos += glm::vec3(1, 0, 0);
+        glm::vec3 v = handle_scene->camera->right;
+        v[1] = 0;
+        v *= 10.f;
+        handle_scene->playerObject->moveBy(v, clock->delta());
         scene->generateMoreMaze();
     }
     if (UI::keys[GLFW_KEY_W])

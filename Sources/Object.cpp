@@ -91,6 +91,11 @@ void Object::moveTo(float x, float y, float z) {
 	moveTo(vec3(x, y, z));
 }
 
+
+void Object::moveBy(glm::vec3 t, double dt) {
+    this->dyn.pos += t * (float)dt;
+}
+
 // Simple movement functions; we'll need to adapt these to however our objects move
 void Object::moveTo(vec3 position) {
 	vec3 p = position - dyn.pos;
@@ -102,7 +107,6 @@ void Object::draw(Shader * shader) {
 	model = mat4();
 	model = glm::translate(model, dyn.pos);
 	model = glm::scale(model, params);
-	glUniformMatrix4fv(shader->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
-
+    glUniformMatrix4fv(shader->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
 	mesh->draw(shader);
 }

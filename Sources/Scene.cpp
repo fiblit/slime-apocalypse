@@ -6,12 +6,10 @@ using namespace std;
 
 Scene::Scene() {
     this->camera = new Camera();
-    camera->pos = vec3(5, 5, 5);
-    camera->dir = vec3(0,1, 0);
     this->floor = new Cube(10000, 10000, .5, vec3(0, 0, -.5));
 	// Generate player object
     
-	playerObject = new  Sphere(1, 0,0,0);
+	playerObject = new  Sphere(1, 0,3,0);
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 20;
     mazeInfo.width = 20;
@@ -264,7 +262,6 @@ void Scene::generateMoreMaze() {
         xIterator = gridMoves[0] / abs(gridMoves[0]);
         size_t xIdx = (maze.size() - gridMoves[0]) % maze.size();
         if (xIterator < 0) xIdx += xIterator;
-        cout << xIdx << " " << xIterator << endl;
         //update horizontal rows with newly generated cells
         while (xIdx >= 0 && xIdx < maze.size()) {
             for (size_t y = 0; y < maze[xIdx].size(); y++) {
@@ -316,6 +313,7 @@ void Scene::generateMoreMaze() {
 
 void Scene::addEnemyObject(float r, float x, float y, float z) {
 	// Instantiate an enemy object
+
 	Slime * enemy = new Slime(r, x, y, z);
 
 	// Add instantiated object to enemyObjects vector
@@ -378,6 +376,7 @@ void Scene::setBounds(vec3 min, vec3 max) {
 //like the stuff in the LMP.
 void Scene::simulate(GLfloat dt) {
     // For each dynamic object:
+    camera->pos = playerObject->dyn.pos - camera->dir;
     for (Object * o : enemyObjects) {
         //Forward euler integration of motion
         o->dyn.vel += o->dyn.force * dt;

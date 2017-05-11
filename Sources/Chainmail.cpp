@@ -144,7 +144,6 @@ void Chainmail::updateCenter() {
     for (int i = 0; i < elements.size(); i++) {
         elements[i].pos += delta;
     }
-    std::cout << worldCoordCenter[1] << std::endl;;
 }
 
 void Chainmail::returnVertices(vector<vec3> &returnTo) {
