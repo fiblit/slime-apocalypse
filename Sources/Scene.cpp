@@ -10,7 +10,7 @@ Scene::Scene() {
     camera->dir = vec3(0,1, 0);
     this->floor = new Cube(10000, .5, 10000, vec3(0, 0, -.5));
 	// Generate player object
-    /*
+    
 	playerObject = new  Sphere(1, 0,0,0);
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 20;
@@ -24,7 +24,7 @@ Scene::Scene() {
 	// Generate enemy objects
     fillEnemyVector();
 	// Generate PRM per Agent's BV type
-    */
+    
 }
 
 void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
