@@ -11,7 +11,6 @@ Scene::Scene() {
     
 	playerObject = new  Sphere(1, 0,3,0);
 	// Generate static objects (walls, floors, etc.)
-    /*
     mazeInfo.height = 20;
     mazeInfo.width = 20;
     mazeInfo.maxEnemies = 10;
@@ -20,11 +19,12 @@ Scene::Scene() {
     mazeInfo.cellSize = 10;
     mazeInfo.center = playerObject->dyn.pos;
     initMaze();
-    */
+
+    /*
     Slime  * test = new Slime(3, glm::vec3(0, 2, -2));
     enemyObjects.push_back(test);
     test = new Slime(3, glm::vec3(0, 2, 2));
-    enemyObjects.push_back(test);
+    enemyObjects.push_back(test);*/
     //dalton will.... get around to this :D
 }
 
