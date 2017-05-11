@@ -52,6 +52,7 @@ public:
 	void relax(float dt);
 	void generateRegions();
     void simStep(int startNode, glm::vec3 t, double dt); 
+	void simStep(std::vector<int> ids, glm::vec3, double dt);
     void simStep(glm::vec3, double dt);
     void simStep(double dt);
     void returnVertices(std::vector<glm::vec3> &returnTo);

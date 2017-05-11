@@ -32,15 +32,15 @@ void Slime::simulate(float dt) {
 }
 
 void Slime::moveBy(float x, float y, float z) {
-	moveBy(glm::vec3(x,y,z), 0);
+	moveBy(0, glm::vec3(x,y,z), 0);
 }
 
 void Slime::moveBy(float x, float y, float z, double dt) {
-    moveBy(glm::vec3(x,y,z), dt);
+    moveBy(0, glm::vec3(x,y,z), dt);
 }
 
-void Slime::moveBy(glm::vec3 t, double dt) {
-    deformer->simStep(0, t, dt);
+void Slime::moveBy(int id, glm::vec3 t, double dt) {
+    deformer->simStep(id, t, dt);
     std::vector<glm::vec3> v;
     deformer->returnVertices(v);
     std::vector<Vertex> newMeshVertices;
@@ -51,8 +51,22 @@ void Slime::moveBy(glm::vec3 t, double dt) {
     }
     mesh->updateVertices(newMeshVertices);
     mesh->updateNormals();
-
 }
+
+void Slime::moveBy(std::vector<int> ids, glm::vec3 t, double dt) {
+	deformer->simStep(ids, t, dt);
+	std::vector<glm::vec3> v;
+	deformer->returnVertices(v);
+	std::vector<Vertex> newMeshVertices;
+	for (int i = 0; i < v.size(); i++) {
+		Vertex newVert = {};
+		newVert.Position = v[i];
+		newMeshVertices.push_back(newVert);
+	}
+	mesh->updateVertices(newMeshVertices);
+	mesh->updateNormals();
+}
+
 void Slime::moveBy(glm::vec3 t) {
     deformer->applyMove(0, t);
     std::vector<glm::vec3> v;

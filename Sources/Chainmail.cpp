@@ -158,7 +158,7 @@ void Chainmail::relax(float dt) {
 	// Second, push all elements toward their respective centroid
 	for (Element & e : this -> elements) {
 		vec3 v = centroids[e.id] - e.pos;
-		e.pos += 2*dt*v;
+		e.pos += 3*dt*v;
 	}
 }
 
@@ -178,6 +178,21 @@ void Chainmail::simStep(int id, glm::vec3 t, double dt) {
     applyMove(id, t, dt);
     propagate();
     relax(dt);
+
+	for (Element & e : this->elements)
+		e.updated = false;
+	waiting.clear(); // might want a more robust end check than this
+}
+void Chainmail::simStep(std::vector<int> ids, glm::vec3 t, double dt) {
+	for (int id : ids ) {
+		if (!this->elements[id].updated) {
+			applyMove(id, t, dt);
+			std::cout << id << std::endl;
+		}
+	}
+
+	propagate();
+	relax(dt);
 
 	for (Element & e : this->elements)
 		e.updated = false;

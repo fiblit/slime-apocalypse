@@ -88,7 +88,6 @@ void Sphere::constructStandardMesh(bool override) {
 				indices.push_back(j + i*slices);
 				indices.push_back(j + (nextStack)*slices);
 				indices.push_back(nextSlice + (nextStack)*slices);
-
 				indices.push_back(j + i*slices);
 				indices.push_back(nextSlice + (nextStack)*slices);
 				indices.push_back(nextSlice + i*slices);

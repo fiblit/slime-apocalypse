@@ -554,11 +554,17 @@ void Scene::toggle_flashlight() {
     is_flashlight_on = !is_flashlight_on;
 }
 
-void Scene::slimeTestMove() {
-    test->moveBy(10, 0, 0, .002);
+void Scene::slimeTestMove(std::vector<int> ids, glm::vec3 t, float dt) {
+    test->moveBy(ids, t, dt);
 }
 
 
 void Scene::slimeTestStill() {
     test->moveBy(0, 0, 0, .04);
+}
+
+void Scene::reset() {
+	test->constructStandardMesh(true);
+	delete test->deformer;
+	test->deformer = new Chainmail(test->mesh, test->stacks, test->slices);
 }

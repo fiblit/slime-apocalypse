@@ -94,8 +94,9 @@ public:
 	glm::vec3 dir_light_dir = glm::vec3(-0.5f, 1.0f, -0.7f);
 
 	bool is_flashlight_on = true;
-
-    void slimeTestMove();
+	
+	void reset();
+    void slimeTestMove(std::vector<int> ids, glm::vec3 t, float dt);
     void slimeTestStill();
     Slime * test;
 };

@@ -14,7 +14,8 @@ public:
     void moveBy(float x, float y, float z); 
     void moveBy(float x, float y, float z, double dt);
     void moveBy(glm::vec3 t);
-    void moveBy(glm::vec3 t, double dt);
+	void moveBy(int id, glm::vec3 t, double dt);
+	void moveBy(std::vector<int> ids, glm::vec3 t, double dt);
     void moveTo(float x, float y, float z);
     void moveTo(glm::vec3 position);
 
