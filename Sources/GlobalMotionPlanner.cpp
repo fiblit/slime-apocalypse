@@ -71,7 +71,7 @@ VecData * GMP::find_path_Astar(float e, Graph<glm::vec2> * roadmap) {
 }
 
 //move to AI/planner (probably GMP)
-void GMP::replan(std::vector<Slime *> agents) {
+void GMP::replan(std::vector<Object *> agents) {
     for (Object * a : agents)
         plan_one(a);
 }
