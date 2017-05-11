@@ -19,9 +19,6 @@ Scene::Scene() {
     mazeInfo.cellSize = 10;
     mazeInfo.center = playerObject->dyn.pos;
     initMaze();
-	// Generate enemy objects
-    fillEnemyVector();
-	// Generate PRM per Agent's BV type
     //dalton will.... get around to this :D
 }
 
@@ -220,8 +217,10 @@ void Scene::generateMoreMaze() {
     while (idx < enemyObjectCount) {
         vec3 gridEnemyPos = snapToGrid(enemyObjects[idx]->dyn.pos);
         float xDist = abs(newCenter[0] - gridEnemyPos[0]);
+        float xMax = mazeInfo.width * mazeInfo.cellSize / 2.0f;
         float yDist = abs(newCenter[2] - gridEnemyPos[2]);
-        if ((xDist > mazeInfo.width / 2) || (yDist > mazeInfo.height / 2)) {
+        float yMax = mazeInfo.height *  mazeInfo.cellSize / 2.0f;
+        if ((xDist > xMax) || (yDist > yMax)) {
             enemyObjects.erase(enemyObjects.begin() + idx);
             enemyObjectCount--;
         }
@@ -290,7 +289,8 @@ void Scene::generateMoreMaze() {
     automatonSimulate();
     //add the Objects 
     fillStaticObjVector();
-    fillEnemyVector();
+    //fillEnemyVector();
+    enemyObjects.push_back(new Slime(3, glm::vec3(0, 2, 5)));
     //add PRM nodes that exist in newly generated maze area
 
     //re-run pathfinding algorithms
@@ -364,8 +364,8 @@ void Scene::setBounds(vec3 min, vec3 max) {
 //like the stuff in the LMP.
 void Scene::simulate(GLfloat dt) {
     static bool nan_happened = false;
-    // For each dynamic object:
-    camera->pos = playerObject->dyn.pos - camera->dir;
+    // For each dynamic object
+    //camera->pos = playerObject->dyn.pos - camera->dir;
     for (Object * o : enemyObjects) {
         //nan should never happen, but if it does, just stop moving.
         if (isnan(o->dyn.force.x)) {

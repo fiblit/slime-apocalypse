@@ -36,6 +36,7 @@ public:
 	virtual ~Scene();
 
 	void addEnemyObject(float r, float x, float y, float z);
+    void addEnemyObject(float r, glm::vec3 p);
 	void addWall(float h, float x1, float y1, float x2, float y2); 
     void addWall(float h, float w, float l, glm::vec3 center);
 	void addCylinder(float h, float r, float x, float y);
