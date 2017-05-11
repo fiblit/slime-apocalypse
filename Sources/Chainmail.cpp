@@ -21,35 +21,75 @@ Chainmail::Chainmail(Mesh * mesh, int stacks, int slices, glm::vec3 worldCenter)
         elements.push_back(e);
     }
     // Add a centroid element
+    /*
     Element center;
     center.id = this->elements.size();
     center.origin = vec3(0);
-    center.pos = vec3(0);
+    center.pos = worldCoordCenter;
     for (Element & e : this->elements) {
         center.neighbors.insert(e.id);
         e.neighbors.insert(center.id);
     }
 
     this->elements.push_back(center);
+    */
 
-    for (int i = 0; i < mesh->indices.size(); i += 3) {
-        int idx1 = mesh->indices[i];
-        int idx2 = mesh->indices[i + 1];
-        int idx3 = mesh->indices[i + 2];
-
-        if (elements[idx1].neighbors.find(idx2) == elements[idx1].neighbors.end() && glm::length(elements[idx1].pos - elements[idx2].pos) > .003) {
-            elements[idx1].neighbors.insert(idx2);
-            elements[idx2].neighbors.insert(idx1);
+    //Random distribution of points in sphere
+    /*
+    for (int i = 0; i < 100; i++) {
+        double maxDist = glm::distance(worldCenter, elements[0].pos);
+        double x = ((float)rand()) / RAND_MAX * maxDist - (maxDist / 2);
+        double y = ((float)rand()) / RAND_MAX * maxDist - (maxDist / 2);
+        double z = ((float)rand()) / RAND_MAX * maxDist - (maxDist / 2);
+        while (glm::distance(vec3(x, y, z), worldCenter) > maxDist) {
+            x = ((float)rand()) / RAND_MAX * maxDist - (maxDist / 2);
+            y = ((float)rand()) / RAND_MAX * maxDist - (maxDist / 2);
+            z = ((float)rand()) / RAND_MAX * maxDist - (maxDist / 2);
         }
-        if (elements[idx2].neighbors.find(idx3) == elements[idx2].neighbors.end() && glm::length(elements[idx3].pos - elements[idx2].pos) > .003) {
-            elements[idx2].neighbors.insert(idx3);
-            elements[idx3].neighbors.insert(idx2);
+        Element e = {};
+        e.id = elements.size();
+        e.origin = vec3(x, y, z);
+        e.pos = e.origin;
+        e.updated = false;
+        double someDist = maxDist / 2;
+        for (int i = 0; i < elements.size(); i++) {
+            if (glm::distance(elements[i].pos, e.pos) < someDist) {
+                elements[i].neighbors.insert(e.id);
+                e.neighbors.insert(i);
+            }
         }
-        if (elements[idx1].neighbors.find(idx3) == elements[idx1].neighbors.end() && glm::length(elements[idx1].pos - elements[idx3].pos) > .003) {
-            elements[idx1].neighbors.insert(idx3);
-            elements[idx3].neighbors.insert(idx1);
-        }
+        elements.push_back(e);
     }
+    */
+    //lattice work for internal structure
+    /*
+    for (int i = 0; i < stacks; i++) {
+        for (int j = 0; j < slices; j++) {
+            int idx1 = j + ((stacks - i - 1) * slices);
+            int idx2 = (slices - j) + (i * slices);
+            int idx3 = (slices - j) + ((stacks - i - 1) * slices);
+            int me = j + i * slices;
+            
+            if (idx1 < elements.size() && (glm::distance(elements[idx1].pos, elements[me].pos) > .003) && 
+                (idx1 != me && std::find(elements[idx1].neighbors.begin(), elements[idx1].neighbors.end(), me) != elements[idx1].neighbors.end())) {
+                elements[idx1].neighbors.insert(me);
+                elements[me].neighbors.insert(idx1);
+            }
+            
+            if (idx2 < elements.size() && (glm::distance(elements[idx2].pos, elements[me].pos) > .003) &&
+                (idx2 != me && std::find(elements[idx2].neighbors.begin(), elements[idx2].neighbors.end(), me) != elements[idx2].neighbors.end())) {
+                elements[idx2].neighbors.insert(me);
+                elements[me].neighbors.insert(idx2);
+            }
+            
+            if ((idx3 < elements.size()) && (glm::distance(elements[idx3].pos, elements[me].pos) > .003) &&
+                (idx3 != me && std::find(elements[idx3].neighbors.begin(), elements[idx3].neighbors.end(), me) != elements[idx3].neighbors.end())) {
+                elements[idx3].neighbors.insert(me);
+                elements[me].neighbors.insert(idx3);     
+            }
+        }        
+    }
+    */
     generateRegions();
 }
 
@@ -104,6 +144,7 @@ void Chainmail::updateCenter() {
     for (int i = 0; i < elements.size(); i++) {
         elements[i].pos += delta;
     }
+    std::cout << worldCoordCenter[1] << std::endl;;
 }
 
 void Chainmail::returnVertices(vector<vec3> &returnTo) {
@@ -185,14 +226,18 @@ void Chainmail::relax(float dt) {
 		vec3 c = vec3(0);
 		for (vec3 v : Q)
 			c += v;
-		c /= Q.size();
+        if (Q.size() != 0)
+		    c /= Q.size();
+        else {
+            c = e.origin;
+        }
 		centroids.push_back(c);
 	}
 
 	// Second, push all elements toward their respective centroid
 	for (Element & e : this -> elements) {
 		vec3 v = centroids[e.id] - e.pos;
-        //v = (e.origin - e.pos);
+        v = (e.origin - e.pos);
 		e.pos += 2*dt*v;
         if (e.pos.y + worldCoordCenter.y < .003) {
             float delta = (e.pos.y + worldCoordCenter.y) - .005;
@@ -209,7 +254,6 @@ void Chainmail::simStep(glm::vec3 v, double dt) {
 }
 void Chainmail::simStep(int id, glm::vec3 t, double dt) {
     applyMove(id, t, dt);
-    applyMove(id, glm::vec3(0, 0, -.3), dt);
     propagate();
     relax(dt);
     updateCenter();
@@ -239,20 +283,6 @@ void Chainmail::generateRegions() {
 							 this->aMax*dY + this->b*(dZ + dX),
 							 this->aMax*dZ + this->b*(dX + dY));
 
-                /*
-                if (eN.origin.x < e.origin.x) {
-                    c.min.x *= -1;
-                    c.max.x *= -1;
-                }
-                if (eN.origin.y < e.origin.y) {
-                    c.min.y *= -1;
-                    c.max.y *= -1;
-                }
-                if (eN.origin.z < e.origin.z) {
-                    c.min.z *= -1;
-                    c.max.z *= -1;
-                }
-                */
 				this->regions[key] = c;
 			}
 		}

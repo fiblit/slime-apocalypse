@@ -6,7 +6,9 @@ using namespace std;
 
 Scene::Scene() {
     this->camera = new Camera();
-    this->floor = new Cube(10000, .5, 10000, vec3(0, 0, -.5));
+    camera->pos = vec3(5, 5, 5);
+    camera->dir = vec3(0,1, 0);
+    this->floor = new Cube(10000, 10000, .5, vec3(0, 0, -.5));
 	// Generate player object
     
 	playerObject = new  Sphere(1, 0,0,0);
@@ -33,17 +35,19 @@ void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
             int randXGrid = (int)((float)rand()) / RAND_MAX * (start - end);
             int randYGrid = (int)((float)rand()) / RAND_MAX * (mazeInfo.height-1);
             int attempts = 0;
-            while (maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && mazeInfo.height / 2) && attempts < 10) {
+            while ((maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && mazeInfo.height / 2)) && attempts < 10) {
                 randXGrid = (int)((float)rand()) / RAND_MAX * (start - end);
                 randYGrid = (int)((float)rand()) / RAND_MAX * (mazeInfo.height-1);
                 attempts++;
             }
+            //put enemy here
+            addEnemyObject(mazeInfo.enemySize, randXGrid, 3.5, randYGrid);
         }
         //otherwise it's in rows maze[][X];
         else {
             for (int i = start; i < end; i++) {
                 int randXGrid = (int)((float)rand()) / RAND_MAX * (mazeInfo.width-1);
-                int randYGrid = (int)((float)rand()) / RAND_MAX * (start - end);
+                int randYGrid = (int)((float)rand()) / RAND_MAX * (end - start);
                 int attempts = 0;
                 while (maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && mazeInfo.height / 2) && attempts < 10) {
                     randXGrid = (int)(((float)rand()) / RAND_MAX * (mazeInfo.width-1));
@@ -67,7 +71,7 @@ void Scene::fillEnemyVector() {
         }
         float worldX = (randXGrid - mazeInfo.width / 2)* mazeInfo.cellSize;
         float worldY = (randYGrid - mazeInfo.height / 2)* mazeInfo.cellSize;
-        addEnemyObject(mazeInfo.enemySize, worldX, 0, worldY);
+        addEnemyObject(mazeInfo.enemySize, worldX, 3, worldY);
         i++;
     }
 }
@@ -135,8 +139,8 @@ void Scene::fillStaticObjVector() {
     for (size_t i = 0; i < maze.size(); i++) {
         for (size_t j = 0; j < maze[i].size(); j++) {
             if (maze[i][j].filled) {
-                float xPos = (i - (mazeInfo.width / 2.0)) * mazeInfo.cellSize;
-                float yPos = (j - (mazeInfo.height / 2.0)) * mazeInfo.cellSize;
+                float xPos = ((float) i - (mazeInfo.width / 2.0)) * mazeInfo.cellSize;
+                float yPos = ((float) j - (mazeInfo.height / 2.0)) * mazeInfo.cellSize;
                 vec3 pos = mazeInfo.center + vec3(xPos, 0, yPos);
                 addWall(10, mazeInfo.cellSize, mazeInfo.cellSize, pos);
             }
@@ -209,6 +213,7 @@ void Scene::generateMoreMaze() {
     */
     mazeInfo.center = newCenter;
     //unload enemies that are outside of X by X grid & generate new ones
+
     int enemyObjectCount = enemyObjects.size();
     int idx = 0;
     while (idx < enemyObjectCount) {
@@ -289,14 +294,16 @@ void Scene::generateMoreMaze() {
     if (gridMoves[0] != 0) {
         int start = (gridMoves[0] < 0) ? 0 : maze.size()-1;
         int end = (gridMoves[0] < 0) ? (-1 * gridMoves[0]) : (maze.size() - 1);
-        assert(start > 0 && end < maze.size());
-        //fillEnemyVector(start, end, true);
+        assert(start >= 0 && end < maze.size());
+        assert(start <= end);
+        fillEnemyVector(start, end, true);
     }
     else if(gridMoves[2] != 0){
         int start = (gridMoves[2] < 0) ? 0 : (maze[0].size() - 1);
         int end = (gridMoves[2] < 0) ? (-1 * gridMoves[2]) : (maze[0].size() - 1);
-        assert(start > 0 && end << maze[0].size());
-        //fillEnemyVector(start, end, false);
+        assert(start >= 0 && end < maze[0].size());
+        assert(start <= end);
+        fillEnemyVector(start, end, false);
 
     }
     //add PRM nodes that exist in newly generated maze area
@@ -387,10 +394,10 @@ void Scene::simulate(GLfloat dt) {
     // Move the player character? (I don't know if we should have that logic in the scene)
     // All UI does is say that the player should be moving somebody needs to actually move it
     // However, it might be best to have a preceding function for handling input
-    playerObject->dyn.vel += playerObject->dyn.force * dt;
+    //playerObject->dyn.vel += playerObject->dyn.force * dt;
     //playerObject->dyn.pos += playerObject->dyn.vel * dt;
-    playerObject->moveBy(playerObject->dyn.vel * dt);//has side effects of changing dyn->pos
-    playerObject->dyn.force = glm::vec3(0);
+    //playerObject->moveBy(playerObject->dyn.vel * dt);//has side effects of changing dyn->pos
+    //playerObject->dyn.force = glm::vec3(0);
 
 	// Relax the chainmails
 	for (Object * o : enemyObjects) {
@@ -539,7 +546,7 @@ void Scene::toggle_flashlight() {
 }
 
 void Scene::slimeTestMove() {
-    test->dyn.force = vec3(100, 0, 100);
+    test->dyn.force = vec3(10000, 0, 10000);
 }
 
 

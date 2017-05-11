@@ -94,7 +94,8 @@ int main() {
         //ai::update_agents(scene->staticObjects, scene->enemyObjects, scene->playerObject);
 
         //Physics
-        scene->simulate(game_loop_clock->delta());
+        //for(int i = 0 ; i < 20 ; i++)
+            scene->simulate(game_loop_clock->delta());
 
 		// Render 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -102,7 +103,6 @@ int main() {
         scene->reset_proj_view();
 
 		// TODO: currently must enable shader every frame to update view matrix; easily fixed
-
 		scene->enableTestShader(scene->proj, scene->camera->getView());
         
 		scene->render();
