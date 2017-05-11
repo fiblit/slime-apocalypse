@@ -15,7 +15,7 @@ Scene::Scene() {
     mazeInfo.width = 20;
     mazeInfo.maxEnemies = 10;
     mazeInfo.enemySize = 3;
-    mazeInfo.chanceGennedAlive = 0;
+    mazeInfo.chanceGennedAlive = .25;
     mazeInfo.cellSize = 10;
     mazeInfo.center = playerObject->dyn.pos;
     initMaze();
@@ -94,7 +94,7 @@ int Scene::mod(int num1, int num2) {
     return (r < 0) ? r + num2 : r;
 }
 void Scene::automatonSimulate() {
-    int numIterations = 15;
+    int numIterations = 5;
     for (int a = 0; a < numIterations; a++) {
         std::vector<std::vector<mazeCell>> mazeBuffer;
         for (int i = 0; i < mazeInfo.width; i++) {
@@ -211,6 +211,7 @@ void Scene::generateMoreMaze() {
     cout << newCenter[0] << "," << newCenter[1] << ", " << newCenter[2] << endl;
     cout << mazeInfo.center[0] << "," << mazeInfo.center[1] << ", " << mazeInfo.center[2] << endl;
     */
+    if (gridMoves[0] == 0 && gridMoves[1] == 0 && gridMoves[2] == 0) return;
     mazeInfo.center = newCenter;
     //unload enemies that are outside of X by X grid & generate new ones
 
@@ -220,10 +221,9 @@ void Scene::generateMoreMaze() {
         vec3 gridEnemyPos = snapToGrid(enemyObjects[idx]->dyn.pos);
         float xDist = abs(newCenter[0] - gridEnemyPos[0]);
         float yDist = abs(newCenter[2] - gridEnemyPos[2]);
-        if (xDist > mazeInfo.width / 2 || yDist > mazeInfo.height / 2) {
+        if ((xDist > mazeInfo.width / 2) || (yDist > mazeInfo.height / 2)) {
             enemyObjects.erase(enemyObjects.begin() + idx);
             enemyObjectCount--;
-            //TODO: Generate New Enemy Object
         }
         else {
             idx++;
@@ -290,21 +290,7 @@ void Scene::generateMoreMaze() {
     automatonSimulate();
     //add the Objects 
     fillStaticObjVector();
-    if (gridMoves[0] != 0) {
-        int start = (gridMoves[0] < 0) ? 0 : maze.size()-1;
-        int end = (gridMoves[0] < 0) ? (-1 * gridMoves[0]) : (maze.size() - 1);
-        assert(start >= 0 && end < maze.size());
-        assert(start <= end);
-        fillEnemyVector(start, end, true);
-    }
-    else if(gridMoves[2] != 0){
-        int start = (gridMoves[2] < 0) ? 0 : (maze[0].size() - 1);
-        int end = (gridMoves[2] < 0) ? (-1 * gridMoves[2]) : (maze[0].size() - 1);
-        assert(start >= 0 && end < maze[0].size());
-        assert(start <= end);
-        fillEnemyVector(start, end, false);
-
-    }
+    fillEnemyVector();
     //add PRM nodes that exist in newly generated maze area
 
     //re-run pathfinding algorithms
@@ -402,7 +388,7 @@ void Scene::simulate(GLfloat dt) {
 
 	// Relax the chainmails
 	for (Object * o : enemyObjects) {
-		o->simulate(dt);
+		//o->simulate(dt);
 	}
 }
 
