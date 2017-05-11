@@ -20,7 +20,7 @@ Scene::Scene(unsigned seed) {
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 30;
     mazeInfo.width = 30;
-    mazeInfo.maxEnemies = 20;
+    mazeInfo.maxEnemies = 300;
     mazeInfo.enemySize = 3;
     mazeInfo.chanceGennedAlive = .25;
     mazeInfo.cellSize = 10;
@@ -112,9 +112,11 @@ void Scene::fillEnemyVector() {
             randXGrid = width_rand(gen);
             randYGrid = height_rand(gen);
         }
-        float worldX = (randXGrid - mazeInfo.width / 2)* mazeInfo.cellSize;
-        float worldY = (randYGrid - mazeInfo.height / 2)* mazeInfo.cellSize;
-        addEnemyObject(mazeInfo.enemySize, worldX, mazeInfo.enemySize, worldY);
+        float xPos = ((float)randXGrid - mazeInfo.width / 2.0)* mazeInfo.cellSize;
+        float yPos = ((float)randYGrid - mazeInfo.height / 2.0)* mazeInfo.cellSize;
+        vec3 pos = mazeInfo.center + vec3(xPos, mazeInfo.enemySize-1, yPos);
+        //pos[1] = mazeInfo.enemySize - 1;
+        addEnemyObject(mazeInfo.enemySize, pos);
         i++;
     }
     std::cout << "new Num enemies: " << i << std::endl;
@@ -347,6 +349,13 @@ void Scene::addWall(float h, float x1, float x2, float z1, float z2) {
     // Modify and/or rebuild PRM
     // ???
 }
+void Scene::addEnemyObject(float r, vec3 pos) {
+
+    Slime * enemy = new Slime(r, pos);
+    // Add instantiated object to enemyObjects vector
+    enemyObjects.push_back(enemy);
+}
+
 
 void Scene::addWall(float h, float w, float l, vec3 center) {
     // Instantiate a wall object
@@ -443,7 +452,6 @@ void Scene::simulate(GLfloat dt) {
             o->simpleSimulate(dt);
     }
 }
-
 void Scene::render() {
 	// Render the player object
     enableTestShader(proj, view);
