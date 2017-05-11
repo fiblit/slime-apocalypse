@@ -20,7 +20,7 @@ Scene::Scene(unsigned seed) {
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 30;
     mazeInfo.width = 30;
-    mazeInfo.maxEnemies = 10;
+    mazeInfo.maxEnemies = 20;
     mazeInfo.enemySize = 3;
     mazeInfo.chanceGennedAlive = .25;
     mazeInfo.cellSize = 10;
@@ -104,13 +104,11 @@ void Scene::fillStaticObjVector() {
 
 void Scene::fillEnemyVector() {
     int i = enemyObjects.size();
-    std::cout << i << std::endl;
+    std::cout << "Num enemies: " << i << std::endl;
     while (i < mazeInfo.maxEnemies) {
         int randXGrid = width_rand(gen);
         int randYGrid = height_rand(gen);
-        std::cout << randXGrid << " " << randYGrid << "\n";
         while (maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && randYGrid == mazeInfo.height / 2)) {
-            std::cout << randXGrid << " " << randYGrid << "\n";
             randXGrid = width_rand(gen);
             randYGrid = height_rand(gen);
         }
@@ -119,6 +117,7 @@ void Scene::fillEnemyVector() {
         addEnemyObject(mazeInfo.enemySize, worldX, mazeInfo.enemySize, worldY);
         i++;
     }
+    std::cout << "new Num enemies: " << i << std::endl;
 }
 Scene::~Scene() {
 	if (playerObject)

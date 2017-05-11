@@ -11,19 +11,19 @@ Slime::Slime()  : Sphere(){
 
 Slime::Slime(float r, float x, float y, float z) : Sphere(r, x, y, z) {
     useCustomMesh();
-    this->dyn.gravity = glm::vec3(0, 0, -3);
+    this->dyn.gravity = glm::vec3(0, -1, 0);
     deformer = new Chainmail(mesh, stacks, slices, this->dyn.pos);
 }
 
 Slime::Slime(float r) : Sphere(r) {
     useCustomMesh();
-    this->dyn.gravity = glm::vec3(0, 0, -5);
+    this->dyn.gravity = glm::vec3(0, -1, 0);
     deformer = new Chainmail(mesh, stacks, slices, this->dyn.pos);
 }
 
 Slime::Slime(float r, glm::vec3 p) : Sphere(r, p) {
     useCustomMesh();
-    this->dyn.gravity = glm::vec3(0, 0, -2);
+    this->dyn.gravity = glm::vec3(0, -1, 0);
     deformer = new Chainmail(mesh, stacks, slices, this->dyn.pos);
 }
 

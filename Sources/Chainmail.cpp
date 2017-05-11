@@ -118,9 +118,8 @@ void Chainmail::applyMove(int id, vec3 t, double dt) {
         elements[randElement].pos += vec3(t[0] * .001, t[1] * .001, t[2] * .001);
 
 
-        if (elements[randElement].pos.y + worldCoordCenter.y < .003) {
-            float delta = (elements[randElement].pos.y + worldCoordCenter.y) - .005;
-            //std::cout << delta << "? " << std::endl;
+        if (elements[randElement].pos.y + worldCoordCenter.y < yPlaneCollision) {
+            float delta = .003;
             elements[randElement].pos.y = delta;
         }
         elements[randElement].updated = true;
@@ -179,16 +178,16 @@ void Chainmail::propagate() {
 		}
 		if (e->pos.y < minBounds.y) {
 			e->pos.y = minBounds.y;
-            if (e->pos.y + worldCoordCenter.y < .003) {
-                float delta = (e->pos.y + worldCoordCenter.y) - .005;
+            if (e->pos.y + worldCoordCenter.y < yPlaneCollision) {
+                float delta = .003;
                 e->pos.y = delta;
             }
 			e->updated = true;
 		}
 		else if (e->pos.y > maxBounds.y) {
 			e->pos.y = maxBounds.y;
-            if (e->pos.y + worldCoordCenter.y < .003) {
-                float delta = (e->pos.y + worldCoordCenter.y) - .005;
+            if (e->pos.y + worldCoordCenter.y < yPlaneCollision) {
+                float delta = .003;
                 e->pos.y = delta;
             }
 			e->updated = true;
@@ -238,8 +237,8 @@ void Chainmail::relax(float dt) {
 		vec3 v = centroids[e.id] - e.pos;
         v = (e.origin - e.pos);
 		e.pos += 2*dt*v;
-        if (e.pos.y + worldCoordCenter.y < .003) {
-            float delta = (e.pos.y + worldCoordCenter.y) - .005;
+        if (e.pos.y + worldCoordCenter.y < yPlaneCollision) {
+            float delta = .003;
             e.pos.y = delta;
         }
 	}
