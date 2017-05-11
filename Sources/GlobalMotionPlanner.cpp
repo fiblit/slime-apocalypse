@@ -77,12 +77,11 @@ void GMP::replan(std::vector<Object *> agents) {
 }
 
 static void connect_to_all(Graph<glm::vec2> * rm, glm::vec2 p, Cspace2D * cspace) {
-    rm->add_vertex(new Node<glm::vec2>(p, new VecPoint()));
-    for (size_t i = 0; i < rm->vertices->size() - 1; i++) {
-        if (cspace->line_of_sight(p, (*rm->vertices)[i]->data)) {
-            rm->add_edge(rm->vertices->back(), (*rm->vertices)[i]);
-        }
-    }
+    Node<glm::vec2> * v = new Node<glm::vec2>(p, new VecPoint());
+    rm->add_vertex(v);
+    for (Node<glm::vec2> * u : *rm->vertices)
+        if (v != u && cspace->line_of_sight(v->data, u->data))
+            rm->add_edge(v, u);
 }
 
 static void remove_last_vertex(Graph<glm::vec2> * rm) {
