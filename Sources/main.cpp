@@ -64,9 +64,9 @@ int main() {
 	scene->setupTestingObjects();
 
     /* Path Planning */
-    //ai::init(scene->enemyObjects, scene->staticObjects, scene->mazeInfo);
+    ai::init(scene->enemyObjects, scene->staticObjects, scene->mazeInfo);
     game_loop_clock->pause();
-    //GMP::replan(scene->enemyObjects);
+    GMP::replan(scene->enemyObjects);
     game_loop_clock->play();
 
     /* Game Loop */
@@ -91,7 +91,7 @@ int main() {
         handle_input(game_loop_clock, scene);
 
         //AI
-        //ai::update_agents(scene->staticObjects, scene->enemyObjects, scene->playerObject);
+        ai::update_agents(scene->staticObjects, scene->enemyObjects, scene->playerObject);
 
         //Physics
         //for(int i = 0 ; i < 20 ; i++)
@@ -103,7 +103,7 @@ int main() {
         scene->reset_proj_view();
 
 		// TODO: currently must enable shader every frame to update view matrix; easily fixed
-		scene->enableTestShader(scene->proj, scene->camera->getView());
+		scene->enableTestShader(scene->proj, scene->view);
         
 		scene->render();
 
@@ -179,28 +179,30 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
     handle_scene->camera->scroll_zoom_camera(UI::d_scroll);
 	UI::d_scroll = 0;
 
+    scene->playerObject->dyn.vel = glm::vec3(0, 0, 0);
     if (UI::keys[GLFW_KEY_K]) {
         scene->slimeTestMove();
     }    
     if (UI::keys[GLFW_KEY_L]) {
         scene->slimeTestStill();
     }
-    if (UI::keys[GLFW_KEY_UP]) {
-        scene->playerObject->dyn.pos += glm::vec3(0, 0, -1);
+    if (UI::keys[GLFW_KEY_W]) {
+        scene->playerObject->dyn.vel += glm::vec3(0, 0, -3);
         scene->generateMoreMaze();
     }
-    if (UI::keys[GLFW_KEY_DOWN]) {
-        scene->playerObject->dyn.pos += glm::vec3(0, 0, 1);
+    if (UI::keys[GLFW_KEY_S]) {
+        scene->playerObject->dyn.vel += glm::vec3(0, 0, 3);
         scene->generateMoreMaze();
     }
-    if (UI::keys[GLFW_KEY_LEFT]) {
-        scene->playerObject->dyn.pos += glm::vec3(-1, 0, 0);
+    if (UI::keys[GLFW_KEY_A]) {
+        scene->playerObject->dyn.vel += glm::vec3(-3, 0, 0);
         scene->generateMoreMaze();
     }
-    if (UI::keys[GLFW_KEY_RIGHT]) {
-        scene->playerObject->dyn.pos += glm::vec3(1, 0, 0);
+    if (UI::keys[GLFW_KEY_D]) {
+        scene->playerObject->dyn.vel += glm::vec3(3, 0, 0);
         scene->generateMoreMaze();
     }
+
     if (UI::keys[GLFW_KEY_W])
         handle_scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta());
     if (UI::keys[GLFW_KEY_S])

@@ -7,8 +7,8 @@
 #include <vector>
 
 namespace GMP {
-    VecPoint * find_path_UCS(Graph<glm::vec2> * roadmap);
-    VecPoint * find_path_Astar(float e, Graph<glm::vec2> * roadmap);
+    VecData * find_path_UCS(Graph<glm::vec2> * roadmap);
+    VecData * find_path_Astar(float e, Graph<glm::vec2> * roadmap);
     void replan(std::vector<Object *> agents);
     void plan_one(Object * agent);
 };

@@ -4,13 +4,13 @@
 /* custom uniform cost search (aka Djikstra's search) for a PRM Graph
 simplifciation of A*. (h = 0)
 */
-VecPoint * GMP::find_path_UCS(Graph<glm::vec2> * roadmap) {
+VecData * GMP::find_path_UCS(Graph<glm::vec2> * roadmap) {
     return GMP::find_path_Astar(0, roadmap);
 }
 
 /* custom A* search for a PRM Graph */
 //can't handle non-positive edges
-VecPoint * GMP::find_path_Astar(float e, Graph<glm::vec2> * roadmap) {
+VecData * GMP::find_path_Astar(float e, Graph<glm::vec2> * roadmap) {
     //for readability
     using namespace std;
     typedef Node<glm::vec2> * Vert;
@@ -60,10 +60,14 @@ VecPoint * GMP::find_path_Astar(float e, Graph<glm::vec2> * roadmap) {
     }
 
     //reconstruct path
-    VecPoint * path = new VecPoint();
-    for (Vert v = goal; v != nullptr; v = parent[v])
-        path->insert(path->begin(), v);
-    return (*path)[0] == start ? path : new VecPoint();
+    VecData * path = new VecData();
+    bool complete_path = false;
+    for (Vert v = goal; v != nullptr; v = parent[v]) {
+        if (v == start)
+            complete_path = true;
+        path->insert(path->begin(), v->data);
+    }
+    return complete_path ? path : new VecData();
 }
 
 //move to AI/planner (probably GMP)
@@ -73,12 +77,18 @@ void GMP::replan(std::vector<Object *> agents) {
 }
 
 static void connect_to_all(Graph<glm::vec2> * rm, glm::vec2 p, Cspace2D * cspace) {
-    rm->add_vertex(new Node<glm::vec2>(p, new VecPoint()));
-    for (size_t i = 0; i < rm->vertices->size(); i++) {
-        if (cspace->line_of_sight(p, (*rm->vertices)[i]->data)) {
-            rm->add_edge(rm->vertices->back(), (*rm->vertices)[i]);
-        }
-    }
+    Node<glm::vec2> * v = new Node<glm::vec2>(p, new VecPoint());
+    rm->add_vertex(v);
+    for (Node<glm::vec2> * u : *rm->vertices)
+        if (v != u && cspace->line_of_sight(v->data, u->data))
+            rm->add_edge(v, u);
+}
+
+static void remove_last_vertex(Graph<glm::vec2> * rm) {
+    Node<glm::vec2> * v = rm->vertices->back();
+    for (Node<glm::vec2> * adj : *(v->edges))
+        adj->edges->pop_back();//we added last from connect_to_all
+    rm->vertices->pop_back();
 }
 
 void GMP::plan_one(Object * agent) {
@@ -89,14 +99,12 @@ void GMP::plan_one(Object * agent) {
 
         //just do an LoS over every node for both
         connect_to_all(rm_with_goal, agent->bv->o, agent->ai.cspace);
-        connect_to_all(rm_with_goal, agent->ai.goal, agent->ai.cspace);
+        connect_to_all(rm_with_goal, agent->ai.final_goal, agent->ai.cspace);
 
         /* PATH PLANNING METHOD */
         agent->ai.plan = GMP::find_path_Astar(1.f, rm_with_goal);
-        //remove the added stuff...
-        //todo: issues***
-        rm_with_goal->vertices->pop_back();
-        rm_with_goal->vertices->pop_back();
+        remove_last_vertex(rm_with_goal);
+        remove_last_vertex(rm_with_goal);
 
         agent->ai.num_done = 0;
     }

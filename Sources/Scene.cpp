@@ -4,7 +4,11 @@
 using namespace glm;
 using namespace std;
 
-Scene::Scene() {
+Scene::Scene(unsigned seed) {
+    //for seeding later
+    typedef std::chrono::high_resolution_clock hrclock;
+    hrclock::time_point first = hrclock::now();
+
     this->camera = new Camera();
     camera->pos = vec3(5, 5, 5);
     camera->dir = vec3(0,1, 0);
@@ -20,24 +24,34 @@ Scene::Scene() {
     mazeInfo.chanceGennedAlive = .5;
     mazeInfo.cellSize = 10;
     mazeInfo.center = playerObject->dyn.pos;
+
+    if (seed == 0)
+        seed = static_cast<unsigned>((hrclock::now() - first).count());
+    gen.seed(seed);
+    width_rand = uint_dist(0, mazeInfo.width - 1);
+    height_rand = uint_dist(0, mazeInfo.height - 1);
+
     initMaze();
 	// Generate enemy objects
     fillEnemyVector();
 	// Generate PRM per Agent's BV type
-    
+    //dalton will.... get around to this :D
 }
+
+
 
 void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
     int i = enemyObjects.size();
     while (i < mazeInfo.maxEnemies) {
         //We're looking at columns [X][]
+        uint_dist startend(0, start - end);
         if (colsFlag) {
-            int randXGrid = (int)((float)rand()) / RAND_MAX * (start - end);
-            int randYGrid = (int)((float)rand()) / RAND_MAX * (mazeInfo.height-1);
+            int randXGrid = startend(gen);
+            int randYGrid = height_rand(gen);
             int attempts = 0;
-            while ((maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && mazeInfo.height / 2)) && attempts < 10) {
-                randXGrid = (int)((float)rand()) / RAND_MAX * (start - end);
-                randYGrid = (int)((float)rand()) / RAND_MAX * (mazeInfo.height-1);
+            while (maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && mazeInfo.height / 2) && attempts < 10) {
+                randXGrid = startend(gen);
+                randYGrid = height_rand(gen);
                 attempts++;
             }
             //put enemy here
@@ -46,12 +60,12 @@ void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
         //otherwise it's in rows maze[][X];
         else {
             for (int i = start; i < end; i++) {
-                int randXGrid = (int)((float)rand()) / RAND_MAX * (mazeInfo.width-1);
-                int randYGrid = (int)((float)rand()) / RAND_MAX * (end - start);
+                int randXGrid = width_rand(gen);
+                int randYGrid = startend(gen);
                 int attempts = 0;
                 while (maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && mazeInfo.height / 2) && attempts < 10) {
-                    randXGrid = (int)(((float)rand()) / RAND_MAX * (mazeInfo.width-1));
-                    randYGrid = (int)((float)rand()) / RAND_MAX * (start - end);
+                    randXGrid = width_rand(gen);
+                    randYGrid = startend(gen);
                     attempts++;
                 }
             }
@@ -63,11 +77,13 @@ void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
 void Scene::fillEnemyVector() {
     int i = enemyObjects.size();
     while (i < mazeInfo.maxEnemies) {
-        int randXGrid = (int)(((float)rand()) / RAND_MAX) * (mazeInfo.width-1);
-        int randYGrid = (int)(((float)rand()) / RAND_MAX) * (mazeInfo.height-1);
+        int randXGrid = width_rand(gen);
+        int randYGrid = height_rand(gen);
+        std::cout << randXGrid << " " << randYGrid << "\n";
         while (maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && randYGrid == mazeInfo.height / 2)) {
-            randXGrid = (int)(((float)rand()) / RAND_MAX) * (mazeInfo.width-1);
-            randYGrid = (int)(((float)rand()) / RAND_MAX) * (mazeInfo.height-1);
+            std::cout << randXGrid << " " << randYGrid << "\n";
+            randXGrid = width_rand(gen);
+            randYGrid = height_rand(gen);
         }
         float worldX = (randXGrid - mazeInfo.width / 2)* mazeInfo.cellSize;
         float worldY = (randYGrid - mazeInfo.height / 2)* mazeInfo.cellSize;
@@ -158,7 +174,7 @@ void Scene::initMaze() {
         for (int j = 0; j < mazeInfo.height; j++) {
             mazeCell c = {};
             c.active = 1;
-            float randNum = ((float)rand()) / RAND_MAX;
+            float randNum = simple_float(gen);
             c.filled = (randNum > mazeInfo.chanceGennedAlive) ? 1 : 0;
             row.push_back(c);
         }
@@ -269,7 +285,7 @@ void Scene::generateMoreMaze() {
         while (xIdx >= 0 && xIdx < maze.size()) {
             for (size_t y = 0; y < maze[xIdx].size(); y++) {
                 maze[xIdx][y].active = 1;
-                maze[xIdx][y].filled = (((float)rand())/RAND_MAX > mazeInfo.chanceGennedAlive) ? 1 : 0;
+                maze[xIdx][y].filled = (simple_float(gen) > mazeInfo.chanceGennedAlive) ? 1 : 0;
             }
             xIdx += xIterator;
         }
@@ -282,7 +298,7 @@ void Scene::generateMoreMaze() {
         while (yIdx >= 0 && yIdx < maze[0].size()) {
             for (size_t x = 0; x < maze.size(); x++) {
                 maze[x][yIdx].active = 1;
-                maze[x][yIdx].filled = (((float)rand())/RAND_MAX > mazeInfo.chanceGennedAlive) ? 1 : 0;
+                maze[x][yIdx].filled = (simple_float(gen) > mazeInfo.chanceGennedAlive) ? 1 : 0;
             }
             yIdx += yIterator;
         }
@@ -377,8 +393,18 @@ void Scene::setBounds(vec3 min, vec3 max) {
 //the actual simulation is kinda spread out, particularly in force-based functions
 //like the stuff in the LMP.
 void Scene::simulate(GLfloat dt) {
+    static bool nan_happened = false;
     // For each dynamic object:
     for (Object * o : enemyObjects) {
+        //nan should never happen, but if it does, just stop moving.
+        if (isnan(o->dyn.force.x)) {
+            if (!nan_happened) {
+                //better to just let these slide
+                std::cout << "WARNING: there was a nan force" << std::endl;
+                nan_happened = !nan_happened;
+            }
+            o->dyn.force = glm::vec3(0, 0, 0);
+        }
         //Forward euler integration of motion
         o->dyn.vel += o->dyn.force * dt;
         o->dyn.vel += o->dyn.gravity * dt;
@@ -407,6 +433,7 @@ void Scene::simulate(GLfloat dt) {
 
 void Scene::render() {
 	// Render the player object
+    enableTestShader(proj, view);
     this->playerObject->draw(curShader);
 
     //render Floor
@@ -414,6 +441,8 @@ void Scene::render() {
 	// Render each enemy object
     for (Object * o : enemyObjects)
         o->draw(curShader);
+
+    enableFlatShader(proj, view);
 
 	// Render each static object
 	for (Object * o : staticObjects)
@@ -528,11 +557,9 @@ void Scene::enableTestShader(glm::mat4 proj, glm::mat4 view) {
 	glUniformMatrix4fv(shaders[TEST]->uniform("proj"), 1, GL_FALSE, glm::value_ptr(proj));
 	glUniformMatrix4fv(shaders[TEST]->uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
 
-    /*
-	glUniform3f(shaders[TEST]->uniform("material.diffuse"), 1, 0, 0);
+	glUniform3f(shaders[TEST]->uniform("material.diffuse"), 0, 0, 1);
 	glUniform3f(shaders[TEST]->uniform("material.specular"), 1, 1, 1);
 	glUniform1f(shaders[TEST]->uniform("material.shine"), 32.0f);
-    */
 }
 void Scene::setupTestingObjects() {
 	// walls

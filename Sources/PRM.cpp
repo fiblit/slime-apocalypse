@@ -100,6 +100,10 @@ PRM::PRM(Cspace2D * c_space,
     this->roadmap = connect_roadmap(sample_nodes());
 }
 
+PRM::~PRM() {
+    delete c_space;
+}
+
 /* generates a configuartion space given a list of obstacles and agent */
 Cspace2D::Cspace2D(std::vector<BoundingVolume *> obs, BoundingVolume * agent) {
     this->c_obs = std::vector<BoundingVolume *>();
@@ -108,6 +112,11 @@ Cspace2D::Cspace2D(std::vector<BoundingVolume *> obs, BoundingVolume * agent) {
         std::vector<BoundingVolume *> ms = agent->minkowskiSum(o);
         this->c_obs.insert(c_obs.end(), ms.begin(), ms.end());
     }
+}
+
+Cspace2D::~Cspace2D() {
+    for (BoundingVolume * bv : this->c_obs)
+        delete bv;
 }
 
 /* detects if a point collides with anything in the configuration space */

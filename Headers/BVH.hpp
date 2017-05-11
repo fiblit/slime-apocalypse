@@ -13,8 +13,10 @@ public:
 
     std::vector<Object *> query(BoundingVolume * q);
 private:
-    void query_(BoundingVolume * q, std::vector<Object *> * NN);
+    //terrible assumptions
+    void query_(Circ * q, std::vector<Object *> * NN);
     bool circ_rect_collider_(Circ * c, Rect * r);
+    bool circ_circ_collider_(Circ * c, Circ * r);
 public:
     bool is_leaf() {
         return right == nullptr;
