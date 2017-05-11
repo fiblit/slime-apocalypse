@@ -66,7 +66,7 @@ int main() {
     /* Path Planning */
     //ai::init(scene->enemyObjects, scene->staticObjects, scene->mazeInfo);
     game_loop_clock->pause();
-    GMP::replan(scene->enemyObjects);
+    //GMP::replan(scene->enemyObjects);
     game_loop_clock->play();
 
     /* Game Loop */
@@ -103,9 +103,7 @@ int main() {
         scene->reset_proj_view();
 
 		// TODO: currently must enable shader every frame to update view matrix; easily fixed
-        glm::mat4 view = scene->camera->getView();
-        glm::mat4 proj = scene->proj;
-		scene->enableTestShader(proj,view);
+		scene->enableTestShader(scene->proj, scene->camera->getView());
         
 		scene->render();
 

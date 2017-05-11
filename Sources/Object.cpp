@@ -32,7 +32,8 @@ Object::Object(float x, float y, float z) {
     dyn.gravity = vec3(0, 0, 0);
 }
 
-Object::~Object() {}
+Object::~Object() {
+}
 
 void Object::setParams(float x) {
 	params[0] = x;

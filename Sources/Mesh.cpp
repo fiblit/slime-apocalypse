@@ -39,6 +39,9 @@ void Mesh::updateNormals() {
     }
     for (int i = 0; i < indices.size(); i += 3) {
         glm::vec3 normal;
+        glm::vec3 vertex1 = vertices[indices[i]].Position;
+        glm::vec3 vertex2 = vertices[indices[i+1]].Position;
+        glm::vec3 vertex3 = vertices[indices[i+2]].Position;
         glm::vec3 v1 = vertices[indices[i+1]].Position - vertices[indices[i]].Position;
         glm::vec3 v2 = vertices[indices[i + 2]].Position - vertices[indices[i]].Position;
         double a = glm::length(v1);
