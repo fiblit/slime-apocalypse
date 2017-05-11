@@ -65,9 +65,9 @@ int main() {
 
     /* Path Planning */
     ai::init(scene->enemyObjects, scene->staticObjects, scene->mazeInfo);
-    game_loop_clock->pause();
+    //game_loop_clock->pause();
     GMP::replan(scene->enemyObjects);
-    game_loop_clock->play();
+    //game_loop_clock->play();
 
     /* Game Loop */
 	GLfloat fpsTimer = 0;

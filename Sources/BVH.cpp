@@ -130,7 +130,7 @@ void BVH::split_(
         }
         else {
             b_rhs[rhs] = Index(sorted_b[i].obj, oth_i - half);
-            D(assert(oth_i < a_rhs.size()));
+            D(assert(oth_i - half < a_rhs.size()));
             a_rhs[oth_i - half] = Index(a_rhs[oth_i - half].obj, rhs);
             rhs++;
         }
