@@ -56,6 +56,7 @@ struct dynamics_comp {
     glm::vec3 acc;
     glm::vec3 mass;
     glm::vec3 force;
+    glm::vec3 gravity;
 };
 
 //used by the motion planning module (mostly global MP)
@@ -67,11 +68,12 @@ struct ai_comp {
     enum class Planner {LEAD, PACK, BOID, INDY, NONE};
     Planner method;
 
-    //Instead of Node<glm::vec2> *>, this allows more dynamic path planning
-    glm::vec2 goal;
+    //this allows more dynamic path planning
+    glm::vec2 final_goal;//global goal (e.g. player)
+    glm::vec2 goal;//local goal (e.g. the next node)
 
     int num_done;
-    std::vector<Node<glm::vec2> *> * plan;
+    VecData * plan;
 
     Cspace2D * cspace;
     PRM * prm;

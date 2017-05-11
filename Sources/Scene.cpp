@@ -7,6 +7,7 @@ using namespace std;
 Scene::Scene() {
     this->camera = new Camera();
 	// Generate player object
+    /*
 	playerObject = new  Sphere(1, 0,0,0);
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 20;
@@ -20,6 +21,7 @@ Scene::Scene() {
 	// Generate enemy objects
     fillEnemyVector();
 	// Generate PRM per Agent's BV type
+    */
 }
 
 void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
@@ -192,7 +194,6 @@ vec3 Scene::snapToGrid(vec3 pos) {
 //Take the player position and generate maze cells for any cells in the X by X grid surrounding the player that don't
 //have cells generated.
 //TODO: Possibly have it hold on to pre-generated cells, only load static objects associated with cells in nearby area.
-static int test = 0;
 void Scene::generateMoreMaze() {
     vec3 newCenter = snapToGrid(playerObject->dyn.pos);
     //Determine how many cells the player has moved and shift the cells in the maze to match. Toss out any on the edge and generate new ones on the opposite edge
@@ -287,11 +288,13 @@ void Scene::generateMoreMaze() {
     if (gridMoves[0] != 0) {
         int start = (gridMoves[0] < 0) ? 0 : maze.size()-1;
         int end = (gridMoves[0] < 0) ? (-1 * gridMoves[0]) : (maze.size() - 1);
+        assert(start > 0 && end < maze.size());
         //fillEnemyVector(start, end, true);
     }
     else if(gridMoves[2] != 0){
-        int start = (gridMoves[2] < 0) ? 0 : maze[0].size() - 1;
+        int start = (gridMoves[2] < 0) ? 0 : (maze[0].size() - 1);
         int end = (gridMoves[2] < 0) ? (-1 * gridMoves[2]) : (maze[0].size() - 1);
+        assert(start > 0 && end << maze[0].size());
         //fillEnemyVector(start, end, false);
 
     }
@@ -366,10 +369,20 @@ void Scene::setBounds(vec3 min, vec3 max) {
 //the actual simulation is kinda spread out, particularly in force-based functions
 //like the stuff in the LMP.
 void Scene::simulate(GLfloat dt) {
+    static bool nan_happened = false;
     // For each dynamic object:
     for (Object * o : enemyObjects) {
+        //nan should never happen, but if it does, just stop moving.
+        if (isnan(o->dyn.force.x)) {
+            if (!nan_happened) {
+                std::cout << "WARNING: there was a nan force" << std::endl;
+                nan_happened = !nan_happened;
+            }
+            o->dyn.force = glm::vec3(0, 0, 0);
+        }
         //Forward euler integration of motion
         o->dyn.vel += o->dyn.force * dt;
+        o->dyn.vel += o->dyn.gravity * dt;
         //o->dyn.pos += o->dyn.vel * dt;
         o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
 
@@ -390,11 +403,14 @@ void Scene::simulate(GLfloat dt) {
 
 void Scene::render() {
 	// Render the player object
+    enableTestShader(proj, view);
     this->playerObject->draw(curShader);
 
 	// Render each enemy object
     for (Object * o : enemyObjects)
         o->draw(curShader);
+
+    enableFlatShader(proj, view);
 
 	// Render each static object
 	for (Object * o : staticObjects)
@@ -513,27 +529,26 @@ void Scene::enableTestShader(glm::mat4 proj, glm::mat4 view) {
 	glUniform3f(shaders[TEST]->uniform("material.specular"), 1, 1, 1);
 	glUniform1f(shaders[TEST]->uniform("material.shine"), 32.0f);
 }
-
 void Scene::setupTestingObjects() {
 	// walls
-	/*addWall(2, -5, -6, 5, -8);
-	addWall(3, 3, -8, 5, 8);
-	addWall(1, -5, 6, 3, 8);
-	addWall(3, -3, -3, -1, 3);*/
+    /*addWall(2, -5, -6, 5, -8);
+    addWall(3, 3, -8, 5, 8);
+    addWall(1, -5, 6, 3, 8);
+    addWall(3, -3, -3, -1, 3);*/
 
-	// enemies
+    // enemies
     /*
-	addEnemyObject(1, -10, 0, 0);
-	addEnemyObject(1, 0, 0, -10);
-	addEnemyObject(1, 10, 0, 0);
-	addEnemyObject(1, 0, 0, 10);
+    addEnemyObject(1, -10, 0, 0);
+    addEnemyObject(1, 0, 0, -10);
+    addEnemyObject(1, 10, 0, 0);
+    addEnemyObject(1, 0, 0, 10);
 
-	addWall(2, -7, 7, -7, -5);
-	addWall(2, 5, 7, -7, 7);
-	addWall(2, -7, 7, 5, 7);
-	addWall(2, -7, -5, -7, 7);
+    addWall(2, -7, 7, -7, -5);
+    addWall(2, 5, 7, -7, 7);
+    addWall(2, -7, 7, 5, 7);
+    addWall(2, -7, -5, -7, 7);
     */
-	playerObject = new Sphere(1, 0, 0, 0);
+    playerObject = new Sphere(1, 0, 0, 0);
 }
 
 void Scene::toggle_flashlight() {

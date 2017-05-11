@@ -15,6 +15,7 @@
 #pragma warning(pop)
 
 typedef std::vector<Node<glm::vec2> *> VecPoint;
+typedef std::vector<glm::vec2> VecData;
 
 //TODO dalton: extract CSspace2D into new .c/hpp
 class Cspace2D {
