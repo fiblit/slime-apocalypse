@@ -112,8 +112,8 @@ void Scene::fillEnemyVector() {
             randXGrid = width_rand(gen);
             randYGrid = height_rand(gen);
         }
-        float xPos = ((float)randXGrid - mazeInfo.width / 2.0)* mazeInfo.cellSize;
-        float yPos = ((float)randYGrid - mazeInfo.height / 2.0)* mazeInfo.cellSize;
+        float xPos = ((float)randXGrid - mazeInfo.width / 2.0f);
+        float yPos = ((float)randYGrid - mazeInfo.height / 2.0f);
         vec3 pos = mazeInfo.center + vec3(xPos, mazeInfo.enemySize-1, yPos);
         //pos[1] = mazeInfo.enemySize - 1;
         addEnemyObject(mazeInfo.enemySize, pos);
@@ -404,11 +404,11 @@ void Scene::simulate(GLfloat dt) {
     static bool nan_happened = false;
     // For each dynamic object
     if (playerObject) {
-        camera->pos = playerObject->dyn.pos;
-        camera->pos -= -(camera->dir*5.0f);
+        //camera->pos = playerObject->dyn.pos;
+        //camera->pos -= -(camera->dir*5.0f);
+        //camera->pos[1] += 2;
     }
         
-    camera->pos[1] += 2;
     for (Object * o : staticObjects) {
     }
     for (Object * o : enemyObjects) {
