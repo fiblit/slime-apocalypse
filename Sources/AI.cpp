@@ -20,7 +20,7 @@ void ai::init(std::vector<Object *> dynamics, std::vector<Object *> statics, maz
         std::vector<BoundingVolume *> obs_bv;
         for (Object * s : statics)
             obs_bv.push_back(s->bv);
-        ai::std_cspace = dynamics[0]->ai.cspace = new Cspace2D(obs_bv, dynamics[0]->bv);
+        ai::std_cspace = new Cspace2D(obs_bv, dynamics[0]->bv);
         std::cout << "cspace:" << Gtime::del_top() << std::endl;
 
         Gtime::add_now();
