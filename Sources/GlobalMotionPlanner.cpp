@@ -118,5 +118,5 @@ void GMP::plan_one(Object * agent) {
 bool GMP::invalid(Object * agent)
 {
     return (agent->ai.cspace->line_of_sight(agent->bv->o, agent->ai.final_goal)
-        || (agent->ai.num_done != 0 && agent->ai.plan->size() - 1 == static_cast<size_t>(agent->ai.num_done)));
+        || (agent->ai.num_done != 0 && agent->ai.plan->size() - 1 <= static_cast<size_t>(agent->ai.num_done)));
 }
