@@ -335,20 +335,16 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
         glm::vec3 v;
         if (!handle_scene->is_noclip_on) {
             if (UI::keys[GLFW_KEY_W]) {
-                v = handle_scene->camera->dir;
-                v *= 1.f;
+                v += handle_scene->camera->dir;
             }
             if (UI::keys[GLFW_KEY_A]) {
-                v = handle_scene->camera->right;
-                v *= -1.f;
+                v -= handle_scene->camera->right;
             }
             if (UI::keys[GLFW_KEY_S]) {
-                v = handle_scene->camera->dir;
-                v *= -1.f;
+                v -= handle_scene->camera->dir;
             }
             if (UI::keys[GLFW_KEY_D]) {
-                v = handle_scene->camera->right;
-                v *= 1.f;
+                v += handle_scene->camera->right;
             }
             v[1] = 0;
         }
@@ -378,7 +374,7 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
         float len = glm::length(v);
         if (len > 0)
             v *= 5.f/len;
-        handle_scene->playerObject->moveBy(v, clock->delta());
+        handle_scene->playerObject->dyn.vel = v; 
         handle_scene->generateMoreMaze();
     }
 

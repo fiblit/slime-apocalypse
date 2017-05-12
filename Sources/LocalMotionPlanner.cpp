@@ -133,10 +133,10 @@ glm::vec2 boid_force(Object * a, BVH * dynamic_bvh, std::vector<Object *> dynami
     GLfloat cohes_r_look = 1.0f, align_r_look = 1.0f, separ_r_look = .5f;//limit to search for forces for boidlings
     glm::vec2 align_force, cohesion_force, follow_force, spread_force;
 
-    //std::vector<Object *> NNdynamic = 
-    //    dynamic_bvh->query(new Circ(a->bv->o, 1.1f));
-    for (size_t i = 0; i < dynamics.size(); i++) { 
-        Object * boid = dynamics[i];
+    std::vector<Object *> NNdynamic = 
+        dynamic_bvh->query(new Circ(a->bv->o, 1.1f));
+    for (size_t i = 0; i < NNdynamic.size(); i++) { 
+        Object * boid = NNdynamic[i];
         if (!boid->ai.has_boid_f() || boid == a)
             continue;
 
@@ -236,6 +236,8 @@ glm::vec2 LMP::calc_sum_force(
         for (Object * leader : leaders) {
             follow_F += follow_force(leader, a);
         }
-    }*/
+    }
+    */
+
     return  goal_F + ttc_F;// +boid_F + follow_F;
 }

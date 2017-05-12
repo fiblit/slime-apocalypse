@@ -13,6 +13,7 @@
 #include "Structs.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
+#include "AI.hpp"
 
 #pragma warning(push, 0)
 #pragma warning(disable: 4055)

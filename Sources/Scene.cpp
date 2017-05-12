@@ -16,7 +16,7 @@ Scene::Scene(unsigned seed) {
 	// Generate player object
 
   
-	playerObject = new  Sphere(1, 0,3,3);
+	playerObject = new  Sphere(1, 0,3,0);
     playerObject->color = (vec3(1, .6, .6));
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 30;
@@ -421,7 +421,7 @@ void Scene::simulate(GLfloat dt) {
         
     for (Object * o : staticObjects) {
     }
-    for (Object * o : enemyObjects) {
+    for (Object * o : enemyObjects) {//playerObject is in here too, FYI
         //nan should never happen, but if it does, just stop moving.
         if (isnan(o->dyn.force.x)) {
             if (!nan_happened) {
@@ -434,10 +434,18 @@ void Scene::simulate(GLfloat dt) {
         //Forward euler integration of motion
         o->dyn.vel += o->dyn.force * dt;
         //o->dyn.pos += o->dyn.vel * dt; /* ideal, yes, but moveBy needs to have other side effects */
-        //o->dyn.vel += o->dyn.gravity * dt;
-        o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
+        o->dyn.vel += o->dyn.gravity * dt;
+        //Check for collisions
+        glm::vec2 pos2d = glm::vec2(o->dyn.pos.x, o->dyn.pos.z);
+        glm::vec2 vel2d = glm::vec2(o->dyn.vel.x, o->dyn.vel.z)*dt;
+        if ((ai::std_cspace->line_of_sight(pos2d, pos2d + vel2d))) {
+            o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
+        }
+        else {
+            o->dyn.vel = glm::vec3(0);
+        }
         o->simulate(dt);
-        //TODO: Check for collisions
+
 
 
         //TODO dalton: notify other systems of events such as collisions (for particle effects, merging, etc.)
