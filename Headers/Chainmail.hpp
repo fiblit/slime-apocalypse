@@ -78,7 +78,8 @@ public:
 	double aMin = .002; // compression factor
 	double aMax = 100;  // stretch factor
 	double b = 100;	  // shear factor
-    const double yPlaneCollision = -.7;//used to hide the buggier parts of the slime model
+    int stacks;//need these to omit values in 'UpdateCenter()' so it doesn't move on its own.
+    int slices;
     Mesh * mesh;
 	int vertexLength; // used for returning the correct model back
 };

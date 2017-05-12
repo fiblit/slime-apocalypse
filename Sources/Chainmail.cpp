@@ -15,6 +15,8 @@ Chainmail::Chainmail(Mesh * mesh, int stacks, int slices, glm::vec3 worldCenter)
     this->vertexLength = mesh->vertices.size();
     for (Vertex v : mesh->vertices) {
         Element e;
+        this->stacks = stacks;
+        this->slices = slices;
         e.id = this->elements.size();
         e.origin = v.Position;
         e.pos = v.Position;
@@ -120,12 +122,20 @@ void Chainmail::applyMove(int id, vec3 t, double dt) {
 
 //updates the center of the object to ensure the 'center' is the origin;
 void Chainmail::updateCenter() {
+    int subCopies = 0;
     glm::vec3 oldCenter = worldCoordCenter;
     glm::vec3 newCenter = glm::vec3(0);
-    for (int i = 0; i < elements.size(); i++) {
-        newCenter += (worldCoordCenter + elements[i].pos);
+    newCenter += (worldCoordCenter + elements[0].pos);
+    for (int i = 1; i < elements.size()-1; i++) {
+        if (i % stacks != 0) {
+            newCenter += (worldCoordCenter + elements[i].pos);
+        }
+        else {
+            subCopies++;
+        }
     }
-    newCenter /= elements.size();
+    newCenter += (worldCoordCenter + elements[elements.size()-1].pos);
+    newCenter /= (elements.size()-subCopies);
     glm::vec3 delta = oldCenter - newCenter;
     worldCoordCenter = newCenter;
     for (int i = 0; i < elements.size(); i++) {
@@ -166,18 +176,10 @@ void Chainmail::propagate() {
 		}
 		if (e->pos.y < minBounds.y) {
 			e->pos.y = minBounds.y;
-            if (e->pos.y + worldCoordCenter.y < yPlaneCollision) {
-                float delta = .003;
-                e->pos.y = delta;
-            }
 			e->updated = true;
 		}
 		else if (e->pos.y > maxBounds.y) {
 			e->pos.y = maxBounds.y;
-            if (e->pos.y + worldCoordCenter.y < yPlaneCollision) {
-                float delta = .003;
-                e->pos.y = delta;
-            }
 			e->updated = true;
 		}
 		if (e->pos.z < minBounds.z) {
@@ -253,22 +255,20 @@ void Chainmail::simStep(int id, glm::vec3 t, double dt) {
     applyMove(id, t, dt);
     propagate();
     relax(dt);
-    //updateCenter();
+    updateCenter();
 	for (Element & e : this->elements)
 		e.updated = false;
 	waiting.clear(); // might want a more robust end check than this
 }
 void Chainmail::simStep(std::vector<int> ids, glm::vec3 t, double dt) {
-	for (int id : ids ) {
-		if (!this->elements[id].updated) {
-			applyMove(id, t, dt);
-			std::cout << id << std::endl;
-		}
-	}
-
+    for (int id : ids) {
+        if (!this->elements[id].updated) {
+            applyMove(id, t, dt);
+            std::cout << id << std::endl;
+        }
+    }
 	propagate();
 	relax(dt);
-
 	for (Element & e : this->elements)
 		e.updated = false;
 	waiting.clear(); // might want a more robust end check than this

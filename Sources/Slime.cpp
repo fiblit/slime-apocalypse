@@ -31,6 +31,7 @@ Slime::Slime(float r, glm::vec3 p) : Sphere(r, p) {
 }
 
 void Slime::simulate(double dt) {
+    deformer->simStep(dt);
 }
 
 void Slime::simpleSimulate(double dt) {
