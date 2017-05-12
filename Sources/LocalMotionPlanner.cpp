@@ -200,9 +200,11 @@ glm::vec2 LMP::calc_sum_force(
         goal_F = glm::vec2(0);
     }
 
+    float real_speed = glm::length(goal_vel);
+
     /* ttc - approximate */
     glm::vec2 ttc_F(0);
-    Circ q(a->bv->o, speed * 5);
+    Circ q(a->bv->o, real_speed * 5);
     std::vector<Object *> NNdynamic = dynamic_bvh->query(&q);
     for (Object * b : NNdynamic) {
         if (a == b)

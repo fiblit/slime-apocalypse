@@ -62,6 +62,7 @@ void ai::update_agents(std::vector<Object *> statics, std::vector<Object *> dyna
     //for (Object * d : dynamics)
     //    if (d->ai.method == ai_comp::Planner::LEAD)
     //        leaders.push_back(d);
+    int replanned = 0;
     for (Object * d : dynamics) {
         if (d->ai.is_agent()) {
             d->ai.final_goal = glm::vec2(player->dyn.pos.x, player->dyn.pos.z);
@@ -73,7 +74,7 @@ void ai::update_agents(std::vector<Object *> statics, std::vector<Object *> dyna
                     //d->ai.num_done = d->ai.plan->size() - 1;
                     //d->ai.goal = d->ai.final_goal;
                 }
-                else {
+                else if (replanned++ < 10) {
                     std::cout << "[GMP] ";
                     GMP::plan_one(d);
                 }
