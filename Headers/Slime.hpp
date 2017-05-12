@@ -22,4 +22,4 @@ public:
     virtual ~Slime();
 };
 
-#endif // OBJECT_H_GUARD
+#endif // SLIME_H_GUARD
