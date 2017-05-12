@@ -91,10 +91,12 @@ int main() {
         handle_input(game_loop_clock, scene);
 
         //AI
+        //game_loop_clock->pause();
         ai::update_agents(scene->staticObjects, scene->enemyObjects, scene->playerObject);
-
+        
         //Physics
         scene->simulate(game_loop_clock->delta());
+        //game_loop_clock->play();
 
 		// Render 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);

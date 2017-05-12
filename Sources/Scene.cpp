@@ -419,7 +419,7 @@ void Scene::simulate(GLfloat dt) {
         }
         //Forward euler integration of motion
         o->dyn.vel += o->dyn.force * dt;
-        o->dyn.pos += o->dyn.vel * dt;
+        //o->dyn.pos += o->dyn.vel * dt; /* ideal, yes, but moveBy needs to have other side effects */
         o->dyn.vel += o->dyn.gravity * dt;
         o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
 
@@ -437,7 +437,7 @@ void Scene::simulate(GLfloat dt) {
     // However, it might be best to have a preceding function for handling input
     /*this is bypassed by handle_input*/
     //playerObject->dyn.vel += playerObject->dyn.force * dt;
-    //playerObject->dyn.pos += playerObject->dyn.vel * dt;
+    ////playerObject->dyn.pos += playerObject->dyn.vel * dt;/* ideal, yes, but moveBy needs to have other side effects */
     //playerObject->moveBy(playerObject->dyn.vel * dt);//has side effects of changing dyn->pos
     //playerObject->dyn.force = glm::vec3(0);
 
