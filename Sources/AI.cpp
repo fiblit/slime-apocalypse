@@ -51,11 +51,11 @@ void ai::init(std::vector<Object *> dynamics, std::vector<Object *> statics, maz
 
 //move to AI/planner --- this is a force-based LMP
 void ai::update_agents(std::vector<Object *> statics, std::vector<Object *> dynamics, Object * player) {
-    if (ai::static_bvh->size() != statics.size()) {
+    //if (ai::static_bvh->size() != statics.size()) {
         delete ai::static_bvh;//probably very slow
         ai::static_bvh = new BVH(statics);
         //TODO: update PRM
-    }
+    //}
     delete ai::dynamic_bvh;
     ai::dynamic_bvh = new BVH(dynamics);
     for (Object * d : dynamics) {
