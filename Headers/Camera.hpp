@@ -27,7 +27,7 @@ namespace G {
 		const GLfloat PITCH = 0.0f;
 		const GLfloat SPEED = 6.0f;
 		const GLfloat SENSITIVTY = 0.1f;
-		const GLfloat FOV = 45.0f;
+		const GLfloat FOV = 90.0f;
 	}
 }
 
