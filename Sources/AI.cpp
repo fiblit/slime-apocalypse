@@ -71,8 +71,8 @@ void ai::update_agents(std::vector<Object *> statics, std::vector<Object *> dyna
                     //delete d->ai.plan;
                     //d->ai.plan = new VecData();
                     //std::cout << "[--GMP] ";
-                    d->ai.num_done = d->ai.plan->size() - 1;
-                    d->ai.goal = d->ai.final_goal;
+                    //d->ai.num_done = d->ai.plan->size() - 1;
+                    //d->ai.goal = d->ai.final_goal;
                 }
                 else if (replanned++ < 10) {
                     std::cout << "[GMP] ";

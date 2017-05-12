@@ -431,7 +431,6 @@ void Scene::simulate(GLfloat dt) {
         o->dyn.vel += o->dyn.force * dt;
         //o->dyn.pos += o->dyn.vel * dt; /* ideal, yes, but moveBy needs to have other side effects */
         o->dyn.vel += o->dyn.gravity * dt;
-        o->dyn.pos += o->dyn.vel * dt;
         o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
         o->simulate(dt);
         //TODO: Check for collisions
