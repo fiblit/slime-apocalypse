@@ -20,7 +20,7 @@ void ai::init(std::vector<Object *> dynamics, std::vector<Object *> statics, maz
         std::vector<BoundingVolume *> obs_bv;
         for (Object * s : statics)
             obs_bv.push_back(s->bv);
-        ai::std_cspace = dynamics[0]->ai.cspace = new Cspace2D(obs_bv, dynamics[0]->bv);
+        ai::std_cspace = new Cspace2D(obs_bv, dynamics[0]->bv);
         std::cout << "cspace:" << Gtime::del_top() << std::endl;
 
         Gtime::add_now();
@@ -51,23 +51,35 @@ void ai::init(std::vector<Object *> dynamics, std::vector<Object *> statics, maz
 
 //move to AI/planner --- this is a force-based LMP
 void ai::update_agents(std::vector<Object *> statics, std::vector<Object *> dynamics, Object * player) {
-    if (ai::static_bvh->size() != statics.size()) {
+    //if (ai::static_bvh->size() != statics.size()) {
         delete ai::static_bvh;//probably very slow
         ai::static_bvh = new BVH(statics);
         //TODO: update PRM
-    }
+    //}
     delete ai::dynamic_bvh;
     ai::dynamic_bvh = new BVH(dynamics);
+    //std::vector<Object *> leaders;
+    //for (Object * d : dynamics)
+    //    if (d->ai.method == ai_comp::Planner::LEAD)
+    //        leaders.push_back(d);
+    int replanned = 0;
     for (Object * d : dynamics) {
         if (d->ai.is_agent()) {
-            if(d->ai.has_indy_f() 
-            && d->ai.num_done != 0 
-            && d->ai.plan->size() == static_cast<size_t>(d->ai.num_done)
-            /*GMP::invalid(d->ai.plan)*/) {
-                d->ai.final_goal = glm::vec2(player->dyn.pos.x, player->dyn.pos.z);
-                GMP::plan_one(d);
+            d->ai.final_goal = glm::vec2(player->dyn.pos.x, player->dyn.pos.z);
+            if(d->ai.has_indy_f() && GMP::invalid(d)) {
+                if (d->ai.cspace->line_of_sight(d->bv->o, d->ai.final_goal)) {
+                    //delete d->ai.plan;
+                    //d->ai.plan = new VecData();
+                    //std::cout << "[--GMP] ";
+                    d->ai.num_done = d->ai.plan->size() - 1;
+                    d->ai.goal = d->ai.final_goal;
+                }
+                else if (replanned++ < 10) {
+                    std::cout << "[GMP] ";
+                    GMP::plan_one(d);
+                }
             }
-            glm::vec2 f2d = LMP::calc_sum_force(d, ai::static_bvh, ai::dynamic_bvh, std::vector<Object *>());
+            glm::vec2 f2d = LMP::calc_sum_force(d, ai::static_bvh, ai::dynamic_bvh, statics, dynamics, std::vector<Object *>());
             d->dyn.force += glm::vec3(f2d.x, 0, f2d.y);
         }
     }

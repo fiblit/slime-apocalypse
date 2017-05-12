@@ -34,6 +34,10 @@ VecData * GMP::find_path_Astar(float e, Graph<glm::vec2> * roadmap) {
 
     //while there are nodes to process
     while (!pq.empty()) {
+
+        for (Node<glm::vec2> * v : *roadmap->vertices)
+            assert(v->edges->size() < 1000);
+
         PQ_item cur_i = pq.top();
         Vert cur_v = cur_i.first;
         pq.pop();
@@ -41,7 +45,7 @@ VecData * GMP::find_path_Astar(float e, Graph<glm::vec2> * roadmap) {
         //quit if we hit the goal, we have a path
         if (cur_v == goal)
             break;
-
+        if (cur_v->edges->size() < 1000)
         for (Node<glm::vec2> * adj : *(cur_v->edges)) {
             //new potential path = path to here + edge to adjacent
             float g_alt = g_cost[cur_v] + glm::distance(adj->data, cur_v->data);
@@ -97,6 +101,7 @@ void GMP::plan_one(Object * agent) {
         //temporarily add to a->ai.prm->roadmap the start/goal nodes
         Graph<glm::vec2> * rm_with_goal = agent->ai.prm->roadmap;
 
+
         //just do an LoS over every node for both
         connect_to_all(rm_with_goal, agent->bv->o, agent->ai.cspace);
         connect_to_all(rm_with_goal, agent->ai.final_goal, agent->ai.cspace);
@@ -108,4 +113,10 @@ void GMP::plan_one(Object * agent) {
 
         agent->ai.num_done = 0;
     }
+}
+
+bool GMP::invalid(Object * agent)
+{
+    return (agent->ai.cspace->line_of_sight(agent->bv->o, agent->ai.final_goal)
+        || (agent->ai.num_done != 0 && agent->ai.plan->size() - 1 == static_cast<size_t>(agent->ai.num_done)));
 }

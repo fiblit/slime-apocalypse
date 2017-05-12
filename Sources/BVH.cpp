@@ -159,7 +159,7 @@ vector<Object *> BVH::query(BoundingVolume * q) {
 }
 void BVH::query_(Circ * q, vector<Object *> * NN) {
     if (is_leaf()) {
-        if (o->bv != nullptr) {
+        if (o != nullptr && o->bv != nullptr) {
             if (o->bv->vt == BoundingVolume::volume_type::CIRC) {
                 if (circ_circ_collider_(q, static_cast<Circ *>(o->bv)))
                     NN->push_back(this->o);
@@ -186,7 +186,7 @@ bool BVH::circ_rect_collider_(Circ * q, Rect * r) {
     L /= sqrt(glm::dot(L, L));
     L *= q->r;
     L += q->o;
-    return r->is_collision(L);
+    return q->is_collision(r->o) || r->is_collision(L);
 }
 bool BVH::circ_circ_collider_(Circ * q, Circ * c) {
     glm::vec2 diff = q->o - c->o;
