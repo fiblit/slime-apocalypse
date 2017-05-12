@@ -360,7 +360,7 @@ void Scene::addWall(float h, float x1, float x2, float z1, float z2) {
 }
 void Scene::addEnemyObject(float r, vec3 pos) {
 
-    Sphere * enemy = new Slime(r, pos);
+    Slime * enemy = new Slime(r, pos);
     // Add instantiated object to enemyObjects vector
     enemyObjects.push_back(enemy);
 }
@@ -434,7 +434,7 @@ void Scene::simulate(GLfloat dt) {
         //Forward euler integration of motion
         o->dyn.vel += o->dyn.force * dt;
         //o->dyn.pos += o->dyn.vel * dt; /* ideal, yes, but moveBy needs to have other side effects */
-        o->dyn.vel += o->dyn.gravity * dt;
+        //o->dyn.vel += o->dyn.gravity * dt;
         //Check for collisions
         glm::vec2 pos2d = glm::vec2(o->dyn.pos.x, o->dyn.pos.z);
         glm::vec2 vel2d = glm::vec2(o->dyn.vel.x, o->dyn.vel.z)*dt;
@@ -444,7 +444,7 @@ void Scene::simulate(GLfloat dt) {
         else {
             o->dyn.vel = glm::vec3(0);
         }
-        o->simulate(dt);
+        //o->simulate(dt);
 
 
 

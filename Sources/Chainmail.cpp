@@ -163,7 +163,7 @@ void Chainmail::updateCenter() {
 void Chainmail::returnVertices(vector<vec3> &returnTo) {
     vector<Vertex> newVertices;
     for (int i = 0; i < vertexLength; i++) {
-        returnTo.push_back(elements[i].pos + worldCoordCenter);
+        returnTo.push_back(elements[i].pos);
     }
 }
 
