@@ -66,7 +66,9 @@ int main() {
     /* Path Planning */
     ai::init(scene->enemyObjects, scene->staticObjects, scene->mazeInfo);
     //game_loop_clock->pause();
+    Gtime::add_now();
     GMP::replan(scene->enemyObjects);
+    std::cout << "plan for all:" << Gtime::del_top() << std::endl;
     //game_loop_clock->play();
 
     /* Game Loop */

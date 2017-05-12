@@ -20,7 +20,7 @@ Scene::Scene(unsigned seed) {
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 30;
     mazeInfo.width = 30;
-    mazeInfo.maxEnemies = 1;
+    mazeInfo.maxEnemies = 100;
     mazeInfo.enemySize = 1;
     mazeInfo.chanceGennedAlive = .25;
     mazeInfo.cellSize = 10;
@@ -53,7 +53,10 @@ void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
                 attempts++;
             }
             //put enemy here
-            addEnemyObject(mazeInfo.enemySize, randXGrid, 0, randYGrid);
+            addEnemyObject(mazeInfo.enemySize,
+                (randXGrid - mazeInfo.width/2.f)*mazeInfo.cellSize,
+                0,
+                (randYGrid - mazeInfo.height / 2.f)*mazeInfo.cellSize);
         }
         //otherwise it's in rows maze[][X];
         else {
@@ -68,7 +71,10 @@ void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
                     randYGrid = startend(gen);
                     attempts++;
                 }
-                addEnemyObject(mazeInfo.enemySize, randXGrid, 0, randYGrid);
+                addEnemyObject(mazeInfo.enemySize,
+                    (randXGrid - mazeInfo.width / 2.f)*mazeInfo.cellSize,
+                    0,
+                    (randYGrid - mazeInfo.height / 2.f)*mazeInfo.cellSize);
             }
         }
         i++;
@@ -105,8 +111,8 @@ void Scene::fillEnemyVector() {
             randXGrid = width_rand(gen);
             randYGrid = height_rand(gen);
         }
-        float xPos = ((float)randXGrid - mazeInfo.width / 2.0f);
-        float yPos = ((float)randYGrid - mazeInfo.height / 2.0f);
+        float xPos = (randXGrid - mazeInfo.width / 2.f)*mazeInfo.cellSize;
+        float yPos = (randYGrid - mazeInfo.height / 2.f)*mazeInfo.cellSize;
         vec3 pos = mazeInfo.center + vec3(xPos, mazeInfo.enemySize-1, yPos);
         //pos[1] = mazeInfo.enemySize - 1;
         addEnemyObject(mazeInfo.enemySize, pos);

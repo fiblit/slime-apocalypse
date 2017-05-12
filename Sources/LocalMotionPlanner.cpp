@@ -178,7 +178,7 @@ glm::vec2 boid_force(Object * a, BVH * dynamic_bvh) {
 }
 
 glm::vec2 LMP::calc_sum_force(Object * a, BVH * static_bvh, BVH * dynamic_bvh, std::vector<Object *> leaders) {
-    float speed = 1.0f; // x m/s
+    float speed = 4.0f; // x m/s
     glm::vec2 goal_vel;
     glm::vec2 goal_F(0);
 
