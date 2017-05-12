@@ -7,15 +7,6 @@ Caleb Biasco
 Nathan Heller
 
 # Build
-directory structure:
-/
-  Headers/
-  Libraries/
-  Resources/
-  Shaders/
-  Sources/
-  CMakeLists.txt
-  README.md
 
 To Init:
 ```
@@ -25,11 +16,11 @@ git clone --recursive https://github.umn.edu/hildr039/slime-apocalypse.git
 To Build:
 ```
 cd Build
-# UNIX Makefile
+# UNIX Makefile (NOTE: not guarenteed to work)
 # Although, this might work anywhere.
 cmake ..
 
-# Mac OSX
+# Mac OSX (NOTE: not guarenteed to work)
 # cmake -G "Xcode" ..
 
 # Microsoft Windows
