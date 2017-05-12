@@ -28,7 +28,8 @@ Object::Object(vec3 p) {
 }
 
 Object::Object(float x, float y, float z) {
-    dyn.pos = vec3(x, y, z);
+    
+vec3(x, y, z);
     dyn.gravity = vec3(0, 0, 0);
 }
 
@@ -78,12 +79,11 @@ void Object::moveBy(float x, float y, float z) {
 
 // Simple movement functions; we'll need to adapt these to however our objects move
 void Object::moveBy(vec3 t) {
+    if (glm::length(t) > 0) {
+        int i = 0;
+    }
 	dyn.pos += t;
     bv->o += vec2(t.x, t.z);
-	// TODO: Actually move the vertices
-	/*for (size_t i = 0; i < vertices.size(); i++) {
-		vertices[i] += t;
-	}*/
 }
 
 // Simple movement functions; we'll need to adapt these to however our objects move
@@ -93,7 +93,10 @@ void Object::moveTo(float x, float y, float z) {
 
 
 void Object::moveBy(glm::vec3 t, double dt) {
-    this->dyn.pos += t * (float)dt;
+    if (glm::length(t) > 0) {
+        int i = 0;
+    }
+    this->dyn.pos += t;
 }
 
 // Simple movement functions; we'll need to adapt these to however our objects move

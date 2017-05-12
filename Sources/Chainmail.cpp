@@ -109,21 +109,9 @@ void Chainmail::applyMove(int id, vec3 t) {
 }
 
 void Chainmail::applyMove(int id, vec3 t, double dt) {
-    for (int i = 0; i < elements.size()/2; i++) {
-        
-        int randElement = ((float)rand()) / RAND_MAX * (elements.size()-1);
-        while (elements[randElement].updated) {
-            randElement = ((float)rand()) / RAND_MAX * (elements.size() - 1);
-        }
-        elements[randElement].pos += t * .001f;
 
-
-        if (elements[randElement].pos.y + worldCoordCenter.y < yPlaneCollision) {
-            float delta = .003;
-            elements[randElement].pos.y = delta;
-        }
-        elements[randElement].updated = true;
-    }
+    this->elements[id].pos += (vec3(t[0] * dt, t[1] * dt, t[2] * dt));
+    this->elements[id].updated = true;
 
     for (int i : this->elements[id].neighbors)
         waiting.push_back(ivec2(id, i));
@@ -235,12 +223,7 @@ void Chainmail::relax(float dt) {
 	// Second, push all elements toward their respective centroid
 	for (Element & e : this -> elements) {
 		vec3 v = centroids[e.id] - e.pos;
-        v = (e.origin - e.pos);
-		e.pos += 2*dt*v;
-        if (e.pos.y + worldCoordCenter.y < yPlaneCollision) {
-            float delta = .003;
-            e.pos.y = delta;
-        }
+		e.pos += 3*dt*v;
 	}
 }
 
@@ -270,7 +253,22 @@ void Chainmail::simStep(int id, glm::vec3 t, double dt) {
     applyMove(id, t, dt);
     propagate();
     relax(dt);
-    updateCenter();
+    //updateCenter();
+	for (Element & e : this->elements)
+		e.updated = false;
+	waiting.clear(); // might want a more robust end check than this
+}
+void Chainmail::simStep(std::vector<int> ids, glm::vec3 t, double dt) {
+	for (int id : ids ) {
+		if (!this->elements[id].updated) {
+			applyMove(id, t, dt);
+			std::cout << id << std::endl;
+		}
+	}
+
+	propagate();
+	relax(dt);
+
 	for (Element & e : this->elements)
 		e.updated = false;
 	waiting.clear(); // might want a more robust end check than this

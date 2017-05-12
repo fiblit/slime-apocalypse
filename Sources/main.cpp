@@ -172,13 +172,184 @@ GLFWwindow * init_window_context() {
     return window;
 }
 
+int mod(int a, int b)
+{
+	int r = a % b;
+	return r < 0 ? r + b : r;
+}
+
 void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
+	static int slices = scene->test->slices;
+	static int stacks = scene->test->stacks;
+	static float reverse = 1;
     handle_scene->camera->mouse_rotate_camera(UI::cursor_edx, UI::cursor_edy);
 	UI::cursor_edx = 0;
 	UI::cursor_edy = 0;
     handle_scene->camera->scroll_zoom_camera(UI::d_scroll);
 	UI::d_scroll = 0;
 
+	if (UI::keys[GLFW_KEY_KP_0]) {
+		scene->reset();
+	}
+	if (UI::keys[GLFW_KEY_KP_2]) {
+		std::vector<int> ids;
+		for (int i = 0; i < slices/2; i++) { // front to back
+			for (int j = 0; j < stacks/2; j++) { // clockwise from top
+				int in = i;
+				int jn = j + stacks/2;
+				int k = jn*slices;
+				int total = slices*stacks;
+				ids.push_back(mod(in+k, total));
+			}
+		}
+		scene->slimeTestMove(ids, reverse*glm::vec3(0, -10, 0), clock->delta());
+	}
+	if (UI::keys[GLFW_KEY_KP_8]) {
+		std::vector<int> ids;
+		for (int i = 0; i < slices/2; i++) { // front to back
+			for (int j = 0; j < stacks/2; j++) { // clockwise from top
+				int in = i;
+				int jn = j;
+				int k = jn*slices;
+				int total = slices*stacks;
+				ids.push_back(mod(in+k, total));
+			}
+		}
+		scene->slimeTestMove(ids, reverse*glm::vec3(0, 10, 0), clock->delta());
+	}
+	if (UI::keys[GLFW_KEY_KP_6]) {
+		std::vector<int> ids;
+		for (int i = 0; i < slices/2; i++) { // front to back
+			for (int j = 0; j < stacks/2; j++) { // clockwise from top
+				int in = i;
+				int jn = j + 3*stacks/4;
+				int k = jn*slices;
+				int total = slices*stacks;
+				ids.push_back(mod(in+k, total));
+			}
+		}
+		scene->slimeTestMove(ids, reverse*glm::vec3(10, 0, 0), clock->delta());
+	}
+	if (UI::keys[GLFW_KEY_KP_4]) {
+		std::vector<int> ids;
+		for (int i = 0; i < slices/2; i++) { // front to back
+			for (int j = 0; j < stacks/2; j++) { // clockwise from top
+				int in = i;
+				int jn = j + stacks/4;
+				int k = jn*slices;
+				int total = slices*stacks;
+				ids.push_back(mod(in+k, total));
+			}
+		}
+		scene->slimeTestMove(ids, reverse*glm::vec3(-10, 0, 0), clock->delta());
+	}
+    if (UI::keys[GLFW_KEY_KP_9]) {
+		std::vector<int> ids;
+		for (int i = 0; i < slices/2; i++) { // front to back
+			for (int j = 0; j < stacks/4; j++) { // clockwise from top
+				int in = i;
+				int jn = j;
+				int k = jn*slices;
+				int total = slices*stacks;
+				ids.push_back(mod(in+k, total));
+			}
+		}
+        scene->slimeTestMove(ids, reverse*glm::vec3(4, 4, 4), clock->delta());
+    }
+	if (UI::keys[GLFW_KEY_KP_7]) {
+		std::vector<int> ids;
+		for (int i = 0; i < slices/2; i++) { // front to back
+			for (int j = 0; j < stacks/4; j++) { // clockwise from top
+				int in = i;
+				int jn = j + stacks/4;
+				int k = jn*slices;
+				int total = slices*stacks;
+				ids.push_back(mod(in+k, total));
+			}
+		}
+		scene->slimeTestMove(ids, reverse*glm::vec3(-4, 4, 4), clock->delta());
+	}
+	if (UI::keys[GLFW_KEY_KP_3]) {
+		std::vector<int> ids;
+		for (int i = 0; i < slices/2; i++) { // front to back
+			for (int j = 0; j < stacks/4; j++) { // clockwise from top
+				int in = i;
+				int jn = j + 3*stacks/4;
+				int k = jn*slices;
+				int total = slices*stacks;
+				ids.push_back(mod(in+k, total));
+			}
+		}
+		scene->slimeTestMove(ids, reverse*glm::vec3(4, -4, 4), clock->delta());
+	}
+	if (UI::keys[GLFW_KEY_KP_1]) {
+		std::vector<int> ids;
+		for (int i = 0; i < slices/2; i++) { // front to back
+			for (int j = 0; j < stacks/4; j++) { // clockwise from top
+				int in = i;
+				int jn = j + stacks/2;
+				int k = jn*slices;
+				int total = slices*stacks;
+				ids.push_back(mod(in+k, total));
+			}
+		}
+		scene->slimeTestMove(ids, reverse*glm::vec3(-4, -4, 4), clock->delta());
+	}
+	if (UI::keys[GLFW_KEY_KP_5]) {
+		std::vector<int> ids;
+		for (int i = 0; i < slices/2; i++) { // front to back
+			for (int j = 0; j < stacks; j++) { // clockwise from top
+				int in = i/2;
+				int jn = j;
+				int k = jn*slices;
+				int total = slices*stacks;
+				ids.push_back(mod(in+k, total));
+			}
+		}
+		scene->slimeTestMove(ids, reverse*glm::vec3(0, 0, 10), clock->delta());
+	}
+	if (UI::keys[GLFW_KEY_KP_ENTER]) {
+		std::vector<int> ids;
+		for (int i = 0; i < slices/2; i++) { // front to back
+			for (int j = 0; j < stacks; j++) { // clockwise from top
+				int in = i + slices/2;
+				int jn = j;
+				int k = jn*slices;
+				int total = slices*stacks;
+				ids.push_back(mod(in+k, total));
+			}
+		}
+		scene->slimeTestMove(ids, reverse*glm::vec3(0, 0, -10), clock->delta());
+	}
+	if (UI::keys[GLFW_KEY_KP_SUBTRACT]) {
+		reverse *= -1;
+		UI::keys[GLFW_KEY_KP_SUBTRACT] = false;
+	}
+	if (UI::keys[GLFW_KEY_1]) {
+		scene->test->deformer->aMin *= .99;
+	}
+	if (UI::keys[GLFW_KEY_2]) {
+		scene->test->deformer->aMin *= 1.01;
+	}
+	if (UI::keys[GLFW_KEY_3]) {
+		scene->test->deformer->aMax *= .99;
+	}
+	if (UI::keys[GLFW_KEY_4]) {
+		scene->test->deformer->aMax *= 1.01;
+	}
+	if (UI::keys[GLFW_KEY_5]) {
+		scene->test->deformer->b *= .99;
+	}
+	if (UI::keys[GLFW_KEY_6]) {
+		scene->test->deformer->b *= 1.01;
+	}
+	if (UI::keys[GLFW_KEY_ENTER]) {
+		scene->test->deformer->generateRegions();
+	}
+
+    if (UI::keys[GLFW_KEY_L]) {
+        scene->slimeTestStill();
+    }
     if (UI::keys[GLFW_KEY_UP]) {
         glm::vec3 v = handle_scene->camera->dir;
         v[1] = 0;

@@ -53,6 +53,7 @@ public:
 	void generateRegions();
     void updateCenter();
     void simStep(int startNode, glm::vec3 t, double dt); 
+	void simStep(std::vector<int> ids, glm::vec3, double dt);
     void simStep(glm::vec3, double dt);
     void simStep(double dt);
     void simpleSimStep(int id, glm::vec3 t, double dt);
