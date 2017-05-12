@@ -93,12 +93,12 @@ int main() {
         handle_input(game_loop_clock, scene);
 
         //AI
-        //game_loop_clock->pause();
+        game_loop_clock->pause();//catch jerks
         ai::update_agents(scene->staticObjects, scene->enemyObjects, scene->playerObject);
+        game_loop_clock->play();
         
         //Physics
         scene->simulate(game_loop_clock->delta());
-        //game_loop_clock->play();
 
 		// Render 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);

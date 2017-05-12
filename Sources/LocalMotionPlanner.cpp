@@ -126,17 +126,17 @@ glm::vec2 follow_force(Object * lead, Object * a) {
     return ff;
 }
 
-glm::vec2 boid_force(Object * a, BVH * dynamic_bvh) {
+glm::vec2 boid_force(Object * a, BVH * dynamic_bvh, vector<Object *> dynamics) {
     const float boid_speed = 1.2f;
 
     glm::vec2 avg_vel(0, 0), avg_pos(0, 0), avg_dir(0, 0);
     GLfloat cohes_r_look = 1.0f, align_r_look = 1.0f, separ_r_look = .5f;//limit to search for forces for boidlings
     glm::vec2 align_force, cohesion_force, follow_force, spread_force;
 
-    std::vector<Object *> NNdynamic = 
-        dynamic_bvh->query(new Circ(a->bv->o, 1.1f));
-    for (size_t i = 0; i < NNdynamic.size(); i++) { 
-        Object * boid = NNdynamic[i];
+    //std::vector<Object *> NNdynamic = 
+    //    dynamic_bvh->query(new Circ(a->bv->o, 1.1f));
+    for (size_t i = 0; i < dynamics.size(); i++) { 
+        Object * boid = dynamics[i];
         if (!boid->ai.has_boid_f() || boid == a)
             continue;
 
@@ -177,7 +177,7 @@ glm::vec2 boid_force(Object * a, BVH * dynamic_bvh) {
     return boid_force;
 }
 
-glm::vec2 LMP::calc_sum_force(Object * a, BVH * static_bvh, BVH * dynamic_bvh, std::vector<Object *> leaders) {
+glm::vec2 LMP::calc_sum_force(Object * a, BVH * static_bvh, BVH * dynamic_bvh, std::vector<Object *> statics, std::vector<Object *> dynamics, std::vector<Object *> leaders) {
     float speed = 4.0f; // x m/s
     glm::vec2 goal_vel;
     glm::vec2 goal_F(0);
@@ -197,8 +197,8 @@ glm::vec2 LMP::calc_sum_force(Object * a, BVH * static_bvh, BVH * dynamic_bvh, s
     /* ttc - approximate */
     glm::vec2 ttc_F(0);
     Circ q(a->bv->o, speed * 5);
-    std::vector<Object *> NNdynamic = dynamic_bvh->query(&q);
-    for (Object * b : NNdynamic) {
+    //std::vector<Object *> NNdynamic = dynamic_bvh->query(&q);
+    for (Object * b : leaders) {
         if (a == b)
             continue;
         double ttc = LMP::ttc(a->bv, glm::vec2(a->dyn.vel.x, a->dyn.vel.z), b->bv, glm::vec2(b->dyn.vel.x, b->dyn.vel.z));
@@ -207,9 +207,8 @@ glm::vec2 LMP::calc_sum_force(Object * a, BVH * static_bvh, BVH * dynamic_bvh, s
         ttc_F += LMP::ttc_forces(a, b, static_cast<float>(ttc));
     }
 
-    
-    std::vector<Object *> NNstatic = static_bvh->query(&q);
-    for (Object * s : NNstatic) {
+    //std::vector<Object *> NNstatic = static_bvh->query(&q);
+    for (Object * s : statics) {
         double ttc = LMP::ttc(a->bv, glm::vec2(a->dyn.vel.x, a->dyn.vel.z), s->bv, glm::vec2(0));
 
         if (ttc > 4)//seconds
@@ -228,5 +227,5 @@ glm::vec2 LMP::calc_sum_force(Object * a, BVH * static_bvh, BVH * dynamic_bvh, s
             follow_F += follow_force(leader, a);
         }
     }
-    return  goal_F +ttc_F + boid_F + follow_F;
+    return  goal_F + ttc_F + boid_F + follow_F;
 }
