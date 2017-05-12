@@ -103,6 +103,11 @@ public:
 	bool is_flashlight_on = true;
     bool is_noclip_on = false;
 
+    void reset();
+    void slimeTestMove(std::vector<int> ids, glm::vec3 t, float dt);
+    void slimeTestStill();
+    Slime * test;
+
 private:
     typedef std::uniform_int_distribution<int> uint_dist;
     typedef std::uniform_real_distribution<float> float_dist;

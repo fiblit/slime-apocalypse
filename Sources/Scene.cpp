@@ -10,12 +10,13 @@ Scene::Scene(unsigned seed) {
     hrclock::time_point first = hrclock::now();
 
     this->camera = new Camera();
+    camera->pos = glm::vec3(0, 3, 0);
     this->floor = new Cube(10000, 10000, .5, vec3(0, 0, -.5));
 	floor->setColor(.4, .4, .4);
 	// Generate player object
 
   
-	playerObject = new  Sphere(1, 0,3,0);
+	playerObject = new  Sphere(1, 0,3,3);
     playerObject->color = (vec3(1, .6, .6));
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 30;
@@ -34,6 +35,9 @@ Scene::Scene(unsigned seed) {
 
     initMaze();
     fillEnemyVector();
+
+    test = new Slime(3, glm::vec3(0, 2, -3));
+    enemyObjects.push_back(test);
 }
 
 
@@ -427,8 +431,9 @@ void Scene::simulate(GLfloat dt) {
         o->dyn.vel += o->dyn.force * dt;
         //o->dyn.pos += o->dyn.vel * dt; /* ideal, yes, but moveBy needs to have other side effects */
         o->dyn.vel += o->dyn.gravity * dt;
+        o->dyn.pos += o->dyn.vel * dt;
         o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
-
+        o->simulate(dt);
         //TODO: Check for collisions
 
 
@@ -587,6 +592,24 @@ void Scene::setupTestingObjects() {
 
 void Scene::toggle_flashlight() {
     is_flashlight_on = !is_flashlight_on;
+}
+
+void Scene::slimeTestMove(std::vector<int> ids, glm::vec3 t, float dt) {
+    test->moveBy(ids, t, dt);
+}
+
+
+void Scene::slimeTestStill() {
+    test->moveBy(0, 0, 0, .04);
+}
+
+void Scene::reset() {
+    test->constructStandardMesh(true);
+    test->useCustomMesh();
+    delete test->deformer;
+    test->deformer = new Chainmail(test->mesh, test->stacks, test->slices, test->dyn.pos);
+    test->convertMeshToWorldCoords();
+
 }
 
 void Scene::toggle_noclip() {

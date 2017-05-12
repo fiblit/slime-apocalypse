@@ -15,6 +15,8 @@ Chainmail::Chainmail(Mesh * mesh, int stacks, int slices, glm::vec3 worldCenter)
     this->vertexLength = mesh->vertices.size();
     for (Vertex v : mesh->vertices) {
         Element e;
+        this->stacks = stacks;
+        this->slices = slices;
         e.id = this->elements.size();
         e.origin = v.Position;
         e.pos = v.Position;
@@ -109,21 +111,9 @@ void Chainmail::applyMove(int id, vec3 t) {
 }
 
 void Chainmail::applyMove(int id, vec3 t, double dt) {
-    for (int i = 0; i < elements.size()/2; i++) {
-        
-        int randElement = ((float)rand()) / RAND_MAX * (elements.size()-1);
-        while (elements[randElement].updated) {
-            randElement = ((float)rand()) / RAND_MAX * (elements.size() - 1);
-        }
-        elements[randElement].pos += t * .001f;
 
-
-        if (elements[randElement].pos.y + worldCoordCenter.y < yPlaneCollision) {
-            float delta = .003;
-            elements[randElement].pos.y = delta;
-        }
-        elements[randElement].updated = true;
-    }
+    this->elements[id].pos += (vec3(t[0] * dt, t[1] * dt, t[2] * dt));
+    this->elements[id].updated = true;
 
     for (int i : this->elements[id].neighbors)
         waiting.push_back(ivec2(id, i));
@@ -132,12 +122,20 @@ void Chainmail::applyMove(int id, vec3 t, double dt) {
 
 //updates the center of the object to ensure the 'center' is the origin;
 void Chainmail::updateCenter() {
+    int subCopies = 0;
     glm::vec3 oldCenter = worldCoordCenter;
     glm::vec3 newCenter = glm::vec3(0);
-    for (int i = 0; i < elements.size(); i++) {
-        newCenter += (worldCoordCenter + elements[i].pos);
+    newCenter += (worldCoordCenter + elements[0].pos);
+    for (int i = 1; i < elements.size()-1; i++) {
+        if (i % stacks != 0) {
+            newCenter += (worldCoordCenter + elements[i].pos);
+        }
+        else {
+            subCopies++;
+        }
     }
-    newCenter /= elements.size();
+    newCenter += (worldCoordCenter + elements[elements.size()-1].pos);
+    newCenter /= (elements.size()-subCopies);
     glm::vec3 delta = oldCenter - newCenter;
     worldCoordCenter = newCenter;
     for (int i = 0; i < elements.size(); i++) {
@@ -178,18 +176,10 @@ void Chainmail::propagate() {
 		}
 		if (e->pos.y < minBounds.y) {
 			e->pos.y = minBounds.y;
-            if (e->pos.y + worldCoordCenter.y < yPlaneCollision) {
-                float delta = .003;
-                e->pos.y = delta;
-            }
 			e->updated = true;
 		}
 		else if (e->pos.y > maxBounds.y) {
 			e->pos.y = maxBounds.y;
-            if (e->pos.y + worldCoordCenter.y < yPlaneCollision) {
-                float delta = .003;
-                e->pos.y = delta;
-            }
 			e->updated = true;
 		}
 		if (e->pos.z < minBounds.z) {
@@ -235,12 +225,7 @@ void Chainmail::relax(float dt) {
 	// Second, push all elements toward their respective centroid
 	for (Element & e : this -> elements) {
 		vec3 v = centroids[e.id] - e.pos;
-        v = (e.origin - e.pos);
-		e.pos += 2*dt*v;
-        if (e.pos.y + worldCoordCenter.y < yPlaneCollision) {
-            float delta = .003;
-            e.pos.y = delta;
-        }
+		e.pos += 3*dt*v;
 	}
 }
 
@@ -271,6 +256,19 @@ void Chainmail::simStep(int id, glm::vec3 t, double dt) {
     propagate();
     relax(dt);
     updateCenter();
+	for (Element & e : this->elements)
+		e.updated = false;
+	waiting.clear(); // might want a more robust end check than this
+}
+void Chainmail::simStep(std::vector<int> ids, glm::vec3 t, double dt) {
+    for (int id : ids) {
+        if (!this->elements[id].updated) {
+            applyMove(id, t, dt);
+            std::cout << id << std::endl;
+        }
+    }
+	propagate();
+	relax(dt);
 	for (Element & e : this->elements)
 		e.updated = false;
 	waiting.clear(); // might want a more robust end check than this

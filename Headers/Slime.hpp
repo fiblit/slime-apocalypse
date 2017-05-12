@@ -13,13 +13,13 @@ public:
     void simulate(double dt) override;
     void moveBy(float x, float y, float z); 
     void moveBy(float x, float y, float z, double dt);
-    void moveBy(glm::vec3 t);
-    void moveBy(glm::vec3 t, double dt);
-    void moveTo(float x, float y, float z);
-    void moveTo(glm::vec3 position, double dt);
+	void moveBy(int id, glm::vec3 t, double dt);
+	void moveBy(std::vector<int> ids, glm::vec3 t, double dt);
     void simpleSimulate(double dt);
+    //call this after instantiating the deformer. The vertices in the deformer are model coords.
+    void convertMeshToWorldCoords();
     double timeElapsed = 0;
     virtual ~Slime();
 };
 
-#endif // OBJECT_H_GUARD
+#endif // SLIME_H_GUARD

@@ -56,10 +56,6 @@ void Sphere::useStandardMesh() {
 }
 
 void Sphere::useCustomMesh() {
-	if (!usingStandardMesh)
-		return; // might want to make it re-copy the standard in this case?
-
-	usingStandardMesh = false;
 	mesh = standardMesh->copy();
 }
 

@@ -13,48 +13,40 @@ Slime::Slime(float r, float x, float y, float z) : Sphere(r, x, y, z) {
     useCustomMesh();
     this->dyn.gravity = glm::vec3(0, -1, 0);
     deformer = new Chainmail(mesh, stacks, slices, this->dyn.pos);
+    convertMeshToWorldCoords();
 }
 
 Slime::Slime(float r) : Sphere(r) {
     useCustomMesh();
     this->dyn.gravity = glm::vec3(0, -1, 0);
     deformer = new Chainmail(mesh, stacks, slices, this->dyn.pos);
+    convertMeshToWorldCoords();
 }
 
 Slime::Slime(float r, glm::vec3 p) : Sphere(r, p) {
     useCustomMesh();
     this->dyn.gravity = glm::vec3(0, -1, 0);
     deformer = new Chainmail(mesh, stacks, slices, this->dyn.pos);
+    convertMeshToWorldCoords();
 }
 
 void Slime::simulate(double dt) {
-	deformer->simStep(0, dyn.gravity, dt);
-    this->dyn.pos = deformer->returnWorldPos();
+    deformer->simStep(dt);
 }
 
 void Slime::simpleSimulate(double dt) {
-    deformer->simpleSimStep(0, dyn.gravity, dt);
-    this->dyn.pos = deformer->returnWorldPos();
 }
 void Slime::moveBy(float x, float y, float z) {
-	moveBy(glm::vec3(x,y,z), 0);
+	moveBy(0, glm::vec3(x,y,z), 0);
 }
 
 void Slime::moveBy(float x, float y, float z, double dt) {
-    moveBy(glm::vec3(x,y,z), dt);
+    moveBy(0, glm::vec3(x,y,z), dt);
 }
 
 
-void Slime::moveBy(glm::vec3 t) {
-    moveBy(t, 0);
-}
-void Slime::moveTo(float x, float y, float z) {
-    deformer->applyMove(0, glm::vec3(x, y, z));
-}
-void Slime::moveTo(glm::vec3 position, double dt) {
-    glm::vec3 to = position - this->dyn.pos;
-    glm::normalize(to);
-    deformer->simStep(0, to, dt);
+void Slime::moveBy(int id, glm::vec3 t, double dt) {
+    deformer->simStep(id, t, dt);
     std::vector<glm::vec3> v;
     deformer->returnVertices(v);
     std::vector<Vertex> newMeshVertices;
@@ -67,8 +59,22 @@ void Slime::moveTo(glm::vec3 position, double dt) {
     mesh->updateNormals();
 }
 
-void Slime::moveBy(glm::vec3 t, double dt) {
-    deformer->simStep(0, t, dt);
+void Slime::moveBy(std::vector<int> ids, glm::vec3 t, double dt) {
+	deformer->simStep(ids, t, dt);
+	std::vector<glm::vec3> v;
+	deformer->returnVertices(v);
+	std::vector<Vertex> newMeshVertices;
+	for (int i = 0; i < v.size(); i++) {
+		Vertex newVert = {};
+		newVert.Position = v[i];
+		newMeshVertices.push_back(newVert);
+	}
+	mesh->updateVertices(newMeshVertices);
+	mesh->updateNormals();
+}
+
+
+void Slime::convertMeshToWorldCoords() {
     std::vector<glm::vec3> v;
     deformer->returnVertices(v);
     std::vector<Vertex> newMeshVertices;
@@ -77,12 +83,9 @@ void Slime::moveBy(glm::vec3 t, double dt) {
         newVert.Position = v[i];
         newMeshVertices.push_back(newVert);
     }
-    dyn.pos = deformer->returnWorldPos();
     mesh->updateVertices(newMeshVertices);
     mesh->updateNormals();
-
 }
-
 
 Slime::~Slime()
 {
