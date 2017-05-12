@@ -126,7 +126,7 @@ glm::vec2 follow_force(Object * lead, Object * a) {
     return ff;
 }
 
-glm::vec2 boid_force(Object * a, BVH * dynamic_bvh, vector<Object *> dynamics) {
+glm::vec2 boid_force(Object * a, BVH * dynamic_bvh, std::vector<Object *> dynamics) {
     const float boid_speed = 1.2f;
 
     glm::vec2 avg_vel(0, 0), avg_pos(0, 0), avg_dir(0, 0);
@@ -177,7 +177,13 @@ glm::vec2 boid_force(Object * a, BVH * dynamic_bvh, vector<Object *> dynamics) {
     return boid_force;
 }
 
-glm::vec2 LMP::calc_sum_force(Object * a, BVH * static_bvh, BVH * dynamic_bvh, std::vector<Object *> statics, std::vector<Object *> dynamics, std::vector<Object *> leaders) {
+glm::vec2 LMP::calc_sum_force(
+        Object * a,
+        BVH * static_bvh,
+        BVH * dynamic_bvh,
+        std::vector<Object *> statics,
+        std::vector<Object *> dynamics,
+        std::vector<Object *> leaders) {
     float speed = 4.0f; // x m/s
     glm::vec2 goal_vel;
     glm::vec2 goal_F(0);
@@ -198,7 +204,7 @@ glm::vec2 LMP::calc_sum_force(Object * a, BVH * static_bvh, BVH * dynamic_bvh, s
     glm::vec2 ttc_F(0);
     Circ q(a->bv->o, speed * 5);
     //std::vector<Object *> NNdynamic = dynamic_bvh->query(&q);
-    for (Object * b : leaders) {
+    for (Object * b : dynamics) {
         if (a == b)
             continue;
         double ttc = LMP::ttc(a->bv, glm::vec2(a->dyn.vel.x, a->dyn.vel.z), b->bv, glm::vec2(b->dyn.vel.x, b->dyn.vel.z));
@@ -207,8 +213,9 @@ glm::vec2 LMP::calc_sum_force(Object * a, BVH * static_bvh, BVH * dynamic_bvh, s
         ttc_F += LMP::ttc_forces(a, b, static_cast<float>(ttc));
     }
 
-    //std::vector<Object *> NNstatic = static_bvh->query(&q);
-    for (Object * s : statics) {
+    /*
+    std::vector<Object *> NNstatic = static_bvh->query(&q);
+    for (Object * s : NNstatic) {
         double ttc = LMP::ttc(a->bv, glm::vec2(a->dyn.vel.x, a->dyn.vel.z), s->bv, glm::vec2(0));
 
         if (ttc > 4)//seconds
@@ -216,16 +223,18 @@ glm::vec2 LMP::calc_sum_force(Object * a, BVH * static_bvh, BVH * dynamic_bvh, s
 
         ttc_F += ttc_forces(a, s, static_cast<float>(ttc));
     }
+    */
 
+    /*
     glm::vec2 boid_F(0);
     if (a->ai.has_boid_f())
-        boid_F += boid_force(a, dynamic_bvh);
+        boid_F += boid_force(a, dynamic_bvh, dynamics);
 
     glm::vec2 follow_F(0);
     if (a->ai.method == ai_comp::Planner::PACK) {
         for (Object * leader : leaders) {
             follow_F += follow_force(leader, a);
         }
-    }
-    return  goal_F + ttc_F + boid_F + follow_F;
+    }*/
+    return  goal_F + ttc_F;// +boid_F + follow_F;
 }

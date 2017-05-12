@@ -45,7 +45,7 @@ VecData * GMP::find_path_Astar(float e, Graph<glm::vec2> * roadmap) {
         //quit if we hit the goal, we have a path
         if (cur_v == goal)
             break;
-
+        if (cur_v->edges->size() < 1000)
         for (Node<glm::vec2> * adj : *(cur_v->edges)) {
             //new potential path = path to here + edge to adjacent
             float g_alt = g_cost[cur_v] + glm::distance(adj->data, cur_v->data);

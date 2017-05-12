@@ -58,10 +58,10 @@ void ai::update_agents(std::vector<Object *> statics, std::vector<Object *> dyna
     //}
     delete ai::dynamic_bvh;
     ai::dynamic_bvh = new BVH(dynamics);
-    std::vector<Object *> leaders;
-    for (Object * d : dynamics)
-        if (d->ai.method == ai_comp::Planner::LEAD)
-            leaders.push_back(d);
+    //std::vector<Object *> leaders;
+    //for (Object * d : dynamics)
+    //    if (d->ai.method == ai_comp::Planner::LEAD)
+    //        leaders.push_back(d);
     for (Object * d : dynamics) {
         if (d->ai.is_agent()) {
             d->ai.final_goal = glm::vec2(player->dyn.pos.x, player->dyn.pos.z);
@@ -78,7 +78,7 @@ void ai::update_agents(std::vector<Object *> statics, std::vector<Object *> dyna
                     GMP::plan_one(d);
                 }
             }
-            glm::vec2 f2d = LMP::calc_sum_force(d, ai::static_bvh, ai::dynamic_bvh, statics, dynamics, leaders);
+            glm::vec2 f2d = LMP::calc_sum_force(d, ai::static_bvh, ai::dynamic_bvh, statics, dynamics, std::vector<Object *>());
             d->dyn.force += glm::vec3(f2d.x, 0, f2d.y);
         }
     }

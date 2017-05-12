@@ -22,7 +22,7 @@ namespace LMP {
     glm::vec2 ttc_forces_(double ttc, glm::vec2 dir);
     glm::vec2 ttc_forces(Object * a, Circ * b, float ttc);
     glm::vec2 ttc_forces(Object * a, Object * b, float ttc);
-    glm::vec2 LMP::calc_sum_force(Object * a,
+    glm::vec2 calc_sum_force(Object * a,
         BVH * static_bvh,
         BVH * dynamic_bvh,
         std::vector<Object *> statics,//shouldn't be here; temp hack
