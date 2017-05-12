@@ -46,16 +46,13 @@ public:
 	Chainmail(Mesh * mesh, int stacks, int slices, glm::vec3 worldCenter);
 	virtual ~Chainmail();
 
-    void applyMove(int id, glm::vec3 t);
-    void applyMove(int id, glm::vec3 t, double dt);
+    void applyMove(glm::vec3 t);
+    void applyMove(glm::vec3 t, double dt);
 	void propagate();
 	void relax(float dt);
 	void generateRegions();
     void updateCenter();
-    void simStep(int startNode, glm::vec3 t, double dt); 
-	void simStep(std::vector<int> ids, glm::vec3, double dt);
-    void simStep(glm::vec3, double dt);
-    void simStep(double dt);
+    void simStep(double dt, glm::vec3 t = glm::vec3(0));
     void simpleSimStep(int id, glm::vec3 t, double dt);
     void resetMesh();
     void simpleUpdateCenter(glm::vec3 t, double dt);
@@ -67,6 +64,8 @@ public:
 	// Waiting list of elements to be processed.
 	// The first value is the sponsor, the second is the element id.
 	std::deque<glm::ivec2> waiting;
+	std::vector<int> moveIds;
+	std::vector<int> invertIds;
 
 	// Each region is shared between two indices, where the vec2
 	// is (minIndex, maxIndex) to avoid doubling.

@@ -111,11 +111,11 @@ public:
     bool isFacing(glm::vec3 p) {
         glm::vec3 vec = p - this->pos;
         glm::normalize(vec);
-        if (glm::dot(vec, this->dir) < .5) {
-            return false;
+        if (glm::dot(vec, this->dir) < cos(PI*fov/180.0)) {
+            return true;
         }
         else {
-            return true;
+            return false;
         }
 
     }

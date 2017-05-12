@@ -34,9 +34,9 @@ Scene::Scene(unsigned seed) {
     height_rand = uint_dist(0, mazeInfo.height - 1);
 
     initMaze();
-    fillEnemyVector();
+    //fillEnemyVector();
 
-    test = new Slime(3, glm::vec3(0, 2, -3));
+    test = new Slime(3, glm::vec3(0, 1, -3));
     enemyObjects.push_back(test);
 }
 
@@ -202,7 +202,14 @@ void Scene::initMaze() {
     automatonSimulate();
     maze[mazeInfo.width / 2][mazeInfo.height / 2].filled = 0;
     fillStaticObjVector();
-    //put the nearby cells that have objects in to the staticObjects vector
+    //put the nearby cells that have objects in to the staticObjects
+	//vectorautomatonSimulate();
+	//fill closed gaps
+	maze[mazeInfo.width / 2][mazeInfo.height / 2].filled = 0;
+	for (int i = 0; i < maze[0].size(); i++) {
+		maze[mazeInfo.width / 2][i].filled = 0;
+	}
+	fillStaticObjVector();
     return;
 }
 //helper function that takes coordinates and returns the nearest grid center coordinate.
@@ -430,10 +437,9 @@ void Scene::simulate(GLfloat dt) {
         //Forward euler integration of motion
         o->dyn.vel += o->dyn.force * dt;
         //o->dyn.pos += o->dyn.vel * dt; /* ideal, yes, but moveBy needs to have other side effects */
-        o->dyn.vel += o->dyn.gravity * dt;
+        //o->dyn.vel += o->dyn.gravity * dt;
         o->dyn.pos += o->dyn.vel * dt;
-        o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
-        o->simulate(dt);
+        //o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
         //TODO: Check for collisions
 
 
@@ -454,10 +460,10 @@ void Scene::simulate(GLfloat dt) {
 
 	// Relax the chainmails
 	for (Object * o : enemyObjects) {
-        if (camera->isFacing(o->dyn.pos)) 
+        //if (camera->isFacing(o->dyn.pos)) 
             o->simulate(dt);
-        else 
-            o->simpleSimulate(dt);
+        //else 
+        //    o->simpleSimulate(dt);
     }
 }
 void Scene::render() {
@@ -592,15 +598,6 @@ void Scene::setupTestingObjects() {
 
 void Scene::toggle_flashlight() {
     is_flashlight_on = !is_flashlight_on;
-}
-
-void Scene::slimeTestMove(std::vector<int> ids, glm::vec3 t, float dt) {
-    test->moveBy(ids, t, dt);
-}
-
-
-void Scene::slimeTestStill() {
-    test->moveBy(0, 0, 0, .04);
 }
 
 void Scene::reset() {

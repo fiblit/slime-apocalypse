@@ -31,46 +31,11 @@ Slime::Slime(float r, glm::vec3 p) : Sphere(r, p) {
 }
 
 void Slime::simulate(double dt) {
-    deformer->simStep(dt);
+    deformer->simStep(dt, dyn.vel);
+	convertMeshToWorldCoords();
 }
 
 void Slime::simpleSimulate(double dt) {
-}
-void Slime::moveBy(float x, float y, float z) {
-	moveBy(0, glm::vec3(x,y,z), 0);
-}
-
-void Slime::moveBy(float x, float y, float z, double dt) {
-    moveBy(0, glm::vec3(x,y,z), dt);
-}
-
-
-void Slime::moveBy(int id, glm::vec3 t, double dt) {
-    deformer->simStep(id, t, dt);
-    std::vector<glm::vec3> v;
-    deformer->returnVertices(v);
-    std::vector<Vertex> newMeshVertices;
-    for (int i = 0; i < v.size(); i++) {
-        Vertex newVert = {};
-        newVert.Position = v[i];
-        newMeshVertices.push_back(newVert);
-    }
-    mesh->updateVertices(newMeshVertices);
-    mesh->updateNormals();
-}
-
-void Slime::moveBy(std::vector<int> ids, glm::vec3 t, double dt) {
-	deformer->simStep(ids, t, dt);
-	std::vector<glm::vec3> v;
-	deformer->returnVertices(v);
-	std::vector<Vertex> newMeshVertices;
-	for (int i = 0; i < v.size(); i++) {
-		Vertex newVert = {};
-		newVert.Position = v[i];
-		newMeshVertices.push_back(newVert);
-	}
-	mesh->updateVertices(newMeshVertices);
-	mesh->updateNormals();
 }
 
 

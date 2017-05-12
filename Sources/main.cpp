@@ -181,12 +181,6 @@ GLFWwindow * init_window_context() {
     return window;
 }
 
-int mod(int a, int b)
-{
-	int r = a % b;
-	return r < 0 ? r + b : r;
-}
-
 void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
 	static int slices = scene->test->slices;
 	static int stacks = scene->test->stacks;
@@ -196,140 +190,120 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
 	UI::cursor_edy = 0;
     handle_scene->camera->scroll_zoom_camera(UI::d_scroll);
 	UI::d_scroll = 0;
-
+	/*
 	if (UI::keys[GLFW_KEY_KP_0]) {
 		scene->reset();
 	}
 	if (UI::keys[GLFW_KEY_KP_2]) {
-		std::vector<int> ids;
 		for (int i = 0; i < slices/2; i++) { // front to back
 			for (int j = 0; j < stacks/2; j++) { // clockwise from top
 				int in = i;
 				int jn = j + stacks/2;
 				int k = jn*slices;
 				int total = slices*stacks;
-				ids.push_back(mod(in+k, total));
+				scene->test->deformer->moveIds.push_back(mod(in+k, total));
 			}
 		}
-		scene->slimeTestMove(ids, reverse*glm::vec3(0, -10, 0), clock->delta());
 	}
 	if (UI::keys[GLFW_KEY_KP_8]) {
-		std::vector<int> ids;
 		for (int i = 0; i < slices/2; i++) { // front to back
 			for (int j = 0; j < stacks/2; j++) { // clockwise from top
 				int in = i;
 				int jn = j;
 				int k = jn*slices;
 				int total = slices*stacks;
-				ids.push_back(mod(in+k, total));
+				scene->test->deformer->moveIds.push_back(mod(in+k, total));
 			}
 		}
-		scene->slimeTestMove(ids, reverse*glm::vec3(0, 10, 0), clock->delta());
 	}
 	if (UI::keys[GLFW_KEY_KP_6]) {
-		std::vector<int> ids;
 		for (int i = 0; i < slices/2; i++) { // front to back
 			for (int j = 0; j < stacks/2; j++) { // clockwise from top
 				int in = i;
 				int jn = j + 3*stacks/4;
 				int k = jn*slices;
 				int total = slices*stacks;
-				ids.push_back(mod(in+k, total));
+				scene->test->deformer->moveIds.push_back(mod(in+k, total));
 			}
 		}
-		scene->slimeTestMove(ids, reverse*glm::vec3(10, 0, 0), clock->delta());
 	}
 	if (UI::keys[GLFW_KEY_KP_4]) {
-		std::vector<int> ids;
 		for (int i = 0; i < slices/2; i++) { // front to back
 			for (int j = 0; j < stacks/2; j++) { // clockwise from top
 				int in = i;
 				int jn = j + stacks/4;
 				int k = jn*slices;
 				int total = slices*stacks;
-				ids.push_back(mod(in+k, total));
+				scene->test->deformer->moveIds.push_back(mod(in+k, total));
 			}
 		}
-		scene->slimeTestMove(ids, reverse*glm::vec3(-10, 0, 0), clock->delta());
 	}
     if (UI::keys[GLFW_KEY_KP_9]) {
-		std::vector<int> ids;
 		for (int i = 0; i < slices/2; i++) { // front to back
 			for (int j = 0; j < stacks/4; j++) { // clockwise from top
 				int in = i;
 				int jn = j;
 				int k = jn*slices;
 				int total = slices*stacks;
-				ids.push_back(mod(in+k, total));
+				scene->test->deformer->moveIds.push_back(mod(in+k, total));
 			}
 		}
-        scene->slimeTestMove(ids, reverse*glm::vec3(4, 4, 4), clock->delta());
     }
 	if (UI::keys[GLFW_KEY_KP_7]) {
-		std::vector<int> ids;
 		for (int i = 0; i < slices/2; i++) { // front to back
 			for (int j = 0; j < stacks/4; j++) { // clockwise from top
 				int in = i;
 				int jn = j + stacks/4;
 				int k = jn*slices;
 				int total = slices*stacks;
-				ids.push_back(mod(in+k, total));
+				scene->test->deformer->moveIds.push_back(mod(in+k, total));
 			}
 		}
-		scene->slimeTestMove(ids, reverse*glm::vec3(-4, 4, 4), clock->delta());
 	}
 	if (UI::keys[GLFW_KEY_KP_3]) {
-		std::vector<int> ids;
 		for (int i = 0; i < slices/2; i++) { // front to back
 			for (int j = 0; j < stacks/4; j++) { // clockwise from top
 				int in = i;
 				int jn = j + 3*stacks/4;
 				int k = jn*slices;
 				int total = slices*stacks;
-				ids.push_back(mod(in+k, total));
+				scene->test->deformer->moveIds.push_back(mod(in+k, total));
 			}
 		}
-		scene->slimeTestMove(ids, reverse*glm::vec3(4, -4, 4), clock->delta());
 	}
 	if (UI::keys[GLFW_KEY_KP_1]) {
-		std::vector<int> ids;
 		for (int i = 0; i < slices/2; i++) { // front to back
 			for (int j = 0; j < stacks/4; j++) { // clockwise from top
 				int in = i;
 				int jn = j + stacks/2;
 				int k = jn*slices;
 				int total = slices*stacks;
-				ids.push_back(mod(in+k, total));
+				scene->test->deformer->moveIds.push_back(mod(in+k, total));
 			}
 		}
-		scene->slimeTestMove(ids, reverse*glm::vec3(-4, -4, 4), clock->delta());
 	}
 	if (UI::keys[GLFW_KEY_KP_5]) {
-		std::vector<int> ids;
 		for (int i = 0; i < slices/2; i++) { // front to back
 			for (int j = 0; j < stacks; j++) { // clockwise from top
 				int in = i/2;
 				int jn = j;
 				int k = jn*slices;
 				int total = slices*stacks;
-				ids.push_back(mod(in+k, total));
+				scene->test->deformer->moveIds.push_back(mod(in+k, total));
 			}
 		}
-		scene->slimeTestMove(ids, reverse*glm::vec3(0, 0, 10), clock->delta());
 	}
 	if (UI::keys[GLFW_KEY_KP_ENTER]) {
-		std::vector<int> ids;
 		for (int i = 0; i < slices/2; i++) { // front to back
 			for (int j = 0; j < stacks; j++) { // clockwise from top
 				int in = i + slices/2;
 				int jn = j;
 				int k = jn*slices;
 				int total = slices*stacks;
-				ids.push_back(mod(in+k, total));
+				scene->test->deformer->moveIds.push_back(mod(in+k, total));
 			}
 		}
-		scene->slimeTestMove(ids, reverse*glm::vec3(0, 0, -10), clock->delta());
-	}
+	}*/
 	if (UI::keys[GLFW_KEY_KP_SUBTRACT]) {
 		reverse *= -1;
 		UI::keys[GLFW_KEY_KP_SUBTRACT] = false;
@@ -356,9 +330,6 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
 		scene->test->deformer->generateRegions();
 	}
 
-    if (UI::keys[GLFW_KEY_L]) {
-        scene->slimeTestStill();
-    }
     if (UI::keys[GLFW_KEY_W] || UI::keys[GLFW_KEY_S] || UI::keys[GLFW_KEY_A] || UI::keys[GLFW_KEY_D]
         || UI::keys[GLFW_KEY_UP] || UI::keys[GLFW_KEY_DOWN] || UI::keys[GLFW_KEY_LEFT] || UI::keys[GLFW_KEY_RIGHT]) {
         glm::vec3 v;
@@ -383,13 +354,17 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
         }
         else {
             if (UI::keys[GLFW_KEY_W])
-                handle_scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta()*20);
+                handle_scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta()*5);
             if (UI::keys[GLFW_KEY_A])
-                handle_scene->camera->translate_camera(G::CAMERA::LEFT, clock->delta()*20);
+                handle_scene->camera->translate_camera(G::CAMERA::LEFT, clock->delta()*5);
             if (UI::keys[GLFW_KEY_S])
-                handle_scene->camera->translate_camera(G::CAMERA::BACKWARD, clock->delta()*20);
+                handle_scene->camera->translate_camera(G::CAMERA::BACKWARD, clock->delta()*5);
             if (UI::keys[GLFW_KEY_D])
-                handle_scene->camera->translate_camera(G::CAMERA::RIGHT, clock->delta()*20);
+                handle_scene->camera->translate_camera(G::CAMERA::RIGHT, clock->delta()*5);
+			if (UI::keys[GLFW_KEY_Q])
+				handle_scene->camera->translate_camera(G::CAMERA::DOWNWARD, clock->delta()*5);
+			if (UI::keys[GLFW_KEY_E])
+				handle_scene->camera->translate_camera(G::CAMERA::UPWARD, clock->delta()*5);
 
             if (UI::keys[GLFW_KEY_UP])
                 v += glm::vec3(0, 0, 1);
@@ -402,7 +377,7 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
         }
         float len = glm::length(v);
         if (len > 0)
-            v *= 10.f/len;
+            v *= 5.f/len;
         handle_scene->playerObject->moveBy(v, clock->delta());
         handle_scene->generateMoreMaze();
     }

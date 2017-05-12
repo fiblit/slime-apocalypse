@@ -6,6 +6,14 @@ using glm::vec2;
 using glm::vec3;
 using std::min;
 using std::max;
+
+/* Taken from http://stackoverflow.com/questions/11720656/modulo-operation-with-negative-numbers/19288271#19288271 */
+int mod(int a, int b)
+{
+	int r = a % b;
+	return r < 0 ? r + b : r;
+}
+
 /*
 Our chainmail deformation used Sarah Gibson's Paper, "3D ChainMail: a Fast Algorithm for Deforming Volumetric Objects"
 As a base idea for implementation.
@@ -106,17 +114,26 @@ glm::vec3 Chainmail::returnWorldPos() {
 
 
 // Moves an element and readies its neighbors for propogation
-void Chainmail::applyMove(int id, vec3 t) {
-    applyMove(0, t, 0);
+void Chainmail::applyMove(vec3 t) {
+    applyMove(t, 0);
 }
 
-void Chainmail::applyMove(int id, vec3 t, double dt) {
+void Chainmail::applyMove(vec3 t, double dt) {
+	if (t == vec3(0)) {
+		return;
+	}
 
-    this->elements[id].pos += (vec3(t[0] * dt, t[1] * dt, t[2] * dt));
-    this->elements[id].updated = true;
+	for (Element &e : this->elements) {
+		float mag = glm::dot(e.origin, t);
+		if (mag <= 0)
+			continue;
 
-    for (int i : this->elements[id].neighbors)
-        waiting.push_back(ivec2(id, i));
+		e.pos += (vec3(t[0] * dt, t[1] * dt, t[2] * dt)*mag);
+		e.updated = true;
+
+		for (int i : e.neighbors)
+			waiting.push_back(ivec2(e.id, i));
+	}
 }
 
 
@@ -245,30 +262,13 @@ void Chainmail::simpleSimStep(int id, glm::vec3 t, double dt) {
     resetMesh();
     simpleUpdateCenter(t, dt);
 }
-void Chainmail::simStep(double dt) {
-    simStep(0, vec3(0), dt);
-}
-void Chainmail::simStep(glm::vec3 v, double dt) {
-    simStep(0, v, dt);
-}
-void Chainmail::simStep(int id, glm::vec3 t, double dt) {
-    applyMove(id, t, dt);
+void Chainmail::simStep(double dt, glm::vec3 t) {
+	applyMove(t, dt);
     propagate();
     relax(dt);
+
     updateCenter();
-	for (Element & e : this->elements)
-		e.updated = false;
-	waiting.clear(); // might want a more robust end check than this
-}
-void Chainmail::simStep(std::vector<int> ids, glm::vec3 t, double dt) {
-    for (int id : ids) {
-        if (!this->elements[id].updated) {
-            applyMove(id, t, dt);
-            std::cout << id << std::endl;
-        }
-    }
-	propagate();
-	relax(dt);
+
 	for (Element & e : this->elements)
 		e.updated = false;
 	waiting.clear(); // might want a more robust end check than this
