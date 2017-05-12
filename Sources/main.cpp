@@ -190,149 +190,10 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
 	UI::cursor_edy = 0;
     handle_scene->camera->scroll_zoom_camera(UI::d_scroll);
 	UI::d_scroll = 0;
-	/*
-	if (UI::keys[GLFW_KEY_KP_0]) {
-		scene->reset();
-	}
-	if (UI::keys[GLFW_KEY_KP_2]) {
-		for (int i = 0; i < slices/2; i++) { // front to back
-			for (int j = 0; j < stacks/2; j++) { // clockwise from top
-				int in = i;
-				int jn = j + stacks/2;
-				int k = jn*slices;
-				int total = slices*stacks;
-				scene->test->deformer->moveIds.push_back(mod(in+k, total));
-			}
-		}
-	}
-	if (UI::keys[GLFW_KEY_KP_8]) {
-		for (int i = 0; i < slices/2; i++) { // front to back
-			for (int j = 0; j < stacks/2; j++) { // clockwise from top
-				int in = i;
-				int jn = j;
-				int k = jn*slices;
-				int total = slices*stacks;
-				scene->test->deformer->moveIds.push_back(mod(in+k, total));
-			}
-		}
-	}
-	if (UI::keys[GLFW_KEY_KP_6]) {
-		for (int i = 0; i < slices/2; i++) { // front to back
-			for (int j = 0; j < stacks/2; j++) { // clockwise from top
-				int in = i;
-				int jn = j + 3*stacks/4;
-				int k = jn*slices;
-				int total = slices*stacks;
-				scene->test->deformer->moveIds.push_back(mod(in+k, total));
-			}
-		}
-	}
-	if (UI::keys[GLFW_KEY_KP_4]) {
-		for (int i = 0; i < slices/2; i++) { // front to back
-			for (int j = 0; j < stacks/2; j++) { // clockwise from top
-				int in = i;
-				int jn = j + stacks/4;
-				int k = jn*slices;
-				int total = slices*stacks;
-				scene->test->deformer->moveIds.push_back(mod(in+k, total));
-			}
-		}
-	}
-    if (UI::keys[GLFW_KEY_KP_9]) {
-		for (int i = 0; i < slices/2; i++) { // front to back
-			for (int j = 0; j < stacks/4; j++) { // clockwise from top
-				int in = i;
-				int jn = j;
-				int k = jn*slices;
-				int total = slices*stacks;
-				scene->test->deformer->moveIds.push_back(mod(in+k, total));
-			}
-		}
-    }
-	if (UI::keys[GLFW_KEY_KP_7]) {
-		for (int i = 0; i < slices/2; i++) { // front to back
-			for (int j = 0; j < stacks/4; j++) { // clockwise from top
-				int in = i;
-				int jn = j + stacks/4;
-				int k = jn*slices;
-				int total = slices*stacks;
-				scene->test->deformer->moveIds.push_back(mod(in+k, total));
-			}
-		}
-	}
-	if (UI::keys[GLFW_KEY_KP_3]) {
-		for (int i = 0; i < slices/2; i++) { // front to back
-			for (int j = 0; j < stacks/4; j++) { // clockwise from top
-				int in = i;
-				int jn = j + 3*stacks/4;
-				int k = jn*slices;
-				int total = slices*stacks;
-				scene->test->deformer->moveIds.push_back(mod(in+k, total));
-			}
-		}
-	}
-	if (UI::keys[GLFW_KEY_KP_1]) {
-		for (int i = 0; i < slices/2; i++) { // front to back
-			for (int j = 0; j < stacks/4; j++) { // clockwise from top
-				int in = i;
-				int jn = j + stacks/2;
-				int k = jn*slices;
-				int total = slices*stacks;
-				scene->test->deformer->moveIds.push_back(mod(in+k, total));
-			}
-		}
-	}
-	if (UI::keys[GLFW_KEY_KP_5]) {
-		for (int i = 0; i < slices/2; i++) { // front to back
-			for (int j = 0; j < stacks; j++) { // clockwise from top
-				int in = i/2;
-				int jn = j;
-				int k = jn*slices;
-				int total = slices*stacks;
-				scene->test->deformer->moveIds.push_back(mod(in+k, total));
-			}
-		}
-	}
-	if (UI::keys[GLFW_KEY_KP_ENTER]) {
-		for (int i = 0; i < slices/2; i++) { // front to back
-			for (int j = 0; j < stacks; j++) { // clockwise from top
-				int in = i + slices/2;
-				int jn = j;
-				int k = jn*slices;
-				int total = slices*stacks;
-				scene->test->deformer->moveIds.push_back(mod(in+k, total));
-			}
-		}
-	}
-	if (UI::keys[GLFW_KEY_KP_SUBTRACT]) {
-		reverse *= -1;
-		UI::keys[GLFW_KEY_KP_SUBTRACT] = false;
-	}
-	if (UI::keys[GLFW_KEY_1]) {
-		scene->test->deformer->aMin *= .99;
-	}
-	if (UI::keys[GLFW_KEY_2]) {
-		scene->test->deformer->aMin *= 1.01;
-	}
-	if (UI::keys[GLFW_KEY_3]) {
-		scene->test->deformer->aMax *= .99;
-	}
-	if (UI::keys[GLFW_KEY_4]) {
-		scene->test->deformer->aMax *= 1.01;
-	}
-	if (UI::keys[GLFW_KEY_5]) {
-		scene->test->deformer->b *= .99;
-	}
-	if (UI::keys[GLFW_KEY_6]) {
-		scene->test->deformer->b *= 1.01;
-	}
-	if (UI::keys[GLFW_KEY_ENTER]) {
-		scene->test->deformer->generateRegions();
-	}*/
 
+	glm::vec3 v;
     if (UI::keys[GLFW_KEY_W] || UI::keys[GLFW_KEY_S] || UI::keys[GLFW_KEY_A] || UI::keys[GLFW_KEY_D]
         || UI::keys[GLFW_KEY_UP] || UI::keys[GLFW_KEY_DOWN] || UI::keys[GLFW_KEY_LEFT] || UI::keys[GLFW_KEY_RIGHT]) {
-        glm::vec3 v;
         if (!handle_scene->is_noclip_on) {
             if (UI::keys[GLFW_KEY_W]) {
                 v += handle_scene->camera->dir;
@@ -377,6 +238,10 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
         handle_scene->playerObject->dyn.vel = v; 
         handle_scene->generateMoreMaze();
     }
+	else {
+		v = glm::vec3(0);
+		handle_scene->playerObject->dyn.vel = v;
+	}
 
     if (UI::keys[GLFW_KEY_LEFT_SHIFT])
         handle_scene->camera->sprint *= static_cast<GLfloat>(1.0 + 0.5*clock->delta());
