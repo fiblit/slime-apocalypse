@@ -20,8 +20,8 @@ Scene::Scene(unsigned seed) {
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 30;
     mazeInfo.width = 30;
-    mazeInfo.maxEnemies = 15;
-    mazeInfo.enemySize = 3;
+    mazeInfo.maxEnemies = 100;
+    mazeInfo.enemySize = 1;
     mazeInfo.chanceGennedAlive = .25;
     mazeInfo.cellSize = 10;
     mazeInfo.center = playerObject->dyn.pos;
@@ -33,7 +33,7 @@ Scene::Scene(unsigned seed) {
     height_rand = uint_dist(0, mazeInfo.height - 1);
 
     initMaze();
-    //fillEnemyVector();
+    fillEnemyVector();
 }
 
 
@@ -53,7 +53,10 @@ void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
                 attempts++;
             }
             //put enemy here
-            addEnemyObject(mazeInfo.enemySize, randXGrid, 0, randYGrid);
+            addEnemyObject(mazeInfo.enemySize,
+                (randXGrid - mazeInfo.width/2.f)*mazeInfo.cellSize,
+                0,
+                (randYGrid - mazeInfo.height / 2.f)*mazeInfo.cellSize);
         }
         //otherwise it's in rows maze[][X];
         else {
@@ -68,7 +71,10 @@ void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
                     randYGrid = startend(gen);
                     attempts++;
                 }
-                addEnemyObject(mazeInfo.enemySize, randXGrid, 0, randYGrid);
+                addEnemyObject(mazeInfo.enemySize,
+                    (randXGrid - mazeInfo.width / 2.f)*mazeInfo.cellSize,
+                    0,
+                    (randYGrid - mazeInfo.height / 2.f)*mazeInfo.cellSize);
             }
         }
         i++;
@@ -105,8 +111,8 @@ void Scene::fillEnemyVector() {
             randXGrid = width_rand(gen);
             randYGrid = height_rand(gen);
         }
-        float xPos = ((float)randXGrid - mazeInfo.width / 2.0f);
-        float yPos = ((float)randYGrid - mazeInfo.height / 2.0f);
+        float xPos = (randXGrid - mazeInfo.width / 2.f)*mazeInfo.cellSize;
+        float yPos = (randYGrid - mazeInfo.height / 2.f)*mazeInfo.cellSize;
         vec3 pos = mazeInfo.center + vec3(xPos, mazeInfo.enemySize-1, yPos);
         //pos[1] = mazeInfo.enemySize - 1;
         addEnemyObject(mazeInfo.enemySize, pos);
@@ -346,7 +352,7 @@ void Scene::addWall(float h, float x1, float x2, float z1, float z2) {
 }
 void Scene::addEnemyObject(float r, vec3 pos) {
 
-    Slime * enemy = new Slime(r, pos);
+    Sphere * enemy = new Sphere(r, pos);
     // Add instantiated object to enemyObjects vector
     enemyObjects.push_back(enemy);
 }
@@ -419,7 +425,7 @@ void Scene::simulate(GLfloat dt) {
         }
         //Forward euler integration of motion
         o->dyn.vel += o->dyn.force * dt;
-        o->dyn.pos += o->dyn.vel * dt;
+        //o->dyn.pos += o->dyn.vel * dt; /* ideal, yes, but moveBy needs to have other side effects */
         o->dyn.vel += o->dyn.gravity * dt;
         o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
 
@@ -437,7 +443,7 @@ void Scene::simulate(GLfloat dt) {
     // However, it might be best to have a preceding function for handling input
     /*this is bypassed by handle_input*/
     //playerObject->dyn.vel += playerObject->dyn.force * dt;
-    //playerObject->dyn.pos += playerObject->dyn.vel * dt;
+    ////playerObject->dyn.pos += playerObject->dyn.vel * dt;/* ideal, yes, but moveBy needs to have other side effects */
     //playerObject->moveBy(playerObject->dyn.vel * dt);//has side effects of changing dyn->pos
     //playerObject->dyn.force = glm::vec3(0);
 

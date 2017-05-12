@@ -21,7 +21,7 @@ void ai::init(std::vector<Object *> dynamics, std::vector<Object *> statics, maz
         for (Object * s : statics)
             obs_bv.push_back(s->bv);
         ai::std_cspace = dynamics[0]->ai.cspace = new Cspace2D(obs_bv, dynamics[0]->bv);
-        std::cout << Gtime::del_top() << std::endl;
+        std::cout << "cspace:" << Gtime::del_top() << std::endl;
 
         Gtime::add_now();
         glm::vec2 center_2d(map.center.x, map.center.z);
@@ -32,11 +32,11 @@ void ai::init(std::vector<Object *> dynamics, std::vector<Object *> statics, maz
             2 * root2 * map.cellSize,
             0.f,
             glm::vec2(map.cellSize, map.cellSize),
-            4,
+            1,
             center_2d - dim,
             center_2d + dim,
             /*1.f*/.1f);
-        std::cout << Gtime::del_top() << std::endl;
+        std::cout << "PRM:" << Gtime::del_top() << std::endl;
 
         for (Object * o : dynamics) {
             o->ai.method = ai_comp::Planner::INDY;

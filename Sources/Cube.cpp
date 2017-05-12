@@ -64,7 +64,7 @@ void Cube::useCustomMesh() {
 }
 
 void Cube::constructStandardMesh(bool override) {
-    this->bv = new Rect(glm::vec2(dyn.pos[0], dyn.pos[2]), params[0], params[1]);
+    this->bv = new Rect(glm::vec2(dyn.pos[0], dyn.pos[2]), params[0], params[2]);
 
 	if (!override && standardMesh != NULL) {
 		mesh = standardMesh;
