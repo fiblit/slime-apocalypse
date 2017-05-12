@@ -360,7 +360,7 @@ void Scene::addWall(float h, float x1, float x2, float z1, float z2) {
 }
 void Scene::addEnemyObject(float r, vec3 pos) {
 
-    Sphere * enemy = new Sphere(r, pos);
+    Sphere * enemy = new Slime(r, pos);
     // Add instantiated object to enemyObjects vector
     enemyObjects.push_back(enemy);
 }
@@ -415,7 +415,7 @@ void Scene::simulate(GLfloat dt) {
     // For each dynamic object
     if (playerObject && !is_noclip_on) {
         camera->pos = playerObject->dyn.pos;
-        camera->pos -= -(camera->dir*5.0f);
+        camera->pos -= -(camera->dir*3.0f);
         camera->pos[1] += 2;
     }
         
@@ -434,7 +434,7 @@ void Scene::simulate(GLfloat dt) {
         //Forward euler integration of motion
         o->dyn.vel += o->dyn.force * dt;
         //o->dyn.pos += o->dyn.vel * dt; /* ideal, yes, but moveBy needs to have other side effects */
-        o->dyn.vel += o->dyn.gravity * dt;
+        //o->dyn.vel += o->dyn.gravity * dt;
         o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
         o->simulate(dt);
         //TODO: Check for collisions
@@ -456,12 +456,12 @@ void Scene::simulate(GLfloat dt) {
     //playerObject->dyn.force = glm::vec3(0);
 
 	// Relax the chainmails
-	for (Object * o : enemyObjects) {
+	//for (Object * o : enemyObjects) {
         //if (camera->isFacing(o->dyn.pos)) 
-            o->simulate(dt);
+        //    o->simulate(dt);
         //else 
         //    o->simpleSimulate(dt);
-    }
+    //}
 }
 void Scene::render() {
 	// Render the player object

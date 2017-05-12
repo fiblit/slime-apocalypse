@@ -303,7 +303,7 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
 				scene->test->deformer->moveIds.push_back(mod(in+k, total));
 			}
 		}
-	}*/
+	}
 	if (UI::keys[GLFW_KEY_KP_SUBTRACT]) {
 		reverse *= -1;
 		UI::keys[GLFW_KEY_KP_SUBTRACT] = false;
@@ -328,7 +328,7 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
 	}
 	if (UI::keys[GLFW_KEY_ENTER]) {
 		scene->test->deformer->generateRegions();
-	}
+	}*/
 
     if (UI::keys[GLFW_KEY_W] || UI::keys[GLFW_KEY_S] || UI::keys[GLFW_KEY_A] || UI::keys[GLFW_KEY_D]
         || UI::keys[GLFW_KEY_UP] || UI::keys[GLFW_KEY_DOWN] || UI::keys[GLFW_KEY_LEFT] || UI::keys[GLFW_KEY_RIGHT]) {
