@@ -205,8 +205,8 @@ static float axialLineSegRayIntersect(glm::vec2 po, glm::vec2 pv, float val, int
         q = glm::vec2(oValLo, val);
         s = glm::vec2(oValHi - oValLo, 0);
     }
-    glm::vec2 v1 = po - s;
-    glm::vec2 v2 = q - s;
+    glm::vec2 v1 = po - q;
+    glm::vec2 v2 = s - q;
     glm::vec2 v3(-pv.y, pv.x);
     float dot = glm::dot(v2, v3);
     if (dot != 0) {
