@@ -374,7 +374,7 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
         float len = glm::length(v);
         if (len > 0)
             v *= 5.f/len;
-        handle_scene->playerObject->moveBy(v, clock->delta());
+        handle_scene->playerObject->dyn.vel = v; 
         handle_scene->generateMoreMaze();
     }
 
