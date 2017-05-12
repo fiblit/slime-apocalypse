@@ -60,12 +60,19 @@ void ai::update_agents(std::vector<Object *> statics, std::vector<Object *> dyna
     ai::dynamic_bvh = new BVH(dynamics);
     for (Object * d : dynamics) {
         if (d->ai.is_agent()) {
-            if(d->ai.has_indy_f() 
-            && d->ai.num_done != 0 
-            && d->ai.plan->size() == static_cast<size_t>(d->ai.num_done)
-            /*GMP::invalid(d->ai.plan)*/) {
-                d->ai.final_goal = glm::vec2(player->dyn.pos.x, player->dyn.pos.z);
-                GMP::plan_one(d);
+            d->ai.final_goal = glm::vec2(player->dyn.pos.x, player->dyn.pos.z);
+            if(d->ai.has_indy_f() && GMP::invalid(d)) {
+                if (d->ai.cspace->line_of_sight(d->bv->o, d->ai.final_goal)) {
+                    //delete d->ai.plan;
+                    //d->ai.plan = new VecData();
+                    //std::cout << "[--GMP] ";
+                    //d->ai.num_done = d->ai.plan->size() - 1;
+                    //d->ai.goal = d->ai.final_goal;
+                }
+                else {
+                    std::cout << "[GMP] ";
+                    GMP::plan_one(d);
+                }
             }
             glm::vec2 f2d = LMP::calc_sum_force(d, ai::static_bvh, ai::dynamic_bvh, std::vector<Object *>());
             d->dyn.force += glm::vec3(f2d.x, 0, f2d.y);

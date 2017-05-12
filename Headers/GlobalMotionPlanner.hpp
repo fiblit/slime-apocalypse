@@ -11,6 +11,7 @@ namespace GMP {
     VecData * find_path_Astar(float e, Graph<glm::vec2> * roadmap);
     void replan(std::vector<Object *> agents);
     void plan_one(Object * agent);
+    bool invalid(Object * agnet);
 };
 
 #endif//GLOBAL_MOTION_PLANNER_H_GUARD

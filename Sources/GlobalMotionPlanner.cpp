@@ -34,6 +34,10 @@ VecData * GMP::find_path_Astar(float e, Graph<glm::vec2> * roadmap) {
 
     //while there are nodes to process
     while (!pq.empty()) {
+
+        for (Node<glm::vec2> * v : *roadmap->vertices)
+            assert(v->edges->size() < 1000);
+
         PQ_item cur_i = pq.top();
         Vert cur_v = cur_i.first;
         pq.pop();
@@ -97,9 +101,13 @@ void GMP::plan_one(Object * agent) {
         //temporarily add to a->ai.prm->roadmap the start/goal nodes
         Graph<glm::vec2> * rm_with_goal = agent->ai.prm->roadmap;
 
+
         //just do an LoS over every node for both
         connect_to_all(rm_with_goal, agent->bv->o, agent->ai.cspace);
         connect_to_all(rm_with_goal, agent->ai.final_goal, agent->ai.cspace);
+
+        for (Node<glm::vec2> * v : *rm_with_goal->vertices)
+            assert(v->edges->size() < 1000);
 
         /* PATH PLANNING METHOD */
         agent->ai.plan = GMP::find_path_Astar(1.f, rm_with_goal);
@@ -108,4 +116,10 @@ void GMP::plan_one(Object * agent) {
 
         agent->ai.num_done = 0;
     }
+}
+
+bool GMP::invalid(Object * agent)
+{
+    return (agent->ai.cspace->line_of_sight(agent->bv->o, agent->ai.final_goal)
+        || (agent->ai.num_done != 0 && agent->ai.plan->size() - 1 == static_cast<size_t>(agent->ai.num_done)));
 }

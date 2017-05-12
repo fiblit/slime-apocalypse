@@ -228,5 +228,5 @@ glm::vec2 LMP::calc_sum_force(Object * a, BVH * static_bvh, BVH * dynamic_bvh, s
             follow_F += follow_force(leader, a);
         }
     }
-    return  goal_F;// +ttc_F + boid_F + follow_F;
+    return  goal_F +ttc_F + boid_F + follow_F;
 }
