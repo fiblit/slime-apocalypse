@@ -444,7 +444,7 @@ void Scene::simulate(GLfloat dt) {
         else {
             o->dyn.vel = glm::vec3(0);
         }
-        //o->simulate(dt);
+        o->simulate(dt);
 
 
 
