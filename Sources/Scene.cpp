@@ -21,7 +21,7 @@ Scene::Scene(unsigned seed) {
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 30;
     mazeInfo.width = 30;
-    mazeInfo.maxEnemies = 100;
+    mazeInfo.maxEnemies = 300;
     mazeInfo.enemySize = 1;
     mazeInfo.chanceGennedAlive = .25;
     mazeInfo.cellSize = 10;
@@ -34,10 +34,7 @@ Scene::Scene(unsigned seed) {
     height_rand = uint_dist(0, mazeInfo.height - 1);
 
     initMaze();
-    //fillEnemyVector();
-
-    test = new Slime(3, glm::vec3(0, 1, -3));
-    enemyObjects.push_back(test);
+    fillEnemyVector();
 }
 
 
@@ -437,9 +434,9 @@ void Scene::simulate(GLfloat dt) {
         //Forward euler integration of motion
         o->dyn.vel += o->dyn.force * dt;
         //o->dyn.pos += o->dyn.vel * dt; /* ideal, yes, but moveBy needs to have other side effects */
-        //o->dyn.vel += o->dyn.gravity * dt;
-        o->dyn.pos += o->dyn.vel * dt;
-        //o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
+        o->dyn.vel += o->dyn.gravity * dt;
+        o->moveBy(o->dyn.vel * dt);//has side effects of changing dyn->pos
+        o->simulate(dt);
         //TODO: Check for collisions
 
 

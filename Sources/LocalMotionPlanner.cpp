@@ -184,7 +184,7 @@ glm::vec2 LMP::calc_sum_force(
         std::vector<Object *> statics,
         std::vector<Object *> dynamics,
         std::vector<Object *> leaders) {
-    float speed = 4.0f; // x m/s
+    float speed = 6.0f; // x m/s
     glm::vec2 goal_vel;
     glm::vec2 goal_F(0);
 
