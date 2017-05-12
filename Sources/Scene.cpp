@@ -12,7 +12,7 @@ Scene::Scene(unsigned seed) {
     this->camera = new Camera();
     camera->pos = glm::vec3(0, 3, 0);
     this->floor = new Cube(10000, 10000, .5, vec3(0, 0, -.5));
-    floor->color = glm::vec3(.6, .6, .6);
+	floor->setColor(.4, .4, .4);
 	// Generate player object
 
   
@@ -36,10 +36,7 @@ Scene::Scene(unsigned seed) {
     initMaze();
     test = new Slime(3, glm::vec3(0, 2, -3));
     enemyObjects.push_back(test);
-
-
-    //dalton will.... get around to this :D
-
+    //fillEnemyVector();
 }
 
 
@@ -66,6 +63,8 @@ void Scene::fillEnemyVector(int start, int end, bool colsFlag) {
             int randXGrid = width_rand(gen);
             int randYGrid = startend(gen);
             for (int i = start; i < end; i++) {
+                int randXGrid = width_rand(gen);
+                int randYGrid = startend(gen);
                 int attempts = 0;
                 while (maze[randXGrid][randYGrid].filled || (randXGrid == mazeInfo.width / 2 && mazeInfo.height / 2) && attempts < 10) {
                     randXGrid = width_rand(gen);
@@ -318,7 +317,7 @@ void Scene::generateMoreMaze() {
     automatonSimulate();
     //add the Objects 
     fillStaticObjVector();
-    fillEnemyVector();
+    //fillEnemyVector();
     //add PRM nodes that exist in newly generated maze area
 
     //re-run pathfinding algorithms
@@ -331,6 +330,7 @@ void Scene::addEnemyObject(float r, float x, float y, float z) {
 	// Instantiate an enemy object
 
 	Slime * enemy = new Slime(r, x, y, z);
+	enemy->setColor(.1, .6, .2);
 
 	// Add instantiated object to enemyObjects vector
 	enemyObjects.push_back(enemy);
@@ -339,6 +339,7 @@ void Scene::addEnemyObject(float r, float x, float y, float z) {
 void Scene::addWall(float h, float x1, float x2, float z1, float z2) {
 	// Instantiate a wall object
 	Cube * wall = new Cube(abs(x1-x2), abs(z1-z2), h, (x1+x2)/2, 0.0, (z1+z2)/2);
+	wall->setColor(.7, .3, .1);
 
     // Add instantiated object to staticObjects vector
     staticObjects.push_back(wall);
@@ -357,6 +358,7 @@ void Scene::addEnemyObject(float r, vec3 pos) {
 void Scene::addWall(float h, float w, float l, vec3 center) {
     // Instantiate a wall object
     Cube * wall = new Cube(w, l, h, center);
+	wall->setColor(.7, .3, .1);
 
     // Add instantiated object to staticObjects vector
     staticObjects.push_back(wall);
@@ -400,10 +402,10 @@ void Scene::setBounds(vec3 min, vec3 max) {
 void Scene::simulate(GLfloat dt) {
     static bool nan_happened = false;
     // For each dynamic object
-    if (playerObject) {
-        //camera->pos = playerObject->dyn.pos;
-        //camera->pos -= -(camera->dir*5.0f);
-        //camera->pos[1] += 2;
+    if (playerObject && !is_noclip_on) {
+        camera->pos = playerObject->dyn.pos;
+        camera->pos -= -(camera->dir*5.0f);
+        camera->pos[1] += 2;
     }
         
     for (Object * o : staticObjects) {
@@ -435,6 +437,7 @@ void Scene::simulate(GLfloat dt) {
     // Move the player character? (I don't know if we should have that logic in the scene)
     // All UI does is say that the player should be moving somebody needs to actually move it
     // However, it might be best to have a preceding function for handling input
+    /*this is bypassed by handle_input*/
     //playerObject->dyn.vel += playerObject->dyn.force * dt;
     //playerObject->dyn.pos += playerObject->dyn.vel * dt;
     //playerObject->moveBy(playerObject->dyn.vel * dt);//has side effects of changing dyn->pos
@@ -453,13 +456,13 @@ void Scene::render() {
     enableTestShader(proj, view);
     this->playerObject->draw(curShader);
 
-    //render Floor
-    floor->draw(curShader);
 	// Render each enemy object
+	enableFlatShader(proj, view);
     for (Object * o : enemyObjects)
         o->draw(curShader);
 
-    enableFlatShader(proj, view);
+	//render Floor
+	floor->draw(curShader);
 
 	// Render each static object
 	for (Object * o : staticObjects)
@@ -524,9 +527,9 @@ void Scene::enableFlatShader(glm::mat4 proj, glm::mat4 view) {
 	glUniform1f(shaders[FLAT]->uniform("material.shine"), 32.0f);
 
 	glUniform3f(shaders[FLAT]->uniform("dirLight.direction"), dir_light_dir.x, dir_light_dir.y, dir_light_dir.z);
-	glUniform3f(shaders[FLAT]->uniform("dirLight.ambient"), light_ambient.x*0.1f, light_ambient.y*0.1f, light_ambient.z*0.1f);
-	glUniform3f(shaders[FLAT]->uniform("dirLight.diffuse"), light_diffuse.x*0.1f, light_diffuse.y*0.1f, light_diffuse.z*0.1f);
-	glUniform3f(shaders[FLAT]->uniform("dirLight.specular"), light_specular.x*0.1f, light_specular.y*0.1f, light_specular.z*0.1f);
+	glUniform3f(shaders[FLAT]->uniform("dirLight.ambient"), light_ambient.x*1.0f, light_ambient.y*1.0f, light_ambient.z*1.0f);
+	glUniform3f(shaders[FLAT]->uniform("dirLight.diffuse"), light_diffuse.x*1.0f, light_diffuse.y*1.0f, light_diffuse.z*1.0f);
+	glUniform3f(shaders[FLAT]->uniform("dirLight.specular"), light_specular.x*1.0f, light_specular.y*1.0f, light_specular.z*1.0f);
 
 	for (GLuint i = 0; i < 4; i++) {
 		std::string si = "pointLights[" + std::to_string(i) + "].";
@@ -592,9 +595,19 @@ void Scene::slimeTestStill() {
 }
 
 void Scene::reset() {
-	test->constructStandardMesh(true);
+    test->constructStandardMesh(true);
     test->useCustomMesh();
-	delete test->deformer;
-	test->deformer = new Chainmail(test->mesh, test->stacks, test->slices, test->dyn.pos);
+    delete test->deformer;
+    test->deformer = new Chainmail(test->mesh, test->stacks, test->slices, test->dyn.pos);
     test->convertMeshToWorldCoords();
+
+}
+
+void Scene::toggle_noclip() {
+    is_noclip_on = !is_noclip_on;
+}
+
+void Scene::reset_proj_view() {
+    proj = glm::perspective(glm::radians(camera->fov), (GLfloat)G::WIN_WIDTH / (GLfloat)G::WIN_HEIGHT, 0.1f, 5000.0f);
+    view = camera->getView();
 }

@@ -66,10 +66,6 @@ void Object::setColor(float r, float g, float b) {
 
 void Object::setColor(vec3 rgb) {
 	color = vec3(max(0.0f, min(1.0f, rgb[0])), max(0.0f, min(1.0f, rgb[1])), max(0.0f, min(1.0f, rgb[2])));
-	// TODO: Actually set the color
-	/*for (size_t i = 0; i < colors.size(); i++) {
-		colors[i] = color;
-	}*/
 }
 
 // Simple movement functions; we'll need to adapt these to however our objects move
@@ -79,9 +75,6 @@ void Object::moveBy(float x, float y, float z) {
 
 // Simple movement functions; we'll need to adapt these to however our objects move
 void Object::moveBy(vec3 t) {
-    if (glm::length(t) > 0) {
-        int i = 0;
-    }
 	dyn.pos += t;
     bv->o += vec2(t.x, t.z);
 }
@@ -92,11 +85,8 @@ void Object::moveTo(float x, float y, float z) {
 }
 
 
-void Object::moveBy(glm::vec3 t, double dt) {
-    if (glm::length(t) > 0) {
-        int i = 0;
-    }
-    this->dyn.pos += t;
+void Object::moveBy(glm::vec3 t, float dt) {
+    moveBy(t * dt);
 }
 
 // Simple movement functions; we'll need to adapt these to however our objects move
@@ -110,6 +100,10 @@ void Object::draw(Shader * shader) {
 	model = mat4();
 	model = glm::translate(model, dyn.pos);
 	model = glm::scale(model, params);
-    glUniformMatrix4fv(shader->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
+	glUniformMatrix4fv(shader->uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
+	glUniform3fv(shader->uniform("material.diffuse"), 1, glm::value_ptr(this->color));
+	glUniform3fv(shader->uniform("material.specular"), 1, glm::value_ptr(this->color));
+	glUniform3fv(shader->uniform("material.shine"), 1, glm::value_ptr(this->color));
+
 	mesh->draw(shader);
 }

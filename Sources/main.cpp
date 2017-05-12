@@ -64,10 +64,10 @@ int main() {
 	scene->setupTestingObjects();
 
     /* Path Planning */
-    //ai::init(scene->enemyObjects, scene->staticObjects, scene->mazeInfo);
-    game_loop_clock->pause();
-    //GMP::replan(scene->enemyObjects);
-    game_loop_clock->play();
+    ai::init(scene->enemyObjects, scene->staticObjects, scene->mazeInfo);
+    //game_loop_clock->pause();
+    GMP::replan(scene->enemyObjects);
+    //game_loop_clock->play();
 
     /* Game Loop */
 	GLfloat fpsTimer = 0;
@@ -91,7 +91,7 @@ int main() {
         handle_input(game_loop_clock, scene);
 
         //AI
-        //ai::update_agents(scene->staticObjects, scene->enemyObjects, scene->playerObject);
+        ai::update_agents(scene->staticObjects, scene->enemyObjects, scene->playerObject);
 
         //Physics
         scene->simulate(game_loop_clock->delta());
@@ -102,8 +102,11 @@ int main() {
         scene->reset_proj_view();
 
 		// TODO: currently must enable shader every frame to update view matrix; easily fixed
+        /*
         scene->reset_proj_view();
 		scene->enableTestShader(scene->proj, scene->camera->getView());
+        */
+		scene->enableTestShader(scene->proj, scene->view);
         
 		scene->render();
 
@@ -350,69 +353,53 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
     if (UI::keys[GLFW_KEY_L]) {
         scene->slimeTestStill();
     }
-    if (UI::keys[GLFW_KEY_UP]) {
-        glm::vec3 v = handle_scene->camera->dir;
-        v[1] = 0;
-        v *= 10.f;
+    if (UI::keys[GLFW_KEY_W] || UI::keys[GLFW_KEY_S] || UI::keys[GLFW_KEY_A] || UI::keys[GLFW_KEY_D]
+        || UI::keys[GLFW_KEY_UP] || UI::keys[GLFW_KEY_DOWN] || UI::keys[GLFW_KEY_LEFT] || UI::keys[GLFW_KEY_RIGHT]) {
+        glm::vec3 v;
+        if (!handle_scene->is_noclip_on) {
+            if (UI::keys[GLFW_KEY_W]) {
+                v = handle_scene->camera->dir;
+                v *= 1.f;
+            }
+            if (UI::keys[GLFW_KEY_A]) {
+                v = handle_scene->camera->right;
+                v *= -1.f;
+            }
+            if (UI::keys[GLFW_KEY_S]) {
+                v = handle_scene->camera->dir;
+                v *= -1.f;
+            }
+            if (UI::keys[GLFW_KEY_D]) {
+                v = handle_scene->camera->right;
+                v *= 1.f;
+            }
+            v[1] = 0;
+        }
+        else {
+            if (UI::keys[GLFW_KEY_W])
+                handle_scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta()*5);
+            if (UI::keys[GLFW_KEY_A])
+                handle_scene->camera->translate_camera(G::CAMERA::LEFT, clock->delta()*5);
+            if (UI::keys[GLFW_KEY_S])
+                handle_scene->camera->translate_camera(G::CAMERA::BACKWARD, clock->delta()*5);
+            if (UI::keys[GLFW_KEY_D])
+                handle_scene->camera->translate_camera(G::CAMERA::RIGHT, clock->delta()*5);
+
+            if (UI::keys[GLFW_KEY_UP])
+                v += glm::vec3(0, 0, 1);
+            if (UI::keys[GLFW_KEY_LEFT])
+                v += glm::vec3(1, 0, 0);
+            if (UI::keys[GLFW_KEY_DOWN])
+                v += glm::vec3(0, 0, -1);
+            if (UI::keys[GLFW_KEY_RIGHT])
+                v += glm::vec3(-1, 0, 0);
+        }
+        float len = glm::length(v);
+        if (len > 0)
+            v *= 10.f/len;
         handle_scene->playerObject->moveBy(v, clock->delta());
         handle_scene->generateMoreMaze();
     }
-    if (UI::keys[GLFW_KEY_DOWN]) {
-        glm::vec3 v = handle_scene->camera->dir;
-        v[1] = 0;
-        v *= -10.f;
-        handle_scene->playerObject->moveBy(v, clock->delta());
-        scene->generateMoreMaze();
-    }
-    if (UI::keys[GLFW_KEY_LEFT]) {
-        glm::vec3 v = handle_scene->camera->right;
-        v[1] = 0;
-        v *= -10.f;
-        handle_scene->playerObject->moveBy(v, clock->delta());
-        scene->generateMoreMaze();
-    }
-    if (UI::keys[GLFW_KEY_RIGHT]) {
-        glm::vec3 v = handle_scene->camera->right;
-        v[1] = 0;
-        v *= 10.f;
-        handle_scene->playerObject->moveBy(v, clock->delta());
-        scene->generateMoreMaze();
-    }
-
-    if (UI::keys[GLFW_KEY_PAGE_UP]) {
-        glm::vec3 v = glm::vec3(0, 1, 0);
-        v *= 10.f;
-        handle_scene->playerObject->moveBy(v, clock->delta());
-        scene->generateMoreMaze();
-    }
-
-    if (UI::keys[GLFW_KEY_PAGE_DOWN]) {
-        glm::vec3 v = glm::vec3(0, -1, 0);
-        v *= 10.f;
-        handle_scene->playerObject->moveBy(v, clock->delta());
-        scene->generateMoreMaze();
-    }
-    if (UI::keys[GLFW_KEY_H]) {
-        float sign = 1.0;
-        for (int i = 0; i < handle_scene->enemyObjects.size(); i++) {
-            sign *= -1;
-            glm::vec3 v = glm::vec3(0, 5, 0) * sign;
-            handle_scene->enemyObjects[i]->moveBy(v, clock->delta());
-        }
-    }
-
-    if (UI::keys[GLFW_KEY_W])
-        handle_scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta());
-    if (UI::keys[GLFW_KEY_S])
-        handle_scene->camera->translate_camera(G::CAMERA::BACKWARD, clock->delta());
-    if (UI::keys[GLFW_KEY_A])
-        handle_scene->camera->translate_camera(G::CAMERA::LEFT, clock->delta());
-    if (UI::keys[GLFW_KEY_D])
-        handle_scene->camera->translate_camera(G::CAMERA::RIGHT, clock->delta());
-	if (UI::keys[GLFW_KEY_E])
-		handle_scene->camera->translate_camera(G::CAMERA::UPWARD, clock->delta());
-	if (UI::keys[GLFW_KEY_Q])
-		handle_scene->camera->translate_camera(G::CAMERA::DOWNWARD, clock->delta());
 
     if (UI::keys[GLFW_KEY_LEFT_SHIFT])
         handle_scene->camera->sprint *= static_cast<GLfloat>(1.0 + 0.5*clock->delta());
@@ -422,6 +409,11 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
     if (UI::keys[GLFW_KEY_F]) {
         UI::keys[GLFW_KEY_F] = false;
         handle_scene->toggle_flashlight();
+    }
+
+    if (UI::keys[GLFW_KEY_N]) {
+        UI::keys[GLFW_KEY_N] = false;
+        handle_scene->toggle_noclip();
     }
 }
 
