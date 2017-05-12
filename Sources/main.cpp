@@ -185,8 +185,7 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
     if (UI::keys[GLFW_KEY_W] || UI::keys[GLFW_KEY_S] || UI::keys[GLFW_KEY_A] || UI::keys[GLFW_KEY_D]
         || UI::keys[GLFW_KEY_UP] || UI::keys[GLFW_KEY_DOWN] || UI::keys[GLFW_KEY_LEFT] || UI::keys[GLFW_KEY_RIGHT]) {
         glm::vec3 v;
-        bool nc = handle_scene->is_noclip_on;
-        if (!nc) {
+        if (!handle_scene->is_noclip_on) {
             if (UI::keys[GLFW_KEY_W]) {
                 v = handle_scene->camera->dir;
                 v *= 1.f;
@@ -205,7 +204,7 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
             }
             v[1] = 0;
         }
-        if (nc) {
+        else {
             if (UI::keys[GLFW_KEY_W])
                 handle_scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta()*5);
             if (UI::keys[GLFW_KEY_A])
