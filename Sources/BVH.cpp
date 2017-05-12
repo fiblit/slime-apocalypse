@@ -186,7 +186,7 @@ bool BVH::circ_rect_collider_(Circ * q, Rect * r) {
     L /= sqrt(glm::dot(L, L));
     L *= q->r;
     L += q->o;
-    return r->is_collision(L);
+    return q->is_collision(r->o) || r->is_collision(L);
 }
 bool BVH::circ_circ_collider_(Circ * q, Circ * c) {
     glm::vec2 diff = q->o - c->o;

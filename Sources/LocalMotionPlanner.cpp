@@ -203,8 +203,8 @@ glm::vec2 LMP::calc_sum_force(
     /* ttc - approximate */
     glm::vec2 ttc_F(0);
     Circ q(a->bv->o, speed * 5);
-    //std::vector<Object *> NNdynamic = dynamic_bvh->query(&q);
-    for (Object * b : dynamics) {
+    std::vector<Object *> NNdynamic = dynamic_bvh->query(&q);
+    for (Object * b : NNdynamic) {
         if (a == b)
             continue;
         double ttc = LMP::ttc(a->bv, glm::vec2(a->dyn.vel.x, a->dyn.vel.z), b->bv, glm::vec2(b->dyn.vel.x, b->dyn.vel.z));
@@ -213,7 +213,7 @@ glm::vec2 LMP::calc_sum_force(
         ttc_F += LMP::ttc_forces(a, b, static_cast<float>(ttc));
     }
 
-    /*
+    
     std::vector<Object *> NNstatic = static_bvh->query(&q);
     for (Object * s : NNstatic) {
         double ttc = LMP::ttc(a->bv, glm::vec2(a->dyn.vel.x, a->dyn.vel.z), s->bv, glm::vec2(0));
@@ -223,7 +223,6 @@ glm::vec2 LMP::calc_sum_force(
 
         ttc_F += ttc_forces(a, s, static_cast<float>(ttc));
     }
-    */
 
     /*
     glm::vec2 boid_F(0);
