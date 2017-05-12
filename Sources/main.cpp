@@ -65,6 +65,8 @@ int main() {
 
     /* Path Planning */
     ai::init(scene->enemyObjects, scene->staticObjects, scene->mazeInfo);
+    scene->playerObject->ai.method = ai_comp::Planner::NONE;
+    scene->enemyObjects.push_back(scene->playerObject);
     //game_loop_clock->pause();
     Gtime::add_now();
     GMP::replan(scene->enemyObjects);
