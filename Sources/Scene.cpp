@@ -20,8 +20,8 @@ Scene::Scene(unsigned seed) {
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 30;
     mazeInfo.width = 30;
-    mazeInfo.maxEnemies = 15;
-    mazeInfo.enemySize = 3;
+    mazeInfo.maxEnemies = 1;
+    mazeInfo.enemySize = 1;
     mazeInfo.chanceGennedAlive = .25;
     mazeInfo.cellSize = 10;
     mazeInfo.center = playerObject->dyn.pos;
@@ -33,7 +33,7 @@ Scene::Scene(unsigned seed) {
     height_rand = uint_dist(0, mazeInfo.height - 1);
 
     initMaze();
-    //fillEnemyVector();
+    fillEnemyVector();
 }
 
 
@@ -346,7 +346,7 @@ void Scene::addWall(float h, float x1, float x2, float z1, float z2) {
 }
 void Scene::addEnemyObject(float r, vec3 pos) {
 
-    Slime * enemy = new Slime(r, pos);
+    Sphere * enemy = new Sphere(r, pos);
     // Add instantiated object to enemyObjects vector
     enemyObjects.push_back(enemy);
 }

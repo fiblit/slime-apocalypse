@@ -131,7 +131,7 @@ bool Rect::is_collision(glm::vec2 p) {
 }
 
 bool Rect::line_of_sight(glm::vec2 a, glm::vec2 b, glm::vec2 Lab, float len2) {
-    //float t = intersect(b, Lab);//the intersect for axis aligned is actually pretty fast
+    //float t = intersect(b, Lab/sqrt(len2));//the intersect for axis aligned is actually pretty fast
     //return t*t > len2;
 
     float left = this->o.x - this->w / 2;

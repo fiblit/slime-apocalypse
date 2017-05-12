@@ -42,10 +42,12 @@ BVH::BVH(vector<Object *> objects) {
         sorted_x[sorted_z[i].oth].oth = static_cast<uint>(i);
 
     construct_(objects, sorted_x, sorted_z);
+    ;
 }
 
 void BVH::construct_(vector<Object *> objects, vector<Index> sorted_x, vector<Index> sorted_z) {
     D(assert(sorted_x.size() == sorted_z.size()));
+    this->size_ = sorted_x.size();
     D(assert(sorted_x.size() >= 1));
     if (sorted_x.size() == static_cast<size_t>(1)) {
         D(assert(sorted_x[0].obj == sorted_z[0].obj));
@@ -57,15 +59,15 @@ void BVH::construct_(vector<Object *> objects, vector<Index> sorted_x, vector<In
     //create bounding volume for this level, remembering the min/max in each dim
     float min_x, max_x, min_z, max_z;
     min_x = min_z = std::numeric_limits<float>::max();
-    max_x = max_z = std::numeric_limits<float>::min();
+    max_x = max_z = -std::numeric_limits<float>::max();
     //tightly fit min_x/max_x/min_z/max_z
     for (size_t i = 0; i < sorted_x.size(); i++) {
         BoundingVolume * bv = objects[sorted_x[i].obj]->bv;
         float dim_x, dim_z;
         if (bv->vt == BoundingVolume::volume_type::RECT) {
             //add a nudge if you want fat BVs
-            dim_x = static_cast<Rect *>(bv)->w;
-            dim_z = static_cast<Rect *>(bv)->h;
+            dim_x = static_cast<Rect *>(bv)->w/2;
+            dim_z = static_cast<Rect *>(bv)->h/2;
         }
         else {
             dim_x = dim_z = static_cast<Circ *>(bv)->r;

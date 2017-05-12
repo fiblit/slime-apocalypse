@@ -32,7 +32,7 @@ void ai::init(std::vector<Object *> dynamics, std::vector<Object *> statics, maz
             2 * root2 * map.cellSize,
             0.f,
             glm::vec2(map.cellSize, map.cellSize),
-            4,
+            1,
             center_2d - dim,
             center_2d + dim,
             /*1.f*/.1f);
