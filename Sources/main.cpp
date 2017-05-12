@@ -93,9 +93,9 @@ int main() {
         handle_input(game_loop_clock, scene);
 
         //AI
-        game_loop_clock->pause();//catch jerks
+        //game_loop_clock->pause();//catch jerks
         ai::update_agents(scene->staticObjects, scene->enemyObjects, scene->playerObject);
-        game_loop_clock->play();
+        //game_loop_clock->play();
         
         //Physics
         scene->simulate(game_loop_clock->delta());
@@ -210,13 +210,13 @@ void handle_input(Gtime::Timer * clock, Scene * handle_scene) {
         }
         else {
             if (UI::keys[GLFW_KEY_W])
-                handle_scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta()*5);
+                handle_scene->camera->translate_camera(G::CAMERA::FORWARD, clock->delta()*20);
             if (UI::keys[GLFW_KEY_A])
-                handle_scene->camera->translate_camera(G::CAMERA::LEFT, clock->delta()*5);
+                handle_scene->camera->translate_camera(G::CAMERA::LEFT, clock->delta()*20);
             if (UI::keys[GLFW_KEY_S])
-                handle_scene->camera->translate_camera(G::CAMERA::BACKWARD, clock->delta()*5);
+                handle_scene->camera->translate_camera(G::CAMERA::BACKWARD, clock->delta()*20);
             if (UI::keys[GLFW_KEY_D])
-                handle_scene->camera->translate_camera(G::CAMERA::RIGHT, clock->delta()*5);
+                handle_scene->camera->translate_camera(G::CAMERA::RIGHT, clock->delta()*20);
 
             if (UI::keys[GLFW_KEY_UP])
                 v += glm::vec3(0, 0, 1);
