@@ -10,12 +10,13 @@ Scene::Scene(unsigned seed) {
     hrclock::time_point first = hrclock::now();
 
     this->camera = new Camera();
+    camera->pos = glm::vec3(0, 3, 0);
     this->floor = new Cube(10000, 10000, .5, vec3(0, 0, -.5));
     floor->color = glm::vec3(.6, .6, .6);
 	// Generate player object
 
   
-	playerObject = new  Sphere(1, 0,3,0);
+	playerObject = new  Sphere(1, 0,3,3);
     playerObject->color = (vec3(1, .6, .6));
 	// Generate static objects (walls, floors, etc.)
     mazeInfo.height = 30;
@@ -33,7 +34,7 @@ Scene::Scene(unsigned seed) {
     height_rand = uint_dist(0, mazeInfo.height - 1);
 
     initMaze();
-    test = new Slime(3, glm::vec3(0, 2, -2));
+    test = new Slime(3, glm::vec3(0, 2, -3));
     enemyObjects.push_back(test);
 
 
