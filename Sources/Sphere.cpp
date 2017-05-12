@@ -121,7 +121,3 @@ void Sphere::constructStandardMesh(bool override) {
 		mesh = standardMesh;
 	}
 }
-
-void Sphere::simulate(double dt) {
-    return;
-}

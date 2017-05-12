@@ -115,12 +115,11 @@ void Chainmail::applyMove(int id, vec3 t, double dt) {
         while (elements[randElement].updated) {
             randElement = ((float)rand()) / RAND_MAX * (elements.size() - 1);
         }
-        elements[randElement].pos += vec3(t[0] * .001, t[1] * .001, t[2] * .001);
+        elements[randElement].pos += t * .001f;
 
 
-        if (elements[randElement].pos.y + worldCoordCenter.y < .003) {
-            float delta = (elements[randElement].pos.y + worldCoordCenter.y) - .005;
-            //std::cout << delta << "? " << std::endl;
+        if (elements[randElement].pos.y + worldCoordCenter.y < yPlaneCollision) {
+            float delta = .003;
             elements[randElement].pos.y = delta;
         }
         elements[randElement].updated = true;
@@ -144,7 +143,6 @@ void Chainmail::updateCenter() {
     for (int i = 0; i < elements.size(); i++) {
         elements[i].pos += delta;
     }
-    std::cout << worldCoordCenter[1] << std::endl;;
 }
 
 void Chainmail::returnVertices(vector<vec3> &returnTo) {
@@ -180,16 +178,16 @@ void Chainmail::propagate() {
 		}
 		if (e->pos.y < minBounds.y) {
 			e->pos.y = minBounds.y;
-            if (e->pos.y + worldCoordCenter.y < .003) {
-                float delta = (e->pos.y + worldCoordCenter.y) - .005;
+            if (e->pos.y + worldCoordCenter.y < yPlaneCollision) {
+                float delta = .003;
                 e->pos.y = delta;
             }
 			e->updated = true;
 		}
 		else if (e->pos.y > maxBounds.y) {
 			e->pos.y = maxBounds.y;
-            if (e->pos.y + worldCoordCenter.y < .003) {
-                float delta = (e->pos.y + worldCoordCenter.y) - .005;
+            if (e->pos.y + worldCoordCenter.y < yPlaneCollision) {
+                float delta = .003;
                 e->pos.y = delta;
             }
 			e->updated = true;
@@ -239,13 +237,29 @@ void Chainmail::relax(float dt) {
 		vec3 v = centroids[e.id] - e.pos;
         v = (e.origin - e.pos);
 		e.pos += 2*dt*v;
-        if (e.pos.y + worldCoordCenter.y < .003) {
-            float delta = (e.pos.y + worldCoordCenter.y) - .005;
+        if (e.pos.y + worldCoordCenter.y < yPlaneCollision) {
+            float delta = .003;
             e.pos.y = delta;
         }
 	}
 }
 
+void Chainmail::resetMesh() {
+    for (int i = 0; i < elements.size(); i++) {
+        elements[i].pos = elements[i].origin;
+    }
+}
+
+void Chainmail::simpleUpdateCenter(glm::vec3 t, double dt) {
+    worldCoordCenter += t * (float)dt;
+
+}
+
+
+void Chainmail::simpleSimStep(int id, glm::vec3 t, double dt) {
+    resetMesh();
+    simpleUpdateCenter(t, dt);
+}
 void Chainmail::simStep(double dt) {
     simStep(0, vec3(0), dt);
 }

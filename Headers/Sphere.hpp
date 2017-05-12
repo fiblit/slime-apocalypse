@@ -13,7 +13,8 @@ public:
 	Sphere(float r, glm::vec3 p);
 	virtual ~Sphere();
 
-    void simulate(double dt);
+    virtual void simulate(double dt) {};
+    virtual void simpleSimulate(double dt) {};
 	void constructStandardMesh(bool override = false);
 	void useStandardMesh();
 	void useCustomMesh();
@@ -22,8 +23,8 @@ public:
 	bool usingStandardMesh = true;
 
 	// may need to change from static const
-	static const int stacks = 15;
-	static const int slices = 15;
+	static const int stacks = 10;
+	static const int slices = 10;
 
 	// params[0] is radius
 };

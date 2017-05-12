@@ -161,3 +161,6 @@ void Cube::constructStandardMesh(bool override) {
 void Cube::simulate(double dt) {
     return;
 }
+void Cube::simpleSimulate(double dt) {
+    return;
+}

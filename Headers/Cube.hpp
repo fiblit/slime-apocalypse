@@ -12,6 +12,7 @@ public:
 	virtual ~Cube();
 
     void simulate(double dt);
+    void simpleSimulate(double dt);
 	void constructStandardMesh(bool override = false);
 	void useStandardMesh();
 	void useCustomMesh();

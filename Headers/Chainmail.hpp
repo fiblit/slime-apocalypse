@@ -55,6 +55,9 @@ public:
     void simStep(int startNode, glm::vec3 t, double dt); 
     void simStep(glm::vec3, double dt);
     void simStep(double dt);
+    void simpleSimStep(int id, glm::vec3 t, double dt);
+    void resetMesh();
+    void simpleUpdateCenter(glm::vec3 t, double dt);
     glm::vec3 returnWorldPos();
     void returnVertices(std::vector<glm::vec3> &returnTo);
 	/* variables */
@@ -74,7 +77,7 @@ public:
 	double aMin = .002; // compression factor
 	double aMax = 100;  // stretch factor
 	double b = 100;	  // shear factor
-    const double zPlaneCollision = 0;//used to hide the buggier parts of the slime model
+    const double yPlaneCollision = -.7;//used to hide the buggier parts of the slime model
     Mesh * mesh;
 	int vertexLength; // used for returning the correct model back
 };

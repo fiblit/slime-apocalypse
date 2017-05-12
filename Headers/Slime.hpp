@@ -10,14 +10,14 @@ public:
     Slime(float r);
     Slime(float r, glm::vec3 p);
 
-	void simulate(float dt);
+    void simulate(double dt) override;
     void moveBy(float x, float y, float z); 
     void moveBy(float x, float y, float z, double dt);
     void moveBy(glm::vec3 t);
     void moveBy(glm::vec3 t, double dt);
     void moveTo(float x, float y, float z);
     void moveTo(glm::vec3 position, double dt);
-
+    void simpleSimulate(double dt);
     double timeElapsed = 0;
     virtual ~Slime();
 };

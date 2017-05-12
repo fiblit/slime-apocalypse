@@ -5,6 +5,7 @@ using namespace std;
 
 BVH::BVH() {
     left = nullptr;
+    o = nullptr;
     right = nullptr;
 }
 
@@ -12,6 +13,7 @@ BVH::BVH(vector<Object *> objects) {
     this->size_ = objects.size();
     if (objects.size() == 0) {
         this->o = nullptr;
+        this->left = nullptr;
         this->right = nullptr;
         return;
     }
@@ -130,7 +132,7 @@ void BVH::split_(
         }
         else {
             b_rhs[rhs] = Index(sorted_b[i].obj, oth_i - half);
-            D(assert(oth_i < a_rhs.size()));
+            D(assert(oth_i - half < a_rhs.size()));
             a_rhs[oth_i - half] = Index(a_rhs[oth_i - half].obj, rhs);
             rhs++;
         }
@@ -155,13 +157,15 @@ vector<Object *> BVH::query(BoundingVolume * q) {
 }
 void BVH::query_(Circ * q, vector<Object *> * NN) {
     if (is_leaf()) {
-        if (o->bv->vt == BoundingVolume::volume_type::CIRC) {
-            if (circ_circ_collider_(q, static_cast<Circ *>(o->bv)))
-                NN->push_back(this->o);
-        }
-        else {
-            if (circ_rect_collider_(q, static_cast<Rect *>(o->bv)))
-                NN->push_back(this->o);
+        if (o->bv != nullptr) {
+            if (o->bv->vt == BoundingVolume::volume_type::CIRC) {
+                if (circ_circ_collider_(q, static_cast<Circ *>(o->bv)))
+                    NN->push_back(this->o);
+            }
+            else {
+                if (circ_rect_collider_(q, static_cast<Rect *>(o->bv)))
+                    NN->push_back(this->o);
+            }
         }
     }
     else {
