@@ -14,7 +14,8 @@ public:
     Node(T item, std::vector<Node<T> *> * edges);
     Node(T item, int n, Node<T> * edges);
     ~Node() {
-        //delete edges;
+        delete edges;
+        edges = nullptr;
     };
 };
 

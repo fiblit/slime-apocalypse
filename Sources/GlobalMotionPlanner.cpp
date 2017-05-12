@@ -106,9 +106,6 @@ void GMP::plan_one(Object * agent) {
         connect_to_all(rm_with_goal, agent->bv->o, agent->ai.cspace);
         connect_to_all(rm_with_goal, agent->ai.final_goal, agent->ai.cspace);
 
-        for (Node<glm::vec2> * v : *rm_with_goal->vertices)
-            assert(v->edges->size() < 1000);
-
         /* PATH PLANNING METHOD */
         agent->ai.plan = GMP::find_path_Astar(1.f, rm_with_goal);
         remove_last_vertex(rm_with_goal);
